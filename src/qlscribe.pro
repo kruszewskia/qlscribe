@@ -12,9 +12,11 @@ SOURCES += main.cpp \
     qshapefactory.cpp \
     qshapecontrollers.cpp \
     qdialogtext.cpp \
-    qdialogroundtext.cpp
+    qdialogroundtext.cpp \
+    qlightscribe.cpp
 
-# QMAKE_LIBS += -llightscribe
+QMAKE_LIBS += -llightscribe
+
 HEADERS += mainwindow.h \
     qgraphicsroundtextitem.h \
     qcdview.h \
@@ -22,6 +24,7 @@ HEADERS += mainwindow.h \
     qshapefactory.h \
     qshapecontrollers.h \
     qdialogtext.h \
-    qdialogroundtext.h
+    qdialogroundtext.h \
+    qlightscribe.h
 FORMS += qdialogtext.ui \
     qdialogroundtext.ui

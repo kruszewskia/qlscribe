@@ -23,6 +23,7 @@
 #include "qcdview.h"
 #include "qcdscene.h"
 #include "qshapefactory.h"
+#include "qlightscribe.h"
 
 #include <QMenuBar>
 #include <QStatusBar>
@@ -32,6 +33,7 @@
 #include <QSignalMapper>
 #include <QFileDialog>
 #include <QXmlStreamWriter>
+#include <QLabel>
 
 /*#include <QImage>
 #include <QBuffer>
@@ -43,6 +45,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    m_lscribe( new QLightScribe( this ) ),
     m_mdiArea( new QMdiArea( this ) ),
     m_menuFile( 0 ), m_menuInsert( 0 ),
     m_insertMapper( new QSignalMapper( this ) )
@@ -65,15 +68,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
    m_menuInsert = menuBar()->addMenu( tr( "Insert", "Menu item \"Insert\"" ) );
 
+   m_menuHelp = menuBar()->addMenu( tr( "Help", "Menu item \"Help\"" ) );
 
-    //m_ui->graphicsView->setScene( m_scene );
-    //m_ui->graphicsView->fitInView( m_scene->sceneRect(), Qt::KeepAspectRatioByExpanding );
-    //m_ui->graphicsView->centerOn( 0, 0 );
-    //m_ui->graphicsView->scale( 10, 10 );
-    //m_ui->graphicsView->setInteractive( true );
-    //QFont font = QFontDialog::getFont( 0 );
-    //font.setPointSizeF( font.pointSizeF() / 2.0 ) ;
-    //m_scene->addSimpleText( "Test and test and test again", font );
+   m_menuHelp->addAction( tr( "About...", "Menu item \"About\"" ),
+                          this,
+                          SLOT(onMenuAbout()) );
 
     QShapeFactory &sfactory = QShapeFactory::instance();
 
@@ -88,6 +87,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+   m_lscribe->stopThread();
+   m_lscribe->wait( 1000 );
 }
 
 void MainWindow::onMenuNew()
@@ -199,117 +200,16 @@ void MainWindow::onMenuSaveAs()
    cdscene->write( writer );
 }
 
-/*void MainWindow::onClicked2()
+void MainWindow::onMenuAbout()
 {
-   QGraphicsRoundTextItem *titem = new QGraphicsRoundTextItem;
-   titem->setText( "Hello world!" );
-   titem->setRadius( 50 );
-   titem->setFont( QFont("Helvetica", 8 ) );
-   static int a = 0;
-   titem->setAlignment( Qt::AlignCenter );
-   titem->setOutside( false );
-   titem->setAngle( a );
-   a += 90;
-
-   //m_scene->addItem( titem );
-}*/
-
-/*void MainWindow::onClicked3()
-{
-   QGraphicsRoundTextItem *titem = new QGraphicsRoundTextItem;
-   titem->setText( "Hello world!" );
-   titem->setRadius( 50 );
-   titem->setFont( QFont("Helvetica", 2 ) );
-   static int a = 0;
-   titem->setAlignment( Qt::AlignCenter );
-   titem->setOutside( true );
-   titem->setAngle( a );
-   a += 90;
-
-   //m_scene->addItem( titem );
-}*/
-
-/*void checkLS( LSError err, const QString &name )
-{
-   if( err == LS_OK )
+   QCDScene *cdscene = getScene( m_mdiArea );
+   if( !cdscene )
       return;
 
-   QMessageBox::warning( 0, "Failed", name + QString( " failed: 0x" ) + QString::number( err,16 ) );
-   throw 1;
+   QPixmap pixmap = m_lscribe->preview( 0, cdscene, QSize( 400, 400 ) );
+
+   QLabel *label = new QLabel;
+   label->setPixmap( pixmap );
+   QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( label );
+   subWindow->show();
 }
-
-QString color( const LS_ColorRGB &col )
-{
-   return QString::number( col.red, 16 ) + QString::number( col.green, 16 ) + QString::number( col.blue, 16 );
-   }*/
-
-/*
-const size_t bitmapHeaderSize = 54;
-
-void MainWindow::onClicked()
-{
-   QImage image( 2772, 2772, QImage::Format_RGB888 );
-   //QImage image( 800, 800, QImage::Format_RGB888 );
-   image.fill( 0xFFFFFFFF );
-
-   QPainter painter( &image );
-   m_scene->render( &painter, image.rect() );
-
-   image.setDotsPerMeterX( 23622 );
-   image.setDotsPerMeterY( 23622 );
-
-   QByteArray ba;
-   QBuffer buffer( &ba );
-   buffer.open( QIODevice::WriteOnly );
-   image.save( &buffer, "bmp", 100 );
-
-   {
-     std::ofstream of( "test1.bmp" );
-     of.write( ba.constData(), ba.size() );
-   }
-   //return;
-
-   //QMessageBox::information( this, "Buf size", QString::number( ba.size() ) );
-
-
-   try {
-      LS_DiscPrintMgrHandle mgrHandle;
-      checkLS( LS_DiscPrintMgr_Create( &mgrHandle ), "LS_DiscPrintMgr_Create" );
-
-      LS_EnumDiscPrintersHandle enumHandle;
-      checkLS( LS_DiscPrintMgr_EnumDiscPrinters( mgrHandle, &enumHandle ), "LS_DiscPrintMgr_EnumDiscPrinters" );
-
-      //unsigned long count = 0;
-      //checkLS( LS_EnumDiscPrinters_Count( enumHandle, &count ), "LS_EnumDiscPrinters_Count" );
-      //QMessageBox::information( this, "Count", QString::number( count ) );
-      LS_DiscPrinterHandle printerHandle;
-      checkLS( LS_EnumDiscPrinters_Item( enumHandle, 0, &printerHandle ), "LS_EnumDiscPrinters_Item" );
-
-      LS_DiscPrintSessionHandle sessionHandle;
-      checkLS( LS_DiscPrinter_OpenPrintSession( printerHandle, &sessionHandle ), "LS_DiscPrinter_OpenPrintSession" );
-
-      LS_Size size;
-      size.x = 1000;
-      size.y = 1000;
-      checkLS( LS_DiscPrintSession_PrintPreview( sessionHandle,
-                                                 LS_windows_bitmap,
-                                                 LS_label_mode_full,
-                                                 LS_draw_default,
-                                                 LS_quality_normal,
-                                                 LS_media_recognized,
-                                                 ba.data() + 14, bitmapHeaderSize - 14,
-                                                 ba.data() + bitmapHeaderSize, ba.size() - bitmapHeaderSize,
-                                                 "test.bmp", LS_windows_bitmap, size, false ),
-               "LS_DiscPrintSession_PrintPreview" );
-
-      checkLS( LS_DiscPrintSession_Destroy( &sessionHandle ), "LS_DiscPrintSession_Destroy" );
-
-      checkLS( LS_DiscPrinter_Destroy( &printerHandle ), "LS_DiscPrinter_Destroy" );
-      checkLS( LS_EnumDiscPrinters_Destroy( &enumHandle ), "LS_EnumDiscPrinters_Destroy" );
-      checkLS( LS_DiscPrintMgr_Destroy( &mgrHandle ), "LS_DiscPrintMgr_Destroy" );
-   }
-   catch( int ) {
-   }
-
-}
-*/
