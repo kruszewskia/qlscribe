@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qdialogroundtext.h"
 #include "ui_qdialogroundtext.h"
@@ -68,6 +68,7 @@ bool QDialogRoundText::exec( QGraphicsItem *graphicsItem )
    m_item->setFont( item->font() );
    m_item->setBrush( item->brush() );
    m_item->setRadius( item->radius() );
+   m_item->setAngle( item->angle() );
    m_item->setAlignment( item->alignment() );
    m_item->setOutside( item->outside() );
 
@@ -117,6 +118,7 @@ bool QDialogRoundText::exec( QGraphicsItem *graphicsItem )
    item->setFont( m_item->font() );
    item->setBrush( m_item->brush() );
    item->setRadius( m_item->radius() );
+   item->setAngle( m_item->angle() );
    item->setAlignment( m_item->alignment() );
    item->setOutside( m_item->outside() );
 
