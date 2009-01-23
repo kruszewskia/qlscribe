@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "mainwindow.h"
 #include "qgraphicsroundtextitem.h"
@@ -73,6 +73,10 @@ MainWindow::MainWindow(QWidget *parent) :
    m_menuHelp->addAction( tr( "About...", "Menu item \"About\"" ),
                           this,
                           SLOT(onMenuAbout()) );
+
+   m_menuHelp->addAction( tr( "About Qt...", "Menu item \"About Qt\"" ),
+                          this,
+                          SLOT(onMenuQtAbout()) );
 
     QShapeFactory &sfactory = QShapeFactory::instance();
 
@@ -200,16 +204,18 @@ void MainWindow::onMenuSaveAs()
    cdscene->write( writer );
 }
 
+
 void MainWindow::onMenuAbout()
 {
-   QCDScene *cdscene = getScene( m_mdiArea );
-   if( !cdscene )
-      return;
+   QMessageBox::about( this,
+                       tr( "About" ),
+                       tr( "<h3>qlscribe - Qt lisghtScribe</h3>"
+                           "<p>revision: $Revision:$</p>"
+                           "<p>visit project at home page "
+                           "<a href=\"http://qlscribe.sourceforge.net/\">qlscribe.sourceforge.net</a></p>" ) );
+}
 
-   QPixmap pixmap = m_lscribe->preview( 0, cdscene, QSize( 400, 400 ) );
-
-   QLabel *label = new QLabel;
-   label->setPixmap( pixmap );
-   QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( label );
-   subWindow->show();
+void MainWindow::onMenuQtAbout()
+{
+   QMessageBox::aboutQt( this );
 }

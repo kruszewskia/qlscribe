@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -40,6 +40,7 @@ private slots:
    void onMenuSaveAs();
    void onMenuInsert( int id );
    void onMenuAbout();
+   void onMenuQtAbout();
 
 private:
    QLightScribe   *m_lscribe;
