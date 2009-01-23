@@ -16,10 +16,11 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qshapecontrollers.h"
 #include "qdialogtext.h"
+#include "qdialogpixmap.h"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -86,6 +87,70 @@ void QShapeControllerText::readData( const QString &element,
 
    if( element == "text" ) {
       textItem->setText( data );
+      return;
+   }
+}
+
+RegisterController< QShapeControllerPixmap > regControllerPixmap;
+
+QString QShapeControllerPixmap::name() const
+{
+   return "image";
+}
+
+QString QShapeControllerPixmap::menuName() const
+{
+   return QObject::tr( "Image", "QShapeControllerPixmap name" );
+}
+
+QGraphicsItem *QShapeControllerPixmap::create() const
+{
+   return new QGraphicsPixmapItem;
+}
+
+QItemDialog *QShapeControllerPixmap::createDialog( QWidget *parent ) const
+{
+   return new QDialogPixmap( parent );
+}
+
+void QShapeControllerPixmap::writeData( QXmlStreamWriter &writer, const QGraphicsItem *item ) const
+{
+   const QGraphicsPixmapItem *pixmapItem
+         = static_cast< const QGraphicsPixmapItem * >( item );
+
+   writer.writeEmptyElement( "pos" );
+   writer.writeAttribute(
+         QXmlStreamAttribute( "x", QString::number( pixmapItem->pos().x() ) ) );
+
+   writer.writeAttribute(
+         QXmlStreamAttribute( "y", QString::number( pixmapItem->pos().y() ) ) );
+
+   writer.writeTextElement( "image", pixmapItem->data( 0 ).toString() );
+}
+
+
+void QShapeControllerPixmap::readData( const QString &element,
+                                     const QXmlStreamAttributes &attrs,
+                                     const QString &data,
+                                     QGraphicsItem *item ) const
+{
+   QGraphicsPixmapItem *pixmapItem = static_cast< QGraphicsPixmapItem * >( item );
+
+   if( element == "pos" ) {
+      pixmapItem->setPos( attrs.value( "x" ).toString().toDouble(),
+                          attrs.value( "y" ).toString().toDouble() );
+      return;
+   }
+
+   if( element == "image" ) {
+      pixmapItem->setData( 0, data );
+      QPixmap pixmap( data );
+      if( pixmap.isNull() ) {
+         throw QString( "QShapeControllerPixmap: image loading from \"" ) +
+               data + "\" failed";
+      }
+      pixmapItem->setPixmap( pixmap );
+      pixmapItem->setOffset( -QPointF( pixmap.size().height(), pixmap.size().width()  ) / 2.0 );
       return;
    }
 }

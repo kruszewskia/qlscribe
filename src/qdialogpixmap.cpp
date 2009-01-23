@@ -63,7 +63,9 @@ bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
    m_item = new QGraphicsPixmapItem;
 
    m_item->setPos( item->pos() );
+   m_item->setOffset( item->offset() );
    m_item->setPixmap( item->pixmap() );
+   m_item->setData( 0, item->data( 0 ) );
 
    scene.addItem( m_item );
 
@@ -79,19 +81,38 @@ bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
    if( QDialog::exec() == Rejected ) return false;
 
    item->setPos( m_item->pos() );
+   item->setOffset( m_item->offset() );
    item->setPixmap( m_item->pixmap() );
+   item->setData( 0, m_item->data( 0 ) );
 
    return true;
 }
 
 void QDialogPixmap::onLoadImage()
 {
+   QString filter( tr("Images ( ") );
    QList<QByteArray> list = QImageReader::supportedImageFormats();
-   QString msg;
    foreach( QByteArray arr, list ) {
-      msg += arr.data();
+       filter += QString( "*." ) + arr.data() + " ";
    }
-   QMessageBox::warning( this, "Formats", msg );
+   filter += tr( ")\nAll Files (*)" );
+   QString fileName = QFileDialog::getOpenFileName( this, "Load image:", QString(), filter );
+   if( fileName.isNull() )
+      return;
+
+   QPixmap pixmap( fileName );
+   if( pixmap.isNull() ) {
+      QMessageBox::warning( this,
+                            "Warning",
+                            tr( "Cannot create image from file: " ) + fileName );
+      return;
+   }
+   m_item->setPixmap( pixmap );
+   m_item->setData( 0, fileName );
+   m_item->setOffset( -QPointF( pixmap.size().height(), pixmap.size().width()  ) / 2.0 );
+
+   m_ui->lineEdit->setText( fileName );
+   m_ui->buttonBox->setStandardButtons( m_ui->buttonBox->standardButtons() | QDialogButtonBox::Ok );
 }
 
 void QDialogPixmap::posChanged()

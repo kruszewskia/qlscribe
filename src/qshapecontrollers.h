@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QSHAPECONTROLLERS_H
 #define QSHAPECONTROLLERS_H
@@ -24,10 +24,29 @@
 #include "qshapefactory.h"
 
 #include <QGraphicsSimpleTextItem>
+#include <QGraphicsPixmapItem>
 
 class QShapeControllerText : public QShapeController {
 public:
    enum { Type = QGraphicsSimpleTextItem::Type };
+
+   virtual QString name() const;
+   virtual QString menuName() const;
+
+   virtual QGraphicsItem *create() const;
+
+protected:
+   virtual QItemDialog *createDialog( QWidget *parent ) const;
+   virtual void writeData( QXmlStreamWriter &writer, const QGraphicsItem *item ) const;
+   virtual void readData( const QString &element,
+                          const QXmlStreamAttributes &attrs,
+                          const QString &data,
+                          QGraphicsItem *item ) const;
+};
+
+class QShapeControllerPixmap : public QShapeController {
+public:
+   enum { Type = QGraphicsPixmapItem::Type };
 
    virtual QString name() const;
    virtual QString menuName() const;
