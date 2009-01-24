@@ -62,9 +62,20 @@ MainWindow::MainWindow(QWidget *parent) :
                           this,
                           SLOT(onMenuOpen()) );
 
+   m_menuFile->addAction( tr( "Save", "Menu item \"Save\"" ),
+                          this,
+                          SLOT(onMenuSave()) );
+
+
    m_menuFile->addAction( tr( "Save as...", "Menu item \"Save as\"" ),
                           this,
                           SLOT(onMenuSaveAs()) );
+
+   m_menuFile->addSeparator();
+
+   m_menuFile->addAction( tr( "Exit", "Menu item \"Exit\"" ),
+                          this,
+                          SLOT(close()));
 
    m_menuInsert = menuBar()->addMenu( tr( "Insert", "Menu item \"Insert\"" ) );
 
@@ -175,6 +186,10 @@ void MainWindow::onMenuOpen()
    //newView->setWindowTitle( "Baba" );
    QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
    subWindow->show();
+}
+
+void MainWindow::onMenuSave()
+{
 }
 
 void MainWindow::onMenuSaveAs()

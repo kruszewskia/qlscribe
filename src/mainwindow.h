@@ -37,6 +37,7 @@ public:
 private slots:
    void onMenuNew();
    void onMenuOpen();
+   void onMenuSave();
    void onMenuSaveAs();
    void onMenuInsert( int id );
    void onMenuAbout();
