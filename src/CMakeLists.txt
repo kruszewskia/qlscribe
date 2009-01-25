@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-#    $Id:$ 
+#    $Id$ 
 
 SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp qdialogpixmap.cpp qdialogroundtext.cpp
      qdialogtext.cpp qgraphicsroundtextitem.cpp qlightscribe.cpp qshapecontrollers.cpp qshapefactory.cpp )
