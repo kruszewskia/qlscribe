@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QLIGHTSCRIBE_H
 #define QLIGHTSCRIBE_H
@@ -52,12 +52,63 @@ private:
 class QLightScribe : public QThread {
    Q_OBJECT
 public:
-   QLightScribe( QObject *parent = 0 );
-   virtual ~QLightScribe();
+   enum LabelMode {
+      /** label the entire disc */
+      modeFull=0,
+      /** label within the title mode constraints */
+      modeTitle=1,
+      /** label within the content mode constraints */
+      modeContent=2
+   };
+
+   enum DrawOptions {
+      /** disable scaling of bitmaps; they will be cropped if needed */
+      drawDefault=0,
+      /** Fit the height to the label size */
+      drawFitHeightToLabel=1,
+      /** Fit the width to the label size */
+      drawFitWidthToLabel=2,
+      /** Fit the smallest dimension to the label size */
+      drawFitSmallestToLabel=4
+   };
+
+   enum PrintQuality {
+      /** Best and slowest. */
+      qualityBest=0,
+      /** OK for everyday use. */
+      qualityNormal=1,
+      /** Fast but lower contrast. */
+      qualityDraft=2
+   };
+
+   enum MediaOptimizationLevel {
+      /** Require that media is present and optimized labeling
+         * parameters are available */
+      mediaRecognized,
+      /** Require that media is present but optimized labeling
+         * parameters are not available */
+      mediaGeneric
+   };
+
+   struct PrintParameters {
+      LabelMode    m_labelMode;
+      DrawOptions  m_drawOptions;
+      PrintQuality m_printQuality;
+      MediaOptimizationLevel m_mediaOptimizationLevel;
+
+      PrintParameters()
+            : m_labelMode( modeFull ), m_drawOptions( drawDefault ),
+            m_printQuality( qualityBest ), m_mediaOptimizationLevel( mediaRecognized )  {}
+      PrintParameters( LabelMode labelMode, DrawOptions drawOptions, PrintQuality printQuality, MediaOptimizationLevel mediaOptimizationLevel )
+            : m_labelMode( labelMode ), m_drawOptions( drawOptions ),
+            m_printQuality( printQuality ), m_mediaOptimizationLevel( mediaOptimizationLevel )  {}
+   };
+
+   static QLightScribe *instance();
 
    QList< QLightDrive * > getDrives( bool refresh = false );
-   QPixmap preview( QLightDrive *drive, QCDScene *scene, const QSize &size );
-   void print( QLightDrive *drive, QCDScene *scene );
+   QPixmap preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size );
+   void print( QLightDrive *drive, const PrintParameters &params, QCDScene *scene );
 
 public slots:
    void abort();
@@ -73,6 +124,9 @@ protected:
    virtual void run ();
 
 private:
+   QLightScribe();
+   virtual ~QLightScribe();
+
    struct Task;
 
    QList< QLightDrive * > m_drives;

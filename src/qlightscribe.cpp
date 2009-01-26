@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qlightscribe.h"
 #include "qcdscene.h"
@@ -36,6 +36,7 @@ struct QLightScribe::Task {
    enum Action { getDrives, preview, print, stop };
    Action                 m_action;
    bool                   m_done;
+   PrintParameters        m_parameters;
    QImage                *m_image;
    QList< QLightDrive * > m_drives;
    QTemporaryFile         m_tmpFile;
@@ -45,9 +46,14 @@ struct QLightScribe::Task {
    ~Task() { delete m_image; }
 };
 
-QLightScribe::QLightScribe( QObject *parent )
-   : QThread( parent ),
-   m_task( 0 ),
+QLightScribe *QLightScribe::instance()
+{
+   static QLightScribe inst;
+   return &inst;
+}
+
+QLightScribe::QLightScribe()
+   : m_task( 0 ),
    m_aborted( false ),
    m_mutex( new QMutex ),
    m_waitQueue( new QWaitCondition ),
@@ -88,13 +94,14 @@ QList< QLightDrive * > QLightScribe::getDrives( bool refresh )
    return m_drives;
 }
 
-QPixmap QLightScribe::preview( QLightDrive *drive, QCDScene *scene, const QSize &size )
+QPixmap QLightScribe::preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size )
 {
    QMutexLocker lock( m_mutex );
    if( m_task )  // what should we do?
       return QPixmap();
 
    m_task = new Task( Task::preview );
+   m_task->m_parameters = params;
    m_task->m_size = size;
    m_task->m_image = new QImage( 2772, 2772, QImage::Format_RGB888 );
    m_task->m_image->fill( 0xFFFFFFFF );
@@ -119,8 +126,32 @@ QPixmap QLightScribe::preview( QLightDrive *drive, QCDScene *scene, const QSize 
    return pixmap;
 }
 
-void QLightScribe::print( QLightDrive *drive, QCDScene *scene )
+void QLightScribe::print( QLightDrive *drive, const PrintParameters &params, QCDScene *scene )
 {
+   QMutexLocker lock( m_mutex );
+   if( m_task )  // what should we do?
+      return;
+
+   m_task = new Task( Task::print );
+   m_task->m_parameters = params;
+   m_task->m_image = new QImage( 2772, 2772, QImage::Format_RGB888 );
+   m_task->m_image->fill( 0xFFFFFFFF );
+
+   {
+      QPainter painter( m_task->m_image );
+      scene->render( &painter, m_task->m_image->rect() );
+   }
+
+   m_task->m_image->setDotsPerMeterX( 23622 );
+   m_task->m_image->setDotsPerMeterY( 23622 );
+
+   m_waitQueue->wakeOne();
+
+   while( !m_task->m_done )
+      m_waitDone->wait( m_mutex );
+
+   delete m_task;
+   m_task = 0;
 }
 
 void QLightScribe::abort()

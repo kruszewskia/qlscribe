@@ -45,7 +45,6 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_lscribe( new QLightScribe( this ) ),
     m_mdiArea( new QMdiArea( this ) ),
     m_menuFile( 0 ), m_menuInsert( 0 ),
     m_insertMapper( new QSignalMapper( this ) )
@@ -102,8 +101,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-   m_lscribe->stopThread();
-   m_lscribe->wait( 1000 );
+   QLightScribe *lscribe = QLightScribe::instance();
+   lscribe->stopThread();
+   lscribe->wait( 1000 );
 }
 
 void MainWindow::onMenuNew()

@@ -23,7 +23,6 @@
 
 #include <QtGui/QMainWindow>
 
-class QLightScribe;
 class QMdiArea;
 class QSignalMapper;
 
@@ -44,7 +43,6 @@ private slots:
    void onMenuQtAbout();
 
 private:
-   QLightScribe   *m_lscribe;
    QMdiArea       *m_mdiArea;
 
    QMenu          *m_menuFile;

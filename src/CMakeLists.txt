@@ -19,12 +19,13 @@
 #    $Id$ 
 
 SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp qdialogpixmap.cpp qdialogroundtext.cpp
-     qdialogtext.cpp qgraphicsroundtextitem.cpp qlightscribe.cpp qshapecontrollers.cpp qshapefactory.cpp )
+     qdialogtext.cpp qgraphicsroundtextitem.cpp qlightscribe.cpp qshapecontrollers.cpp qshapefactory.cpp 
+     qdialogprint.cpp )
 
-SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui )
+SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui qdialogprint.ui )
 
 SET( QLSCRIBE_MOC_HDRS mainwindow.h qcdscene.h qdialogpixmap.h qdialogroundtext.h
-     qdialogtext.h qlightscribe.h )
+     qdialogtext.h qlightscribe.h qdialogprint.h )
 
 ADD_DEFINITIONS( -Wall )
 
@@ -39,3 +40,5 @@ INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR}/src ${CMAKE_SOURCE_DIR}/src )
 ADD_EXECUTABLE( qlscribe ${QLSCRIBE_SRCS} ${QLSCRIBE_MOC_SRCS} ${QLSCRIBE_UI_HDRS} )
 
 TARGET_LINK_LIBRARIES( qlscribe ${QT_LIBRARIES} ${LSCRIBE_LIBRARIES} )
+
+INSTALL( TARGETS qlscribe DESTINATION bin )
