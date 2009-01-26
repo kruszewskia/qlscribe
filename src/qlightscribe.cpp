@@ -146,8 +146,6 @@ QPixmap QLightScribe::preview( QLightDrive *drive, const PrintParameters &params
    return pixmap;
 }
 
-#include <iostream>
-
 void QLightScribe::print( QLightDrive *drive, const PrintParameters &params, QCDScene *scene )
 {
    QMutexLocker lock( m_mutex );
@@ -162,14 +160,6 @@ void QLightScribe::print( QLightDrive *drive, const PrintParameters &params, QCD
    m_aborted = false;
 
    m_waitQueue->wakeOne();
-
-   while( !m_task->m_done )
-      m_waitDone->wait( m_mutex );
-
-   std::cout << "print Error: " << m_task->m_error.toStdString() << std::endl;
-
-   delete m_task;
-   m_task = 0;
 }
 
 void QLightScribe::abort()
@@ -185,8 +175,6 @@ void QLightScribe::stopThread()
    m_waitQueue->wakeOne();
 }
 
-const size_t bitmapHeaderSize = 54;
-
 bool QLightScribe::clAbortLabel()
 {
    return QLightScribe::instance()->m_aborted;
@@ -194,22 +182,22 @@ bool QLightScribe::clAbortLabel()
 
 void QLightScribe::clReportPrepareProgress(long current, long final)
 {
-   std::cout << "clReportPrepareProgress - " << current << " final: " << final << std::endl;
+   emit instance()->prepareProgress( current, final );
 }
 
 void QLightScribe::clReportLabelProgress(long current, long final)
 {
-   std::cout << "clReportLabelProgress - " << current << " final: " << final << std::endl;
+   emit instance()->labelProgress( current, final );
 }
 
 void QLightScribe::clReportFinished(LSError status)
 {
-   std::cout << "clReporrFinished " << status << std::endl;
+   emit instance()->finished( status );
 }
 
 bool QLightScribe::clReportLabelTimeEstimate(long time)
 {
-   std::cout << "clReportLabelTimeEstimate " << time << std::endl;
+   emit instance()->timeEstimate( time );
    return false;
 }
 
@@ -278,6 +266,8 @@ void QLightScribe::run()
 
             session.SetProgressCallback( &callbacks );
 
+            const size_t bitmapHeaderSize = 54;
+
             if( m_task->m_action == Task::preview ) {
 
                LS_Size size;
@@ -301,40 +291,46 @@ void QLightScribe::run()
                                      size,
                                      true );
             }  else {
+               PrintParameters params = m_task->m_parameters;
+               delete m_task;
+               m_task = 0;
+               lock.unlock();
                // print here
-               function = "LS_DiscPrinter_LockDriveTray";
-               //printer.LockDriveTray();
+               try {
+                  //printer.AddExclusiveUse();
+                  //printer.LockDriveTray();
+                  session.PrintDisc(  LS_windows_bitmap,
+                                      LS_LabelMode( params.m_labelMode ),
+                                      LS_DrawOptions( params.m_drawOptions ),
+                                      LS_PrintQuality( params.m_printQuality ),
+                                      LS_MediaOptimizationLevel( params.m_mediaOptimizationLevel ),
+                                      ba.data() + 14,
+                                      bitmapHeaderSize - 14,
+                                      ba.data() + bitmapHeaderSize,
+                                      ba.size() - bitmapHeaderSize );
+               }
+               catch( LightScribe::LSException &ex ) {
+                  emit finished( ex.GetCode() );
+                  throw;
+               }
 
-               function = "LS_DiscPrinter_AddExclusiveUse";
-               //printer.AddExclusiveUse();
-
-               function = "LS_DiscPrintSession_Print";
-               session.PrintDisc(  LS_windows_bitmap,
-                                   LS_LabelMode( m_task->m_parameters.m_labelMode ),
-                                   LS_DrawOptions( m_task->m_parameters.m_drawOptions ),
-                                   LS_PrintQuality( m_task->m_parameters.m_printQuality ),
-                                   LS_MediaOptimizationLevel( m_task->m_parameters.m_mediaOptimizationLevel ),
-                                   ba.data() + 14,
-                                   bitmapHeaderSize - 14,
-                                   ba.data() + bitmapHeaderSize,
-                                   ba.size() - bitmapHeaderSize );
-
-               function = "LS_DiscPrinter_ReleaseExclusiveUse";
-               //printer.ReleaseExclusiveUse();
-
-               function = "LS_DiscPrinter_UnlockDriveTray";
                //printer.UnlockDriveTray();
+               //printer.ReleaseExclusiveUse();
             }
             function = "";
          }
       }
       catch( LightScribe::LSException &ex ) {
-         m_task->m_error = function + tr( " failed with code 0x" ) + QString::number( ex.GetCode(), 16 );
+         if( m_task )
+            m_task->m_error = function + tr( " failed with code 0x" ) + QString::number( ex.GetCode(), 16 );
       }
       catch( const QString &err ) {
-         m_task->m_error = err;
+         if( m_task )
+            m_task->m_error = err;
       }
-      m_task->m_done = true;
-      m_waitDone->wakeAll();
+      if( m_task ) {
+         m_task->m_done = true;
+         m_waitDone->wakeAll();
+      }
    }
 }

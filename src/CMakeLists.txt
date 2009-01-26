@@ -20,12 +20,12 @@
 
 SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp qdialogpixmap.cpp qdialogroundtext.cpp
      qdialogtext.cpp qgraphicsroundtextitem.cpp qlightscribe.cpp qshapecontrollers.cpp qshapefactory.cpp 
-     qdialogprint.cpp )
+     qdialogprint.cpp qdialogprogress.cpp )
 
-SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui qdialogprint.ui )
+SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui qdialogprint.ui qdialogprogress.ui )
 
 SET( QLSCRIBE_MOC_HDRS mainwindow.h qcdscene.h qdialogpixmap.h qdialogroundtext.h
-     qdialogtext.h qlightscribe.h qdialogprint.h )
+     qdialogtext.h qlightscribe.h qdialogprint.h qdialogprogress.h )
 
 ADD_DEFINITIONS( -Wall )
 

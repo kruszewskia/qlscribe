@@ -25,6 +25,7 @@
 #include "qshapefactory.h"
 #include "qlightscribe.h"
 #include "qdialogprint.h"
+#include "qdialogprogress.h"
 
 #include <QMenuBar>
 #include <QStatusBar>
@@ -231,12 +232,7 @@ void MainWindow::onMenuPrint()
    if( !cdscene )
       return;
 
-   QLightScribe::PrintParameters params;
-   QLightDrive *drive = QDialogPrint::exec( this, params );
-   if( !drive )
-      return;
-
-   QLightScribe::instance()->print( drive, params, cdscene );
+   QDialogProgress::exec( this, cdscene );
 }
 
 void MainWindow::onMenuSaveAs()
