@@ -24,30 +24,13 @@
 #include <QThread>
 #include <QPixmap>
 
+#include <map>
+
 class QCDScene;
 class QMutex;
 class QWaitCondition;
 
-class QLightDrive {
-public:
-   const QString &productName() const { return m_productName; }
-   const QString &vendorName() const { return m_vendorName; }
-   const QString &displayName() const { return m_displayName; }
-   const QString &path() const { return m_path; }
-
-   double innerRadius() const { return m_innerRadius; }
-   double outerRadius() const { return m_outerRadius; }
-
-   friend class QLightScribe;
-private:
-   QString m_productName;
-   QString m_vendorName;
-   QString m_displayName;
-   QString m_path;
-
-   double m_innerRadius;
-   double m_outerRadius;
-};
+class QLightDrive;
 
 class QLightScribe : public QThread {
    Q_OBJECT
@@ -91,9 +74,9 @@ public:
    };
 
    struct PrintParameters {
-      LabelMode    m_labelMode;
-      DrawOptions  m_drawOptions;
-      PrintQuality m_printQuality;
+      LabelMode              m_labelMode;
+      DrawOptions            m_drawOptions;
+      PrintQuality           m_printQuality;
       MediaOptimizationLevel m_mediaOptimizationLevel;
 
       PrintParameters()
@@ -107,7 +90,7 @@ public:
    static QLightScribe *instance();
 
    QList< QLightDrive * > getDrives( bool refresh = false );
-   QPixmap preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size );
+   QPixmap preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString );
    void print( QLightDrive *drive, const PrintParameters &params, QCDScene *scene );
 
 public slots:
@@ -135,6 +118,28 @@ private:
    QMutex                *m_mutex;
    QWaitCondition        *m_waitQueue;
    QWaitCondition        *m_waitDone;
+};
+
+class QLightDrive {
+public:
+   const QString &productName() const { return m_productName; }
+   const QString &vendorName() const { return m_vendorName; }
+   const QString &displayName() const { return m_displayName; }
+   const QString &path() const { return m_path; }
+
+   double innerRadius() const { return m_innerRadius; }
+   double outerRadius() const { return m_outerRadius; }
+
+   friend class QLightScribe;
+
+private:
+   QString m_productName;
+   QString m_vendorName;
+   QString m_displayName;
+   QString m_path;
+
+   double m_innerRadius;
+   double m_outerRadius;
 };
 
 #endif // QLIGHTSCRIBE_H

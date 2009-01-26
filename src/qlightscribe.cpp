@@ -31,18 +31,20 @@
 
 using namespace LightScribe;
 
-
 struct QLightScribe::Task {
    enum Action { getDrives, preview, print, stop };
    Action                 m_action;
    bool                   m_done;
+   QLightDrive           *m_selectedDrive;
    PrintParameters        m_parameters;
+   QSize                  m_size;
    QImage                *m_image;
+
    QList< QLightDrive * > m_drives;
    QTemporaryFile         m_tmpFile;
-   QSize                  m_size;
+   QString                m_error;
 
-   Task( Action action ) : m_action( action ), m_done( false ), m_image( 0 ) {}
+   Task( Action action ) : m_action( action ), m_done( false ), m_selectedDrive( 0 ), m_image( 0 ) {}
    ~Task() { delete m_image; }
 };
 
@@ -94,34 +96,50 @@ QList< QLightDrive * > QLightScribe::getDrives( bool refresh )
    return m_drives;
 }
 
-QPixmap QLightScribe::preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size )
+static
+QImage *printScene( QCDScene *scene )
+{
+   QImage *image = new QImage( 2772, 2772, QImage::Format_RGB888 );
+   image->fill( 0xFFFFFFFF );
+
+   scene->clearSelection();
+   {
+      QPainter painter( image );
+      scene->render( &painter, image->rect() );
+   }
+   image->setDotsPerMeterX( 23622 );
+   image->setDotsPerMeterY( 23622 );
+
+   return image;
+}
+
+QPixmap QLightScribe::preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString )
 {
    QMutexLocker lock( m_mutex );
    if( m_task )  // what should we do?
       return QPixmap();
 
    m_task = new Task( Task::preview );
+   m_task->m_selectedDrive = drive;
    m_task->m_parameters = params;
    m_task->m_size = size;
-   m_task->m_image = new QImage( 2772, 2772, QImage::Format_RGB888 );
-   m_task->m_image->fill( 0xFFFFFFFF );
-
-   {
-      QPainter painter( m_task->m_image );
-      scene->render( &painter, m_task->m_image->rect() );
-   }
-
-   m_task->m_image->setDotsPerMeterX( 23622 );
-   m_task->m_image->setDotsPerMeterY( 23622 );
+   m_task->m_image = printScene( scene );
 
    m_waitQueue->wakeOne();
 
    while( !m_task->m_done )
       m_waitDone->wait( m_mutex );
 
-   QPixmap pixmap( m_task->m_tmpFile.fileName(), "bmp" );
+   QString err = m_task->m_error;
+   QPixmap pixmap;
+   if( err.isEmpty() )
+      pixmap.load( m_task->m_tmpFile.fileName(), "bmp" );
+
    delete m_task;
    m_task = 0;
+
+   if( !err.isEmpty() )
+      throw err;
 
    return pixmap;
 }
@@ -133,17 +151,9 @@ void QLightScribe::print( QLightDrive *drive, const PrintParameters &params, QCD
       return;
 
    m_task = new Task( Task::print );
+   m_task->m_selectedDrive = drive;
    m_task->m_parameters = params;
-   m_task->m_image = new QImage( 2772, 2772, QImage::Format_RGB888 );
-   m_task->m_image->fill( 0xFFFFFFFF );
-
-   {
-      QPainter painter( m_task->m_image );
-      scene->render( &painter, m_task->m_image->rect() );
-   }
-
-   m_task->m_image->setDotsPerMeterX( 23622 );
-   m_task->m_image->setDotsPerMeterY( 23622 );
+   m_task->m_image = printScene( scene );
 
    m_waitQueue->wakeOne();
 
@@ -179,62 +189,87 @@ void QLightScribe::run()
       if( m_task->m_action == Task::stop )
          break;
 
-      DiscPrintMgr manager;
-      EnumDiscPrinters printers = manager.EnumDiscPrinters();
+      QString function;
+      try {
+         function = "LS_DiscPrintMgr_Create";
+         DiscPrintMgr manager;
 
-      if( m_task->m_action == Task::getDrives ) {
-         const unsigned count = printers.Count();
+         function = "LS_DiscPrintMgr_EnumDiscPrinters";
+         EnumDiscPrinters printers = manager.EnumDiscPrinters();
 
-         for( unsigned i = 0; i < count; ++i ) {
-            DiscPrinter printer = printers.Item( i );
+         function = "";
 
-            QLightDrive *drive = new QLightDrive;
-            drive->m_displayName = QString::fromStdString( printer.GetPrinterDisplayName() );
-            drive->m_productName = QString::fromStdString( printer.GetPrinterProductName() );
-            drive->m_vendorName  = QString::fromStdString( printer.GetPrinterVendorName() );
-            drive->m_path        = QString::fromStdString( printer.GetPrinterPath() );
-            drive->m_innerRadius = printer.GetDriveInnerRadius() / 1000.0;
-            drive->m_outerRadius = printer.GetDriveOuterRadius() / 1000.0;
+         if( m_task->m_action == Task::getDrives ) {
+            const unsigned count = printers.Count();
 
-            m_task->m_drives.append( drive );
+            for( unsigned i = 0; i < count; ++i ) {
+               DiscPrinter printer = printers.Item( i );
+
+               QLightDrive *drive = new QLightDrive;
+               drive->m_displayName = QString::fromStdString( printer.GetPrinterDisplayName() );
+               drive->m_productName = QString::fromStdString( printer.GetPrinterProductName() );
+               drive->m_vendorName  = QString::fromStdString( printer.GetPrinterVendorName() );
+               drive->m_path        = QString::fromStdString( printer.GetPrinterPath() );
+               drive->m_innerRadius = printer.GetDriveInnerRadius() / 1000.0;
+               drive->m_outerRadius = printer.GetDriveOuterRadius() / 1000.0;
+
+               m_task->m_drives.append( drive );
+            }
+         } else {
+
+            QByteArray ba;
+            QBuffer buffer( &ba );
+            buffer.open( QIODevice::WriteOnly );
+            m_task->m_image->save( &buffer, "bmp", 100 );
+
+            int found = -1;
+            for( int i = 0; i < printers.Count(); ++i )
+               if( printers.Item( i ).GetPrinterDisplayName() == m_task->m_selectedDrive->displayName().toStdString() ) {
+               found = i;
+               break;
+            }
+            if( found == -1 )
+               throw tr( "Cannot find drive: \"" ) + m_task->m_selectedDrive->displayName() + "\"";
+
+            DiscPrinter printer = printers.Item( found );
+            function = "LS_DiscPrinter_OpenPrintSession";
+            DiscPrintSession session = printer.OpenPrintSession();
+
+            if( m_task->m_action == Task::preview ) {
+
+               LS_Size size;
+               size.x = m_task->m_size.width();
+               size.y = m_task->m_size.height();
+
+               m_task->m_tmpFile.open();
+
+               function = "LS_DiscPrintSession_PrintPreview";
+               session.PrintPreview( LS_windows_bitmap,
+                                     LS_LabelMode( m_task->m_parameters.m_labelMode ),
+                                     LS_DrawOptions( m_task->m_parameters.m_drawOptions ),
+                                     LS_PrintQuality( m_task->m_parameters.m_printQuality ),
+                                     LS_MediaOptimizationLevel( m_task->m_parameters.m_mediaOptimizationLevel ),
+                                     ba.data() + 14,
+                                     bitmapHeaderSize - 14,
+                                     ba.data() + bitmapHeaderSize,
+                                     ba.size() - bitmapHeaderSize,
+                                     m_task->m_tmpFile.fileName().toAscii().data(),
+                                     LS_windows_bitmap,
+                                     size,
+                                     true );
+            }  else {
+               // print here
+            }
+            function = "";
          }
-      } else {
-
-         QByteArray ba;
-         QBuffer buffer( &ba );
-         buffer.open( QIODevice::WriteOnly );
-         m_task->m_image->save( &buffer, "bmp", 100 );
-
-         DiscPrinter printer = printers.Item( 0 );
-         DiscPrintSession session = printer.OpenPrintSession();
-
-         if( m_task->m_action == Task::preview ) {
-
-            LS_Size size;
-            size.x = m_task->m_size.width();
-            size.y = m_task->m_size.height();
-
-            m_task->m_tmpFile.open();
-
-            session.PrintPreview( LS_windows_bitmap,
-                                  LS_label_mode_full,
-                                  LS_draw_default,
-                                  LS_quality_best,
-                                  LS_media_recognized,
-                                  ba.data() + 14,
-                                  bitmapHeaderSize - 14,
-                                  ba.data() + bitmapHeaderSize,
-                                  ba.size() - bitmapHeaderSize,
-                                  m_task->m_tmpFile.fileName().toAscii().data(),
-                                  LS_windows_bitmap,
-                                  size,
-                                  true );
-         }  else {
-            // print here
-         }
+      }
+      catch( LightScribe::LSException &ex ) {
+         m_task->m_error = function + tr( " failed with code %n", 0, ex.GetCode() );
+      }
+      catch( const QString &err ) {
+         m_task->m_error = err;
       }
       m_task->m_done = true;
       m_waitDone->wakeAll();
    }
 }
-

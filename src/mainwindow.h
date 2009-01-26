@@ -38,6 +38,8 @@ private slots:
    void onMenuOpen();
    void onMenuSave();
    void onMenuSaveAs();
+   void onMenuPrintPreview();
+   void onMenuPrint();
    void onMenuInsert( int id );
    void onMenuAbout();
    void onMenuQtAbout();

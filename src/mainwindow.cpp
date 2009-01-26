@@ -24,6 +24,7 @@
 #include "qcdscene.h"
 #include "qshapefactory.h"
 #include "qlightscribe.h"
+#include "qdialogprint.h"
 
 #include <QMenuBar>
 #include <QStatusBar>
@@ -71,6 +72,14 @@ MainWindow::MainWindow(QWidget *parent) :
                           SLOT(onMenuSaveAs()) );
 
    m_menuFile->addSeparator();
+
+   m_menuFile->addAction( tr( "Print preview...", "Menu item \"Print preview\"" ),
+                          this,
+                          SLOT(onMenuPrintPreview()) );
+
+   m_menuFile->addAction( tr( "Print...", "Menu item \"Print\"" ),
+                          this,
+                          SLOT(onMenuPrint()) );
 
    m_menuFile->addAction( tr( "Exit", "Menu item \"Exit\"" ),
                           this,
@@ -189,6 +198,34 @@ void MainWindow::onMenuOpen()
 }
 
 void MainWindow::onMenuSave()
+{
+}
+
+void MainWindow::onMenuPrintPreview()
+{
+   QCDScene *cdscene = getScene( m_mdiArea );
+   if( !cdscene )
+      return;
+
+   QLightScribe::PrintParameters params;
+   QLightDrive *drive = QDialogPrint::exec( this, params );
+   if( !drive )
+      return;
+
+   try {
+      QPixmap pixmap = QLightScribe::instance()->preview( drive, params, cdscene, QSize( 400, 400 ) );
+
+      QLabel *label = new QLabel;
+      label->setPixmap( pixmap );
+      QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( label );
+      subWindow->show();
+   }
+   catch( const QString &err ) {
+      QMessageBox::critical( this, tr( "Error" ), err );
+   }
+}
+
+void MainWindow::onMenuPrint()
 {
 }
 
