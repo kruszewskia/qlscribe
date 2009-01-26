@@ -26,6 +26,8 @@
 
 #include <map>
 
+#include <lightscribe_errors.h>
+
 class QCDScene;
 class QMutex;
 class QWaitCondition;
@@ -93,6 +95,7 @@ public:
    QPixmap preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString );
    void print( QLightDrive *drive, const PrintParameters &params, QCDScene *scene );
 
+   friend bool clAbortLabel();
 public slots:
    void abort();
    void stopThread();
@@ -107,6 +110,12 @@ protected:
    virtual void run ();
 
 private:
+   static bool clAbortLabel();
+   static void clReportPrepareProgress(long current, long final);
+   static void clReportLabelProgress(long current, long final);
+   static void clReportFinished(LSError status);
+   static bool clReportLabelTimeEstimate(long time);
+
    QLightScribe();
    virtual ~QLightScribe();
 

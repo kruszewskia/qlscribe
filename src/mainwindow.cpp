@@ -227,6 +227,16 @@ void MainWindow::onMenuPrintPreview()
 
 void MainWindow::onMenuPrint()
 {
+   QCDScene *cdscene = getScene( m_mdiArea );
+   if( !cdscene )
+      return;
+
+   QLightScribe::PrintParameters params;
+   QLightDrive *drive = QDialogPrint::exec( this, params );
+   if( !drive )
+      return;
+
+   QLightScribe::instance()->print( drive, params, cdscene );
 }
 
 void MainWindow::onMenuSaveAs()

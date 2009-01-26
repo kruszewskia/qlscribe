@@ -125,6 +125,8 @@ QPixmap QLightScribe::preview( QLightDrive *drive, const PrintParameters &params
    m_task->m_size = size;
    m_task->m_image = printScene( scene );
 
+   m_aborted = false;
+
    m_waitQueue->wakeOne();
 
    while( !m_task->m_done )
@@ -144,6 +146,8 @@ QPixmap QLightScribe::preview( QLightDrive *drive, const PrintParameters &params
    return pixmap;
 }
 
+#include <iostream>
+
 void QLightScribe::print( QLightDrive *drive, const PrintParameters &params, QCDScene *scene )
 {
    QMutexLocker lock( m_mutex );
@@ -155,10 +159,14 @@ void QLightScribe::print( QLightDrive *drive, const PrintParameters &params, QCD
    m_task->m_parameters = params;
    m_task->m_image = printScene( scene );
 
+   m_aborted = false;
+
    m_waitQueue->wakeOne();
 
    while( !m_task->m_done )
       m_waitDone->wait( m_mutex );
+
+   std::cout << "print Error: " << m_task->m_error.toStdString() << std::endl;
 
    delete m_task;
    m_task = 0;
@@ -178,6 +186,32 @@ void QLightScribe::stopThread()
 }
 
 const size_t bitmapHeaderSize = 54;
+
+bool QLightScribe::clAbortLabel()
+{
+   return QLightScribe::instance()->m_aborted;
+}
+
+void QLightScribe::clReportPrepareProgress(long current, long final)
+{
+   std::cout << "clReportPrepareProgress - " << current << " final: " << final << std::endl;
+}
+
+void QLightScribe::clReportLabelProgress(long current, long final)
+{
+   std::cout << "clReportLabelProgress - " << current << " final: " << final << std::endl;
+}
+
+void QLightScribe::clReportFinished(LSError status)
+{
+   std::cout << "clReporrFinished " << status << std::endl;
+}
+
+bool QLightScribe::clReportLabelTimeEstimate(long time)
+{
+   std::cout << "clReportLabelTimeEstimate " << time << std::endl;
+   return false;
+}
 
 void QLightScribe::run()
 {
@@ -223,7 +257,7 @@ void QLightScribe::run()
             m_task->m_image->save( &buffer, "bmp", 100 );
 
             int found = -1;
-            for( int i = 0; i < printers.Count(); ++i )
+            for( size_t i = 0; i < printers.Count(); ++i )
                if( printers.Item( i ).GetPrinterDisplayName() == m_task->m_selectedDrive->displayName().toStdString() ) {
                found = i;
                break;
@@ -234,6 +268,15 @@ void QLightScribe::run()
             DiscPrinter printer = printers.Item( found );
             function = "LS_DiscPrinter_OpenPrintSession";
             DiscPrintSession session = printer.OpenPrintSession();
+
+            LS_PrintCallbacks callbacks;
+            callbacks.AbortLabel = clAbortLabel;
+            callbacks.ReportPrepareProgress = clReportPrepareProgress;
+            callbacks.ReportLabelProgress = clReportLabelProgress;
+            callbacks.ReportFinished = clReportFinished;
+            callbacks.ReportLabelTimeEstimate = clReportLabelTimeEstimate;
+
+            session.SetProgressCallback( &callbacks );
 
             if( m_task->m_action == Task::preview ) {
 
@@ -259,12 +302,34 @@ void QLightScribe::run()
                                      true );
             }  else {
                // print here
+               function = "LS_DiscPrinter_LockDriveTray";
+               //printer.LockDriveTray();
+
+               function = "LS_DiscPrinter_AddExclusiveUse";
+               //printer.AddExclusiveUse();
+
+               function = "LS_DiscPrintSession_Print";
+               session.PrintDisc(  LS_windows_bitmap,
+                                   LS_LabelMode( m_task->m_parameters.m_labelMode ),
+                                   LS_DrawOptions( m_task->m_parameters.m_drawOptions ),
+                                   LS_PrintQuality( m_task->m_parameters.m_printQuality ),
+                                   LS_MediaOptimizationLevel( m_task->m_parameters.m_mediaOptimizationLevel ),
+                                   ba.data() + 14,
+                                   bitmapHeaderSize - 14,
+                                   ba.data() + bitmapHeaderSize,
+                                   ba.size() - bitmapHeaderSize );
+
+               function = "LS_DiscPrinter_ReleaseExclusiveUse";
+               //printer.ReleaseExclusiveUse();
+
+               function = "LS_DiscPrinter_UnlockDriveTray";
+               //printer.UnlockDriveTray();
             }
             function = "";
          }
       }
       catch( LightScribe::LSException &ex ) {
-         m_task->m_error = function + tr( " failed with code %n", 0, ex.GetCode() );
+         m_task->m_error = function + tr( " failed with code 0x" ) + QString::number( ex.GetCode(), 16 );
       }
       catch( const QString &err ) {
          m_task->m_error = err;
