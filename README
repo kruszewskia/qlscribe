@@ -1,7 +1,17 @@
-qlscribe
-********
+Qt lightScribe V 0.1 by Vyacheslav Kononenko <vyacheslav@kononenko.net>
 
-Introduction
-============
+Qt lightScribe is Qt base application to burn CD/DVD labels on lightScribe capable 
+drives and medias
 
+This is the first alpha release. Program functionality is very limited at this stage.
+Please check the project page for more information, and to report new bugs.
 
+http://qlscribe.sourceforge.net/
+
+Application based on lightScribe(c) API: http://www.lightscribe.org
+and  requires lightScribe API, available to download from:
+
+http://www.lightscribe.org/downloadSection/linux/index.aspx
+
+Thanks and regards,
+Vyacheslav

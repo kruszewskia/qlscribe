@@ -1,0 +1,33 @@
+Qt lightScribe Installaton instructions
+=======================================
+
+To compile and install, first download release from http://qlscribe.sourceforge.net/
+or check out project from subversion repository for particular release:
+
+      svn co https://qlscribe.svn.sourceforge.net/svnroot/qlscribe/tags/release-N.M qlscribe
+
+or if you want to test latest development version:
+
+      svn co https://qlscribe.svn.sourceforge.net/svnroot/qlscribe/trunk qlscribe
+
+Then go to the source directory and type:
+
+  mkdir build
+  cd build
+  cmake ..
+
+(If you want to install in a different path, use instead:
+  cmake .. -DCMAKE_INSTALL_PREFIX=/install/path)
+  make
+  sudo make install
+
+
+Once installed, you can start Qt lightScribe by typing "qlscribe", but due to API
+requirement if you want to burn qlscribe has to be started by root "sudo qlscribe"
+
+You need to download lightScribe SDK for qlscribe to build and lightScribe runtime
+for qlscribe to run. For details see lightScribe webpage:
+
+     http://www.lightscribe.org/
+
+Enjoy!
