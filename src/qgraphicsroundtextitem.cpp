@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qgraphicsroundtextitem.h"
 #include "qdialogroundtext.h"
@@ -284,6 +284,11 @@ void QShapeControllerRoundText::readData( const QString &element,
 
    if( element == "location" ) {
       textItem->setOutside( data.toInt() );
+      return;
+   }
+
+   if( element == "angle" ) {
+      textItem->setAngle( data.toDouble() );
       return;
    }
 
