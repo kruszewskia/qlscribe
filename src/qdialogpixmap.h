@@ -44,6 +44,8 @@ protected:
 private slots:
    void onLoadImage();
    void posChanged();
+   void onResetSize();
+   void sizeChanged();
 
 private:
     Ui::QDialogPixmap   *m_ui;

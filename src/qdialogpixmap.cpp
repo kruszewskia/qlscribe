@@ -66,11 +66,20 @@ bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
    m_item->setOffset( item->offset() );
    m_item->setPixmap( item->pixmap() );
    m_item->setData( 0, item->data( 0 ) );
+   m_item->setTransform( item->transform() );
 
    scene.addItem( m_item );
 
    m_ui->spinX->setValue( m_item->pos().x() );
    m_ui->spinY->setValue( m_item->pos().y() );
+   m_ui->lineEdit->setText( m_item->data( 0 ).toString() );
+   if( !m_item->pixmap().isNull() ) {
+      QSize size = m_item->pixmap().size();
+      QPointF scale = m_item->transform().map( QPointF( size.width(), size.height() ) );
+      m_ui->spinWidth->setValue( scale.x() );
+      m_ui->spinHeight->setValue( scale.y() );
+      m_ui->lockedRatio->setChecked( scale.x() == scale.y() ? Qt::Checked : Qt::Unchecked );
+   }
 
    connect( m_ui->spinX,          SIGNAL(valueChanged(double)),
             this, SLOT(posChanged()) );
@@ -78,12 +87,25 @@ bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
    connect( m_ui->spinY,          SIGNAL(valueChanged(double)),
             this, SLOT(posChanged()) );
 
+   connect( m_ui->spinWidth,      SIGNAL(valueChanged(double)),
+            this, SLOT(sizeChanged()) );
+
+   connect( m_ui->spinHeight,     SIGNAL(valueChanged(double)),
+            this, SLOT(sizeChanged()) );
+
+   connect( m_ui->btnSizeReset,   SIGNAL(clicked()),
+            this, SLOT(onResetSize()) );
+
+   connect( m_ui->lockedRatio,    SIGNAL(stateChanged(int)),
+            this, SLOT(sizeChanged()) );
+
    if( QDialog::exec() == Rejected ) return false;
 
    item->setPos( m_item->pos() );
    item->setOffset( m_item->offset() );
    item->setPixmap( m_item->pixmap() );
    item->setData( 0, m_item->data( 0 ) );
+   item->setTransform( m_item->transform() );
 
    return true;
 }
@@ -109,13 +131,36 @@ void QDialogPixmap::onLoadImage()
    }
    m_item->setPixmap( pixmap );
    m_item->setData( 0, fileName );
-   m_item->setOffset( -QPointF( pixmap.size().height(), pixmap.size().width()  ) / 2.0 );
+   m_item->setOffset( -QPointF( pixmap.size().width(), pixmap.size().height()  ) / 2.0 );
 
    m_ui->lineEdit->setText( fileName );
    m_ui->buttonBox->setStandardButtons( m_ui->buttonBox->standardButtons() | QDialogButtonBox::Ok );
+   onResetSize();
 }
 
 void QDialogPixmap::posChanged()
 {
    m_item->setPos( m_ui->spinX->value(), m_ui->spinY->value() );
+}
+
+void QDialogPixmap::onResetSize()
+{
+   m_ui->spinWidth->setValue( m_item->pixmap().size().width() / 10.0 );
+   m_ui->spinHeight->setValue( m_item->pixmap().size().height() / 10.0 );
+}
+
+void QDialogPixmap::sizeChanged()
+{
+   if( m_ui->lockedRatio->checkState() == Qt::Checked ) {
+      QObject *senderObj = sender();
+      QSize size = m_item->pixmap().size();
+      if( senderObj == m_ui->spinWidth || senderObj == m_ui->lockedRatio ) {
+         m_ui->spinHeight->setValue( m_ui->spinWidth->value() / size.width() * size.height() );
+      } else {
+         m_ui->spinWidth->setValue( m_ui->spinHeight->value() / size.height() * size.width() );
+      }
+
+   }
+   m_item->setTransform( QTransform().scale( m_ui->spinWidth->value() / m_item->pixmap().size().width(),
+                                             m_ui->spinHeight->value() / m_item->pixmap().size().height() ) );
 }

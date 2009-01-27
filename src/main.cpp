@@ -24,6 +24,7 @@
 int main(int argc, char **argv)
 {
    QApplication app(argc, argv);
+   app.addLibraryPath( "/usr/lib32/qt4/plugins" );
    MainWindow mwindow;
    mwindow.show();
 

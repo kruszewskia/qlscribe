@@ -105,7 +105,11 @@ QString QShapeControllerPixmap::menuName() const
 
 QGraphicsItem *QShapeControllerPixmap::create() const
 {
-   return new QGraphicsPixmapItem;
+   QGraphicsPixmapItem *item = new QGraphicsPixmapItem;
+   item->setShapeMode( QGraphicsPixmapItem::BoundingRectShape );
+   item->setTransformationMode( Qt::SmoothTransformation );
+
+   return item;
 }
 
 QItemDialog *QShapeControllerPixmap::createDialog( QWidget *parent ) const
@@ -121,9 +125,15 @@ void QShapeControllerPixmap::writeData( QXmlStreamWriter &writer, const QGraphic
    writer.writeEmptyElement( "pos" );
    writer.writeAttribute(
          QXmlStreamAttribute( "x", QString::number( pixmapItem->pos().x() ) ) );
-
    writer.writeAttribute(
          QXmlStreamAttribute( "y", QString::number( pixmapItem->pos().y() ) ) );
+
+   QPointF scale = pixmapItem->transform().map( QPointF( 1.0, 1.0 ) );
+   writer.writeEmptyElement( "scale" );
+   writer.writeAttribute(
+         QXmlStreamAttribute( "sx", QString::number( scale.x() ) ) );
+   writer.writeAttribute(
+         QXmlStreamAttribute( "sy", QString::number( scale.y() ) ) );
 
    writer.writeTextElement( "image", pixmapItem->data( 0 ).toString() );
 }
@@ -140,6 +150,11 @@ void QShapeControllerPixmap::readData( const QString &element,
       pixmapItem->setPos( attrs.value( "x" ).toString().toDouble(),
                           attrs.value( "y" ).toString().toDouble() );
       return;
+   }
+
+   if( element == "scale" ) {
+      pixmapItem->setTransform( QTransform().scale( attrs.value( "sx" ).toString().toDouble(),
+                                                    attrs.value( "sy" ).toString().toDouble() ) );
    }
 
    if( element == "image" ) {
