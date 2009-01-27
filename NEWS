@@ -1,6 +1,6 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
-New in 0.1:
-* First release of qlscribe
-* *
+New in 0.1: 
+    Open/save as implemented. Text, round text and image items can be inserted and edited
+    Print preview and print is working (no exclusive lock or tray lock on printing yet)
 

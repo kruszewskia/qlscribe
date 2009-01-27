@@ -1,3 +1,23 @@
+/*  qlscribe - Qt based application to print lightScribe discs
+
+    Copyright (C) 2009 Vyacheslav Kononenko <vyacheslav@kononenko.net>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+    $Id$ */
+
 #include "qdialogprogress.h"
 #include "ui_qdialogprogress.h"
 #include "qlightscribe.h"
@@ -5,17 +25,26 @@
 
 #include <QMessageBox>
 #include <QAbstractButton>
+#include <QTime>
+#include <QTimer>
 
 QDialogProgress::QDialogProgress(QWidget *parent) :
     QDialog(parent),
-    m_ui(new Ui::QDialogProgress)
+    m_ui(new Ui::QDialogProgress),
+    m_start( new QTime ),
+    m_timer( new QTimer( this ) )
 {
     m_ui->setupUi(this);
+    m_start->start();
+    connect( m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()) );
+    m_timer->start( 500 );
 }
 
 QDialogProgress::~QDialogProgress()
 {
-    delete m_ui;
+   delete m_start;
+   delete m_timer;
+   delete m_ui;
 }
 
 void QDialogProgress::changeEvent(QEvent *e)
@@ -75,14 +104,28 @@ void QDialogProgress::onLabelProgress( long current, long final )
 {
    m_ui->progressPrinting->setMaximum( final );
    m_ui->progressPrinting->setValue( current );
+
+   if( current && double( current ) / final > 0.1 ) {
+      int elapsed = m_start->elapsed();
+      int estimate = double( elapsed ) / current * final;
+      m_ui->timeEstimated->setTime( QTime().addMSecs( estimate ) );
+   }
 }
 
 void QDialogProgress::onTimeEstimate( long time )
 {
+   m_ui->timeEstimated->setTime( QTime().addSecs( time ) );
 }
 
 void QDialogProgress::onFinished(int status )
 {
+   m_timer->stop();
+   m_ui->progressPrinting->setValue( m_ui->progressPrinting->maximum() );
    m_ui->lineResult->setText( status ? tr( "Failed - error code: 0x" ) + QString::number( status, 16 ) : tr( "Success" ) );
    m_ui->buttonBox->setStandardButtons( QDialogButtonBox::Close );
+}
+
+void QDialogProgress::onTimeout()
+{
+   m_ui->timeElapsed->setTime( QTime().addMSecs( m_start->elapsed() ) );
 }

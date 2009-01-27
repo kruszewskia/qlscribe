@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Dialog</string>
+   <string>Print progress</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2" >
    <item>
@@ -84,6 +84,9 @@
             </property>
             <property name="displayFormat" >
              <string>hh:mm:ss</string>
+            </property>
+            <property name="currentSectionIndex" >
+             <number>0</number>
             </property>
            </widget>
           </item>
@@ -172,6 +175,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>lineResult</tabstop>
+  <tabstop>timeEstimated</tabstop>
+  <tabstop>timeElapsed</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
