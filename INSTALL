@@ -21,9 +21,14 @@ Then go to the source directory and type:
   make
   sudo make install
 
+If cmake fails to find lightScribe API specify environment variable LIGHTSCRIBEDIR:
+
+  LIGHTSCRIBEDIR=/opt/lightscribe cmake ..
+
+Include files should be in ${LIGHTSCRIBEDIR}/include and lib in ${LIGHTSCRIBEDIR}/lib
 
 Once installed, you can start Qt lightScribe by typing "qlscribe", but due to API
-requirement if you want to burn qlscribe has to be started by root "sudo qlscribe"
+requirement if you want to burn qlscribe has to be started by root as "sudo qlscribe"
 
 You need to download lightScribe SDK for qlscribe to build and lightScribe runtime
 for qlscribe to run. For details see lightScribe webpage:
