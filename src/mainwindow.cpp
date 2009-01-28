@@ -34,7 +34,6 @@
 #include <QMessageBox>
 #include <QSignalMapper>
 #include <QFileDialog>
-#include <QXmlStreamWriter>
 #include <QLabel>
 
 /*#include <QImage>
@@ -119,8 +118,10 @@ MainWindow::~MainWindow()
 void MainWindow::onMenuNew()
 {
    QCDView *newView = new QCDView;
-   newView->setScene( new QCDScene( newView ) );
-   //newView->setWindowTitle( "Baba" );
+   QCDScene *scene = new QCDScene( newView );
+   newView->setScene( scene );
+   scene->setName();
+
    QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
    subWindow->show();
 }
@@ -173,33 +174,30 @@ void MainWindow::onMenuOpen()
    if( fileName.isNull() )
       return;
 
-   QFile file( fileName );
-   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-      QMessageBox::critical( this, tr( "Error" ), tr( "Cannot open file for reading\n" ) + fileName );
-      return;
-   }
-   
    QCDView *newView = new QCDView;
    QCDScene *scene = new QCDScene( newView );
    newView->setScene( scene );
-   
-   QXmlStreamReader reader( &file );
-   try {
-      scene->read( reader );
-   }
-   catch( const QString &err ) {
-      QMessageBox::critical( this, tr( "Error" ), tr( "Cannot read file " ) + fileName + "\n" + err );
+
+   if( !scene->load( fileName ) ) {
       delete newView;
       return;
-   }      
-   
-   //newView->setWindowTitle( "Baba" );
+   }
+
    QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
    subWindow->show();
 }
 
 void MainWindow::onMenuSave()
 {
+   QCDScene *cdscene = getScene( m_mdiArea );
+   if( !cdscene )
+      return;
+
+   if( cdscene->isUnnamed() ) {
+      onMenuSaveAs();
+      return;
+   }
+   cdscene->save();
 }
 
 void MainWindow::onMenuPrintPreview()
@@ -252,14 +250,7 @@ void MainWindow::onMenuSaveAs()
    if( !fileName.contains( '.' ) )
       fileName += ".qlx";
 
-   QFile file( fileName );
-   if( !file.open( QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text ) ) {
-      QMessageBox::warning( this, tr( "Warning" ), tr( "Cannot open file for writing: " ) + fileName );
-      return;
-   }
-   QXmlStreamWriter writer( &file );
-   writer.setAutoFormatting( true );
-   cdscene->write( writer );
+   cdscene->saveAs( fileName );
 }
 
 

@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qcdscene.h"
 #include "qshapefactory.h"
@@ -25,10 +25,17 @@
 #include <QMessageBox>
 #include <QGraphicsItem>
 #include <QGraphicsSceneMouseEvent>
+#include <QFile>
+#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QMessageBox>
+#include <QGraphicsView>
+#include <QRegExp>
 
 QCDScene::QCDScene( QObject * parent )
-   : QGraphicsScene( parent )
+   : QGraphicsScene( parent ),
+   m_index( 0 ),
+   m_saved( false )
 {
    setSceneRect( -60.0, -60.0, 60.0 * 2, 60.0 * 2 );
 }
@@ -37,6 +44,85 @@ QCDScene::QCDScene( QObject * parent )
 
 QCDScene::~QCDScene()
 {
+}
+
+bool QCDScene::load( const QString &fileName )
+{
+   QFile file( fileName );
+   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+      QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot open file for reading\n" ) + fileName );
+      return false;
+   }
+   QXmlStreamReader reader( &file );
+   try {
+      read( reader );
+   }
+   catch( const QString &err ) {
+      QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot read file " ) + fileName + "\n" + err );
+      return false;
+   }
+   m_fileName = fileName;
+   m_saved = true;
+   setName();
+   return true;
+}
+
+void QCDScene::save()
+{
+   QFile file( m_fileName );
+   if( !file.open( QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text ) ) {
+      QMessageBox::warning( 0, tr( "Warning" ), tr( "Cannot open file for writing: " ) + m_fileName );
+      return;
+   }
+   QXmlStreamWriter writer( &file );
+   writer.setAutoFormatting( true );
+   write( writer );
+   m_saved = true;
+   setName();
+}
+
+void QCDScene::setName()
+{
+   if( m_fileName.isEmpty() ) {
+      if( !m_index ) {
+         static int index = 1;
+         m_index = index++;
+      }
+      m_name = "Unnamed_" + QString::number( m_index );
+   } else {
+      QRegExp rx( "(.*/)?(.*)\\.qlx" );
+      rx.indexIn( m_fileName );
+      m_name = rx.cap( 2 );
+   }
+
+   updateTitles();
+}
+
+void QCDScene::updateTitles() const
+{
+   QString name = m_name;
+   if( !m_saved )
+      name += " *";
+
+   QList<QGraphicsView *> allViews = views();
+   foreach( QGraphicsView *view, allViews ) {
+      view->setWindowTitle( name );
+   }
+}
+
+void QCDScene::saveAs( const QString &fileName )
+{
+   QFile file( fileName );
+   if( !file.open( QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text ) ) {
+      QMessageBox::warning( 0, tr( "Warning" ), tr( "Cannot open file for writing: " ) + fileName );
+      return;
+   }
+   QXmlStreamWriter writer( &file );
+   writer.setAutoFormatting( true );
+   write( writer );
+   m_saved = true;
+   m_fileName = fileName;
+   setName();
 }
 
 void QCDScene::write( QXmlStreamWriter &writer )

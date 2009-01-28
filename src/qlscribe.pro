@@ -1,7 +1,7 @@
 TEMPLATE = app
 LANGUAGE = C++
 CONFIG += qt
-INCLUDEPATH += ../build/src
+INCLUDEPATH += /home/slava/projects/qlscribe/build/src
 QMAKE_CXXFLAGS += -m32
 QMAKE_LFLAGS += -m32
 QMAKE_LIBDIR = /usr/lib32

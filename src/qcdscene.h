@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QCDSCENE_H
 #define QCDSCENE_H
@@ -32,14 +32,32 @@ public:
    QCDScene( QObject * parent = 0 );
    virtual ~QCDScene();
 
-   void write( QXmlStreamWriter &writer );
-   void read( QXmlStreamReader &reader );
+   bool isSaved() const { return m_saved; }
+   bool isUnnamed() const { return m_fileName.isEmpty(); }
+
+   void setName();
+   bool load( const QString &fileName );
+   void save();
+   void saveAs( const QString &fileName );
+
+   void updateTitles() const;
+   QString name() const { return m_name; }
 
 protected:
    virtual void contextMenuEvent( QGraphicsSceneContextMenuEvent *contextMenuEvent );
 
 private slots:
    void onMenuEdit();
+
+private:
+   void write( QXmlStreamWriter &writer );
+   void read( QXmlStreamReader &reader );
+
+private:
+   QString m_name;
+   QString m_fileName;
+   int     m_index;
+   bool    m_saved;
 };
 
 #endif //QCDSCENE_H
