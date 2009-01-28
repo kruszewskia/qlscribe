@@ -16,9 +16,10 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qshapefactory.h"
+#include "qcdscene.h"
 
 #include <QGraphicsItem>
 #include <QMessageBox>
@@ -43,6 +44,10 @@ bool QShapeController::edit( QGraphicsItem *item, QWidget *parent ) const
       throw;
    }
    delete dialog;
+
+   if( rez && item->scene() )
+      static_cast< QCDScene * >( item->scene() )->setChanged();
+
    return rez;
 }
 

@@ -35,6 +35,7 @@ public:
    bool isSaved() const { return m_saved; }
    bool isUnnamed() const { return m_fileName.isEmpty(); }
 
+   void setChanged();
    void setName();
    bool load( const QString &fileName );
    void save();

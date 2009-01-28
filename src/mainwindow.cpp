@@ -162,6 +162,7 @@ void MainWindow::onMenuInsert( int id )
    item->setFlag( QGraphicsItem::ItemIsMovable, true );
    item->setFlag( QGraphicsItem::ItemIsSelectable, true );
    cdscene->addItem( item );
+   cdscene->setChanged();
 }
 
 void MainWindow::onMenuOpen()

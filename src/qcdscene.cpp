@@ -98,6 +98,12 @@ void QCDScene::setName()
    updateTitles();
 }
 
+void QCDScene::setChanged()
+{
+   m_saved = false;
+   updateTitles();
+}
+
 void QCDScene::updateTitles() const
 {
    QString name = m_name;
