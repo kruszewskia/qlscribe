@@ -1,5 +1,11 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.3:
+    Documents keep their names and detect changes (changes on item postion through window
+    itself is not detected yet)
+    Main window on close scan all documents and confirm to save changed ones
+    Document window confirm to save on close
+
 New in 0.2:
     Print progress dialog shows elapsed/estimated time
     Bugfix for not loading angle in round text item
