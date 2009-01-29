@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QCDVIEW_H
 #define QCDVIEW_H
@@ -39,6 +39,7 @@ public:
    virtual QSize sizeHint () const;
 
 protected:
+    virtual void closeEvent( QCloseEvent *event );
 
    void drawForeground ( QPainter * painter, const QRectF & rect );
    void drawBackground ( QPainter * painter, const QRectF & rect );

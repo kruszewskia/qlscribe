@@ -25,6 +25,7 @@
 
 class QMdiArea;
 class QSignalMapper;
+class QCDScene;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -32,6 +33,10 @@ class MainWindow : public QMainWindow {
 public:
     explicit MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
+
+   bool saveScene( QCDScene *scene );
+protected:
+    virtual void closeEvent( QCloseEvent *event );
 
 private slots:
    void onMenuNew();
@@ -45,6 +50,8 @@ private slots:
    void onMenuQtAbout();
 
 private:
+   bool saveSceneAs( QCDScene *scene );
+
    QMdiArea       *m_mdiArea;
 
    QMenu          *m_menuFile;

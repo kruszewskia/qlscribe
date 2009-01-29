@@ -16,10 +16,14 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qcdview.h"
 #include "qcdscene.h"
+#include "mainwindow.h"
+
+#include <QCloseEvent>
+#include <QMessageBox>
 
 QCDView::QCDView( QWidget *parent )
    : QGraphicsView( parent ),
@@ -47,6 +51,33 @@ void QCDView::setScene( QCDScene *scene )
 QCDScene *QCDView::scene() const
 {
    return static_cast< QCDScene * >( QGraphicsView::scene() );
+}
+
+void QCDView::closeEvent( QCloseEvent *event )
+{
+   QCDScene *cdscene = scene();
+   if( cdscene && !cdscene->isSaved() ) {
+      QMessageBox::StandardButton button =
+            QMessageBox::question( this,
+                                   tr( "Confitmation" ),
+                                   cdscene->name() + tr( " is changed, do you want to save it?" ),
+                                   QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
+
+      if( button == QMessageBox::Cancel ) {
+         event->ignore();
+         return;
+      }
+      if( button == QMessageBox::Yes ) {
+         QWidget *parent = parentWidget();
+         for( ; parent->parentWidget(); parent = parent->parentWidget() );
+         if( !static_cast< MainWindow * >( parent )->saveScene( cdscene ) ) {
+            event->ignore();
+            return;
+         }
+      }
+
+   }
+   event->accept();
 }
 
 inline 

@@ -22,6 +22,7 @@
 #include "ui_qdialogprogress.h"
 #include "qlightscribe.h"
 #include "qdialogprint.h"
+#include "qcdscene.h"
 
 #include <QMessageBox>
 #include <QAbstractButton>
@@ -67,6 +68,7 @@ bool QDialogProgress::exec( QWidget *parent, QCDScene *scene )
 
    QLightScribe *scribe = QLightScribe::instance();
    QDialogProgress dialog( parent );
+   dialog.setWindowTitle( tr( "Printing: " ) + scene->name() );
 
    connect( dialog.m_ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), &dialog, SLOT(onButtonClicked(QAbstractButton*)) );
    connect( scribe, SIGNAL(prepareProgress(long,long)), &dialog, SLOT(onPrepareProgress(long,long)) );

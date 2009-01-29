@@ -35,7 +35,7 @@
 QCDScene::QCDScene( QObject * parent )
    : QGraphicsScene( parent ),
    m_index( 0 ),
-   m_saved( false )
+   m_saved( true )
 {
    setSceneRect( -60.0, -60.0, 60.0 * 2, 60.0 * 2 );
 }
@@ -67,18 +67,19 @@ bool QCDScene::load( const QString &fileName )
    return true;
 }
 
-void QCDScene::save()
+bool QCDScene::save()
 {
    QFile file( m_fileName );
    if( !file.open( QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text ) ) {
       QMessageBox::warning( 0, tr( "Warning" ), tr( "Cannot open file for writing: " ) + m_fileName );
-      return;
+      return false;
    }
    QXmlStreamWriter writer( &file );
    writer.setAutoFormatting( true );
    write( writer );
    m_saved = true;
    setName();
+   return true;
 }
 
 void QCDScene::setName()
@@ -116,12 +117,12 @@ void QCDScene::updateTitles() const
    }
 }
 
-void QCDScene::saveAs( const QString &fileName )
+bool QCDScene::saveAs( const QString &fileName )
 {
    QFile file( fileName );
    if( !file.open( QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text ) ) {
       QMessageBox::warning( 0, tr( "Warning" ), tr( "Cannot open file for writing: " ) + fileName );
-      return;
+      return false;
    }
    QXmlStreamWriter writer( &file );
    writer.setAutoFormatting( true );
@@ -129,6 +130,7 @@ void QCDScene::saveAs( const QString &fileName )
    m_saved = true;
    m_fileName = fileName;
    setName();
+   return true;
 }
 
 void QCDScene::write( QXmlStreamWriter &writer )

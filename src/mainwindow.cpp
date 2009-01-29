@@ -35,14 +35,7 @@
 #include <QSignalMapper>
 #include <QFileDialog>
 #include <QLabel>
-
-/*#include <QImage>
-#include <QBuffer>
-#include <QGraphicsScene>
-#include <QFontDialog>
-#include <QPainter>*/
-
-//#include <lightscribe.h>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -114,6 +107,68 @@ MainWindow::~MainWindow()
    lscribe->stopThread();
    lscribe->wait( 1000 );
 }
+
+bool MainWindow::saveSceneAs( QCDScene *scene )
+{
+   QString fileName =
+         QFileDialog::getSaveFileName( this,
+                                       scene->name() + tr( ": save as" ),
+                                       QString(),
+                                       tr("qlscribe document (*.qlx)") );
+   if( fileName.isNull() )
+      return false;
+
+   if( !fileName.contains( '.' ) )
+      fileName += ".qlx";
+
+   return scene->saveAs( fileName );
+}
+
+bool MainWindow::saveScene( QCDScene *scene )
+{
+   return scene->isUnnamed() ? saveSceneAs( scene ) : scene->save();
+}
+
+
+ void MainWindow::closeEvent(QCloseEvent *event)
+ {
+    bool saveAll = false;
+    QList< QMdiSubWindow * > subs = m_mdiArea->subWindowList();
+    foreach( QMdiSubWindow *sub, subs ) {
+       QCDView *cdview = dynamic_cast< QCDView * >( sub->widget() );
+       if( !cdview )
+          continue;
+
+       QCDScene *scene = cdview->scene();
+       if( !scene || scene->isSaved() )
+          continue;
+
+       bool save = saveAll;
+       if( !save ) {
+          QMessageBox::StandardButton button =
+                QMessageBox::question( this,
+                                       tr( "Confirmation" ),
+                                       scene->name() + tr( " is unsaved, do you want to save?" ),
+                                       QMessageBox::Save | QMessageBox::SaveAll | QMessageBox::Discard | QMessageBox::Cancel );
+          if( button == QMessageBox::Cancel ) {
+             event->ignore();
+             return;
+          }
+          if( button == QMessageBox::SaveAll ) {
+             saveAll = true;
+             save = true;
+          }
+          if( button == QMessageBox::Save )
+             save = true;
+       }
+       if( save )
+          if( !saveScene( scene ) ) {
+             event->ignore();
+             return;
+          }
+    }
+    event->accept();
+ }
 
 void MainWindow::onMenuNew()
 {
@@ -190,15 +245,16 @@ void MainWindow::onMenuOpen()
 
 void MainWindow::onMenuSave()
 {
-   QCDScene *cdscene = getScene( m_mdiArea );
-   if( !cdscene )
-      return;
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene )
+      saveScene( scene );
+}
 
-   if( cdscene->isUnnamed() ) {
-      onMenuSaveAs();
-      return;
-   }
-   cdscene->save();
+void MainWindow::onMenuSaveAs()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene )
+      saveSceneAs( scene );
 }
 
 void MainWindow::onMenuPrintPreview()
@@ -218,6 +274,7 @@ void MainWindow::onMenuPrintPreview()
       QLabel *label = new QLabel;
       label->setPixmap( pixmap );
       QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( label );
+      subWindow->setWindowTitle( "Preview: " + cdscene->name() );
       subWindow->show();
    }
    catch( const QString &err ) {
@@ -234,33 +291,12 @@ void MainWindow::onMenuPrint()
    QDialogProgress::exec( this, cdscene );
 }
 
-void MainWindow::onMenuSaveAs()
-{
-   QCDScene *cdscene = getScene( m_mdiArea );
-   if( !cdscene )
-      return;
-
-   QString fileName =
-         QFileDialog::getSaveFileName( this,
-                                       tr( "Save as:" ),
-                                       QString(),
-                                       tr("qlscribe document (*.qlx)") );
-   if( fileName.isNull() )
-      return;
-
-   if( !fileName.contains( '.' ) )
-      fileName += ".qlx";
-
-   cdscene->saveAs( fileName );
-}
-
-
 void MainWindow::onMenuAbout()
 {
    QMessageBox::about( this,
                        tr( "About" ),
                        tr( "<h3>qlscribe - Qt lisghtScribe</h3>"
-                           "<p>release 0.2 $Revision$</p>"
+                           "<p>release 0.3 $Revision$</p>"
                            "<p>visit project at home page "
                            "<a href=\"http://qlscribe.sourceforge.net/\">qlscribe.sourceforge.net</a></p>" ) );
 }

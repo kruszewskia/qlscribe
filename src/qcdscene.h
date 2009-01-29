@@ -38,8 +38,8 @@ public:
    void setChanged();
    void setName();
    bool load( const QString &fileName );
-   void save();
-   void saveAs( const QString &fileName );
+   bool save();
+   bool saveAs( const QString &fileName );
 
    void updateTitles() const;
    QString name() const { return m_name; }
