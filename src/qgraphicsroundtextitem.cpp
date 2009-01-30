@@ -20,6 +20,7 @@
 
 #include "qgraphicsroundtextitem.h"
 #include "qdialogroundtext.h"
+#include "qcdscene.h"
 
 #include <QPainter>
 #include <QFontMetrics>
@@ -204,7 +205,9 @@ void QGraphicsRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphic
       painter->setWorldTransform( trans, true );
       prevWidth = mcs.width( ch );
 
-      painter->drawText( -prevWidth / 2.0, m_outside ? -m_radius : m_radius, ch );
+      painter->drawText( int( -prevWidth / 2.0 ),
+                         int( m_outside ? -m_radius : m_radius ),
+                         ch );
    }
    painter->restore();
    if (option->state & QStyle::State_Selected) {
@@ -212,6 +215,14 @@ void QGraphicsRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphic
       painter->setBrush(Qt::NoBrush);
       painter->drawPath( shape() );
    }
+}
+
+QVariant QGraphicsRoundTextItem::itemChange( GraphicsItemChange change, const QVariant & value )
+{
+   if( scene() && change == ItemPositionHasChanged )
+      static_cast<QCDScene *>( scene() )->setChanged();
+
+   return value;
 }
 
 RegisterController< QShapeControllerRoundText > regControllerRoundText;

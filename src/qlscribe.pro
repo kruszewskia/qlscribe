@@ -11,26 +11,28 @@ SOURCES += main.cpp \
     qcdview.cpp \
     qcdscene.cpp \
     qshapefactory.cpp \
-    qshapecontrollers.cpp \
     qdialogtext.cpp \
     qdialogroundtext.cpp \
     qlightscribe.cpp \
     qdialogpixmap.cpp \
     qdialogprint.cpp \
-    qdialogprogress.cpp
+    qdialogprogress.cpp \
+    qlighttextitem.cpp \
+    qlightpixmapitem.cpp
 QMAKE_LIBS += -llightscribe
 HEADERS += mainwindow.h \
     qgraphicsroundtextitem.h \
     qcdview.h \
     qcdscene.h \
     qshapefactory.h \
-    qshapecontrollers.h \
     qdialogtext.h \
     qdialogroundtext.h \
     qlightscribe.h \
     qdialogpixmap.h \
     qdialogprint.h \
-    qdialogprogress.h
+    qdialogprogress.h \
+    qlighttextitem.h \
+    qlightpixmapitem.h
 FORMS += qdialogtext.ui \
     qdialogroundtext.ui \
     qdialogpixmap.ui \

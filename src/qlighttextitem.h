@@ -18,57 +18,26 @@
 
     $Id$ */
 
-#ifndef QGRAPHICSROUNDTEXTITEM_H
-#define QGRAPHICSROUNDTEXTITEM_H
+#ifndef QLIGHTTEXTITEM_H
+#define QLIGHTTEXTITEM_H
+
+#include <QGraphicsSimpleTextItem>
 
 #include "qshapefactory.h"
 
-#include <QAbstractGraphicsShapeItem>
-#include <QFont>
-
-class QGraphicsRoundTextItem : public QAbstractGraphicsShapeItem {
+class QLightTextItem : public QGraphicsSimpleTextItem
+{
 public:
-   enum { Type = UserType + 1 };
-
-    QGraphicsRoundTextItem( QGraphicsItem * parent = 0 );
-
-    const QFont &font() const;
-    const QString &text() const;
-    double radius() const;
-    double angle() const;
-    Qt::Alignment alignment() const;
-    bool outside() const;
-
-    void setFont( const QFont &font );
-    void setText( const QString &text );
-    void setRadius( double radius );
-    void setAngle( double angle );
-    void setAlignment( Qt::Alignment alignment );
-    void setOutside( bool outside );
-
-    virtual QRectF boundingRect() const;
-    virtual QPainterPath shape () const;
-    virtual void paint( QPainter *painter,
-                        const QStyleOptionGraphicsItem *option,
-                        QWidget *widget );
-
-    virtual int type() const { return Type; }
+    QLightTextItem();
 
 protected:
    virtual QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
 
-private:
-    QFont         m_font;
-    QString       m_text;
-    double        m_radius;
-    double        m_angle;
-    Qt::Alignment m_alignment;
-    bool          m_outside;
 };
 
-class QShapeControllerRoundText : public QShapeController {
+class QShapeControllerText : public QShapeController {
 public:
-   enum { Type = QGraphicsRoundTextItem::Type };
+   enum { Type = QLightTextItem::Type };
 
    virtual QString name() const;
    virtual QString menuName() const;
@@ -84,5 +53,4 @@ protected:
                           QGraphicsItem *item ) const;
 };
 
-
-#endif // QGRAPHICSROUNDTEXTITEM_H
+#endif // QLIGHTTEXTITEM_H

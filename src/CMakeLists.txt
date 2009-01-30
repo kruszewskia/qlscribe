@@ -19,8 +19,8 @@
 #    $Id$ 
 
 SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp qdialogpixmap.cpp qdialogroundtext.cpp
-     qdialogtext.cpp qgraphicsroundtextitem.cpp qlightscribe.cpp qshapecontrollers.cpp qshapefactory.cpp 
-     qdialogprint.cpp qdialogprogress.cpp )
+     qdialogtext.cpp qgraphicsroundtextitem.cpp qlightscribe.cpp qshapefactory.cpp 
+     qlighttextitem.cpp qlightpixmapitem.cpp qdialogprint.cpp qdialogprogress.cpp )
 
 SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui qdialogprint.ui qdialogprogress.ui )
 

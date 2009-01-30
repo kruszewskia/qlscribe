@@ -18,35 +18,25 @@
 
     $Id$ */
 
-#ifndef QSHAPECONTROLLERS_H
-#define QSHAPECONTROLLERS_H
+#ifndef QLIGHTPIXMAPITEM_H
+#define QLIGHTPIXMAPITEM_H
+
+#include <QGraphicsPixmapItem>
 
 #include "qshapefactory.h"
 
-#include <QGraphicsSimpleTextItem>
-#include <QGraphicsPixmapItem>
-
-class QShapeControllerText : public QShapeController {
+class QLightPixmapItem : public QGraphicsPixmapItem
+{
 public:
-   enum { Type = QGraphicsSimpleTextItem::Type };
-
-   virtual QString name() const;
-   virtual QString menuName() const;
-
-   virtual QGraphicsItem *create() const;
+    QLightPixmapItem();
 
 protected:
-   virtual QItemDialog *createDialog( QWidget *parent ) const;
-   virtual void writeData( QXmlStreamWriter &writer, const QGraphicsItem *item ) const;
-   virtual void readData( const QString &element,
-                          const QXmlStreamAttributes &attrs,
-                          const QString &data,
-                          QGraphicsItem *item ) const;
+   virtual QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
 };
 
 class QShapeControllerPixmap : public QShapeController {
 public:
-   enum { Type = QGraphicsPixmapItem::Type };
+   enum { Type = QLightPixmapItem::Type };
 
    virtual QString name() const;
    virtual QString menuName() const;
@@ -62,4 +52,5 @@ protected:
                           QGraphicsItem *item ) const;
 };
 
-#endif // QSHAPECONTROLLERS_H
+
+#endif // QLIGHTPIXMAPITEM_H
