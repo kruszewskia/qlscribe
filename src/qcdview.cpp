@@ -83,7 +83,8 @@ void QCDView::closeEvent( QCloseEvent *event )
 inline 
 void drawCircle( QPainter *painter, double radi )
 {
-   painter->drawEllipse( -radi, -radi, radi * 2, radi * 2 );
+   painter->drawEllipse( int( -radi ), int( -radi ),
+                         int( radi * 2 ), int( radi * 2 ) );
 }
 
 void QCDView::drawCD( QPainter *painter, const QRectF & rect, bool alpha )

@@ -49,10 +49,14 @@ protected:
 
 private slots:
    void onMenuEdit();
+   void onMenuToFront();
+   void onMenuToBack();
+   void onMenuDelete();
 
 private:
    void write( QXmlStreamWriter &writer );
    void read( QXmlStreamReader &reader );
+   void sendItemTo( bool front );
 
 private:
    QString m_name;

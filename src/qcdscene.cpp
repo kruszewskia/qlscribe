@@ -204,6 +204,9 @@ void QCDScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *mouseEvent )
    item->setSelected( true );
    QMenu menu;
    menu.addAction( tr( "edit..." ), this, SLOT( onMenuEdit() ) );
+   menu.addAction( tr( "bring to Front" ), this, SLOT( onMenuToFront() ) );
+   menu.addAction( tr( "send to Back" ), this, SLOT( onMenuToBack() ) );
+   menu.addAction( tr( "delete" ), this, SLOT( onMenuDelete() ) );
    menu.exec( mouseEvent->screenPos() );
 }
 
@@ -214,4 +217,44 @@ void QCDScene::onMenuEdit()
       return;
    QGraphicsItem *item = list.front();
    QShapeFactory::instance().edit( item, 0 );
+}
+
+void QCDScene::onMenuToFront()
+{
+   sendItemTo( true );
+}
+
+void QCDScene::onMenuToBack()
+{
+   sendItemTo( false );
+}
+
+void QCDScene::onMenuDelete()
+{
+   QList<QGraphicsItem *> list = selectedItems();
+   if( list.empty() )
+      return;
+   QGraphicsItem *item = list.front();
+   removeItem( item );
+   delete item;
+   setChanged();
+}
+
+void QCDScene::sendItemTo( bool front )
+{
+   if ( selectedItems().isEmpty())
+      return;
+
+   QGraphicsItem *selectedItem = selectedItems().first();
+   QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
+
+   qreal zValue = 0;
+   foreach( QGraphicsItem *item, overlapItems ) {
+      if( front && item->zValue() >= zValue )
+         zValue = item->zValue() + 0.1;
+
+      if( !front && item->zValue() <= zValue )
+         zValue = item->zValue() - 0.1;
+   }
+   selectedItem->setZValue( zValue );
 }
