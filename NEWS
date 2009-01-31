@@ -1,5 +1,10 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.4:
+    Scene detects when item is moved by mouse and changes status to unsaved
+    On installation sticky bit is set, qlscribe becomes root when burns label
+    Bugfix on progress dialog crush with empty document printed
+
 New in 0.3:
     Documents keep their names and detect changes (changes on item postion through window
     itself is not detected yet)
