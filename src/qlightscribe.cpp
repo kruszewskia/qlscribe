@@ -202,6 +202,66 @@ bool QLightScribe::clReportLabelTimeEstimate(long time)
 }
 
 
+
+namespace {
+   class AutoUidSetter {
+   public:
+      AutoUidSetter() : m_saved( 0 ) {}
+      AutoUidSetter( uid_t userId ) : m_saved( 0 ) { set( userId ); }
+      ~AutoUidSetter() { unset(); }
+
+      void set( uid_t userId )
+      {
+         if( userId ) {
+            setreuid( userId, 0 );
+            m_saved = userId;
+         }
+      }
+      void unset()
+      {
+         if( m_saved ) {
+            setreuid( 0, m_saved );
+            m_saved = 0;
+         }
+      }
+
+   private:
+      uid_t m_saved;
+   };
+
+   typedef void (LightScribe::DiscPrinter::*DiscPrinterOp)();
+
+   template<DiscPrinterOp dlock, DiscPrinterOp dunlock >
+         class AutoOp {
+   public:
+      AutoOp( LightScribe::DiscPrinter &printer ) : m_printer( &printer ), m_locked( false ) {}
+      AutoOp() { unlock(); }
+
+      void lock()
+      {
+         if( !m_locked ) {
+            (m_printer->*dlock)();
+            m_locked = true;
+         }
+      }
+
+      void unlock()
+      {
+         if( m_locked ) {
+            try {
+               (m_printer->*dunlock)();
+            }
+            catch(...){}
+            m_locked = false;
+         }
+      }
+
+   private:
+      LightScribe::DiscPrinter *m_printer;
+      bool                      m_locked;
+   };
+}
+
 extern uid_t realUserId;
 
 void QLightScribe::run()
@@ -257,12 +317,17 @@ void QLightScribe::run()
                throw tr( "Cannot find drive: \"" ) + m_task->m_selectedDrive->displayName() + "\"";
 
             DiscPrinter printer = printers.Item( found );
+
+            AutoUidSetter autoUid;
+            AutoOp< &DiscPrinter::AddExclusiveUse, &DiscPrinter::ReleaseExclusiveUse > autoExclusive( printer );
+            AutoOp< &DiscPrinter::LockDriveTray, &DiscPrinter::UnlockDriveTray > autoLock( printer );
+
             if( m_task->m_action == Task::print ) {
-               setreuid( realUserId, 0 );
+               autoUid.set( realUserId );
                function = "LS_DiscPrinter_AddExclusiveUse";
-               printer.AddExclusiveUse();
+               autoExclusive.lock();
                function = "LS_DiscPrinter_LockDriveTray";
-               printer.LockDriveTray();
+               autoLock.lock();
             }
 
             {
@@ -308,31 +373,18 @@ void QLightScribe::run()
                   m_task = 0;
                   lock.unlock();
                   // print here
-                  try {
-                     session.PrintDisc( LS_windows_bitmap,
-                                        LS_LabelMode( params.m_labelMode ),
-                                        LS_DrawOptions( params.m_drawOptions ),
-                                        LS_PrintQuality( params.m_printQuality ),
-                                        LS_MediaOptimizationLevel( params.m_mediaOptimizationLevel ),
-                                        ba.data() + 14,
-                                        bitmapHeaderSize - 14,
-                                        ba.data() + bitmapHeaderSize,
-                                        ba.size() - bitmapHeaderSize );
-                  }
-                  catch( LightScribe::LSException &ex ) {
-                     emit finished( ex.GetCode() );
-                     throw;
-                  }
+                  session.PrintDisc( LS_windows_bitmap,
+                                     LS_LabelMode( params.m_labelMode ),
+                                     LS_DrawOptions( params.m_drawOptions ),
+                                     LS_PrintQuality( params.m_printQuality ),
+                                     LS_MediaOptimizationLevel( params.m_mediaOptimizationLevel ),
+                                     ba.data() + 14,
+                                     bitmapHeaderSize - 14,
+                                     ba.data() + bitmapHeaderSize,
+                                     ba.size() - bitmapHeaderSize );
                }
             }
 
-            if( m_task->m_action == Task::print ) {
-               function = "LS_DiscPrinter_UnlockDriveTray";
-               printer.UnlockDriveTray();
-               function = "LS_DiscPrinter_ReleaseExclusiveUse";
-               printer.ReleaseExclusiveUse();
-               setreuid( 0, realUserId );
-            }
             function = "";
          }
       }
