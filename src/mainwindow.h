@@ -31,7 +31,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
     Q_DISABLE_COPY(MainWindow)
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow( bool enablePrint );
     virtual ~MainWindow();
 
    bool saveScene( QCDScene *scene );

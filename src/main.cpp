@@ -19,13 +19,34 @@
     $Id$ */
 
 #include <QApplication>
+#include <QMessageBox>
 #include "mainwindow.h"
+
+uid_t realUserId;
 
 int main(int argc, char **argv)
 {
    QApplication app(argc, argv);
    app.addLibraryPath( "/usr/lib32/qt4/plugins" );
-   MainWindow mwindow;
+
+   bool enablePrint = false;
+   if( geteuid() ) {
+      if( QMessageBox::question( 0,
+                                 QObject::tr( "Confirmation" ),
+                                 QObject::tr( "Print functionality requires setuid (sticky) flag set on the application\n"
+                                              "This program does not seem to have it set, print functiionality will be disabled\n"
+                                              "You still will be able to do print preview and edit documents\n"
+                                              "Do you want to continue?" ),
+                                 QMessageBox::Yes | QMessageBox::No,
+                                 QMessageBox::No )
+         == QMessageBox::No )
+         return 1;
+   } else {
+      realUserId = getuid();
+      setreuid( 0, realUserId );
+      enablePrint = true;
+   }
+   MainWindow mwindow( enablePrint );
    mwindow.show();
 
    return app.exec();

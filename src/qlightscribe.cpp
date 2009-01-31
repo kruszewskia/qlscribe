@@ -201,6 +201,9 @@ bool QLightScribe::clReportLabelTimeEstimate(long time)
    return false;
 }
 
+
+extern uid_t realUserId;
+
 void QLightScribe::run()
 {
    QMutexLocker lock( m_mutex );
@@ -254,68 +257,81 @@ void QLightScribe::run()
                throw tr( "Cannot find drive: \"" ) + m_task->m_selectedDrive->displayName() + "\"";
 
             DiscPrinter printer = printers.Item( found );
-            function = "LS_DiscPrinter_OpenPrintSession";
-            DiscPrintSession session = printer.OpenPrintSession();
+            if( m_task->m_action == Task::print ) {
+               setreuid( realUserId, 0 );
+               function = "LS_DiscPrinter_AddExclusiveUse";
+               printer.AddExclusiveUse();
+               function = "LS_DiscPrinter_LockDriveTray";
+               printer.LockDriveTray();
+            }
 
-            LS_PrintCallbacks callbacks;
-            callbacks.AbortLabel = clAbortLabel;
-            callbacks.ReportPrepareProgress = clReportPrepareProgress;
-            callbacks.ReportLabelProgress = clReportLabelProgress;
-            callbacks.ReportFinished = clReportFinished;
-            callbacks.ReportLabelTimeEstimate = clReportLabelTimeEstimate;
+            {
+               function = "LS_DiscPrinter_OpenPrintSession";
+               DiscPrintSession session = printer.OpenPrintSession();
 
-            session.SetProgressCallback( &callbacks );
+               LS_PrintCallbacks callbacks;
+               callbacks.AbortLabel = clAbortLabel;
+               callbacks.ReportPrepareProgress = clReportPrepareProgress;
+               callbacks.ReportLabelProgress = clReportLabelProgress;
+               callbacks.ReportFinished = clReportFinished;
+               callbacks.ReportLabelTimeEstimate = clReportLabelTimeEstimate;
 
-            const size_t bitmapHeaderSize = 54;
+               session.SetProgressCallback( &callbacks );
 
-            if( m_task->m_action == Task::preview ) {
+               const size_t bitmapHeaderSize = 54;
 
-               LS_Size size;
-               size.x = m_task->m_size.width();
-               size.y = m_task->m_size.height();
+               if( m_task->m_action == Task::preview ) {
 
-               m_task->m_tmpFile.open();
+                  LS_Size size;
+                  size.x = m_task->m_size.width();
+                  size.y = m_task->m_size.height();
 
-               function = "LS_DiscPrintSession_PrintPreview";
-               session.PrintPreview( LS_windows_bitmap,
-                                     LS_LabelMode( m_task->m_parameters.m_labelMode ),
-                                     LS_DrawOptions( m_task->m_parameters.m_drawOptions ),
-                                     LS_PrintQuality( m_task->m_parameters.m_printQuality ),
-                                     LS_MediaOptimizationLevel( m_task->m_parameters.m_mediaOptimizationLevel ),
-                                     ba.data() + 14,
-                                     bitmapHeaderSize - 14,
-                                     ba.data() + bitmapHeaderSize,
-                                     ba.size() - bitmapHeaderSize,
-                                     m_task->m_tmpFile.fileName().toAscii().data(),
-                                     LS_windows_bitmap,
-                                     size,
-                                     true );
-            }  else {
-               PrintParameters params = m_task->m_parameters;
-               delete m_task;
-               m_task = 0;
-               lock.unlock();
-               // print here
-               try {
-                  //printer.AddExclusiveUse();
-                  //printer.LockDriveTray();
-                  session.PrintDisc(  LS_windows_bitmap,
-                                      LS_LabelMode( params.m_labelMode ),
-                                      LS_DrawOptions( params.m_drawOptions ),
-                                      LS_PrintQuality( params.m_printQuality ),
-                                      LS_MediaOptimizationLevel( params.m_mediaOptimizationLevel ),
-                                      ba.data() + 14,
-                                      bitmapHeaderSize - 14,
-                                      ba.data() + bitmapHeaderSize,
-                                      ba.size() - bitmapHeaderSize );
+                  m_task->m_tmpFile.open();
+
+                  function = "LS_DiscPrintSession_PrintPreview";
+                  session.PrintPreview( LS_windows_bitmap,
+                                        LS_LabelMode( m_task->m_parameters.m_labelMode ),
+                                        LS_DrawOptions( m_task->m_parameters.m_drawOptions ),
+                                        LS_PrintQuality( m_task->m_parameters.m_printQuality ),
+                                        LS_MediaOptimizationLevel( m_task->m_parameters.m_mediaOptimizationLevel ),
+                                        ba.data() + 14,
+                                        bitmapHeaderSize - 14,
+                                        ba.data() + bitmapHeaderSize,
+                                        ba.size() - bitmapHeaderSize,
+                                        m_task->m_tmpFile.fileName().toAscii().data(),
+                                        LS_windows_bitmap,
+                                        size,
+                                        true );
+               }  else {
+                  PrintParameters params = m_task->m_parameters;
+                  delete m_task;
+                  m_task = 0;
+                  lock.unlock();
+                  // print here
+                  try {
+                     session.PrintDisc( LS_windows_bitmap,
+                                        LS_LabelMode( params.m_labelMode ),
+                                        LS_DrawOptions( params.m_drawOptions ),
+                                        LS_PrintQuality( params.m_printQuality ),
+                                        LS_MediaOptimizationLevel( params.m_mediaOptimizationLevel ),
+                                        ba.data() + 14,
+                                        bitmapHeaderSize - 14,
+                                        ba.data() + bitmapHeaderSize,
+                                        ba.size() - bitmapHeaderSize );
+                  }
+                  catch( LightScribe::LSException &ex ) {
+                     emit finished( ex.GetCode() );
+                     throw;
+                  }
                }
-               catch( LightScribe::LSException &ex ) {
-                  emit finished( ex.GetCode() );
-                  throw;
-               }
+            }
 
-               //printer.UnlockDriveTray();
-               //printer.ReleaseExclusiveUse();
+            if( m_task->m_action == Task::print ) {
+               function = "LS_DiscPrinter_UnlockDriveTray";
+               printer.UnlockDriveTray();
+               function = "LS_DiscPrinter_ReleaseExclusiveUse";
+               printer.ReleaseExclusiveUse();
+               setreuid( 0, realUserId );
             }
             function = "";
          }

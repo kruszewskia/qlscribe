@@ -37,8 +37,8 @@
 #include <QLabel>
 #include <QCloseEvent>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
+MainWindow::MainWindow( bool enablePrint )
+    : QMainWindow( 0 ),
     m_mdiArea( new QMdiArea( this ) ),
     m_menuFile( 0 ), m_menuInsert( 0 ),
     m_insertMapper( new QSignalMapper( this ) )
@@ -70,9 +70,12 @@ MainWindow::MainWindow(QWidget *parent) :
                           this,
                           SLOT(onMenuPrintPreview()) );
 
-   m_menuFile->addAction( tr( "Print...", "Menu item \"Print\"" ),
-                          this,
-                          SLOT(onMenuPrint()) );
+   QAction *printAction =
+         m_menuFile->addAction( tr( "Print...", "Menu item \"Print\"" ),
+                                this,
+                                SLOT(onMenuPrint()) );
+   if( !enablePrint )
+      printAction->setEnabled( false );
 
    m_menuFile->addAction( tr( "Exit", "Menu item \"Exit\"" ),
                           this,
