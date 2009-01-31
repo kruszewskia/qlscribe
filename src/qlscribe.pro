@@ -7,7 +7,7 @@ QMAKE_LFLAGS += -m32
 QMAKE_LIBDIR = /usr/lib32
 SOURCES += main.cpp \
     mainwindow.cpp \
-    qgraphicsroundtextitem.cpp \
+    qlightroundtextitem.cpp \
     qcdview.cpp \
     qcdscene.cpp \
     qshapefactory.cpp \
@@ -21,7 +21,7 @@ SOURCES += main.cpp \
     qlightpixmapitem.cpp
 QMAKE_LIBS += -llightscribe
 HEADERS += mainwindow.h \
-    qgraphicsroundtextitem.h \
+    qlightroundtextitem.h \
     qcdview.h \
     qcdscene.h \
     qshapefactory.h \

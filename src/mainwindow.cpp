@@ -19,7 +19,7 @@
     $Id$ */
 
 #include "mainwindow.h"
-#include "qgraphicsroundtextitem.h"
+#include "qlightroundtextitem.h"
 #include "qcdview.h"
 #include "qcdscene.h"
 #include "qshapefactory.h"

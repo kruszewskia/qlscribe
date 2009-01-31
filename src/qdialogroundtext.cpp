@@ -20,7 +20,7 @@
 
 #include "qdialogroundtext.h"
 #include "ui_qdialogroundtext.h"
-#include "qgraphicsroundtextitem.h"
+#include "qlightroundtextitem.h"
 #include "qcdscene.h"
 
 #include <QFontDialog>
@@ -55,13 +55,13 @@ void QDialogRoundText::changeEvent(QEvent *e)
 
 bool QDialogRoundText::exec( QGraphicsItem *graphicsItem )
 {
-   QGraphicsRoundTextItem *item = dynamic_cast< QGraphicsRoundTextItem * >( graphicsItem );
+   QLightRoundTextItem *item = dynamic_cast< QLightRoundTextItem * >( graphicsItem );
    if( !item )
       return false;
 
    QCDScene scene;
    m_ui->cdView->setScene( &scene );
-   m_item = new QGraphicsRoundTextItem;
+   m_item = new QLightRoundTextItem;
 
    m_item->setPos( item->pos() );
    m_item->setText( item->text() );

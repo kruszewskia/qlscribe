@@ -18,19 +18,19 @@
 
     $Id$ */
 
-#ifndef QGRAPHICSROUNDTEXTITEM_H
-#define QGRAPHICSROUNDTEXTITEM_H
+#ifndef QLIGHTROUNDTEXTITEM_H
+#define QLIGHTROUNDTEXTITEM_H
 
 #include "qshapefactory.h"
 
 #include <QAbstractGraphicsShapeItem>
 #include <QFont>
 
-class QGraphicsRoundTextItem : public QAbstractGraphicsShapeItem {
+class QLightRoundTextItem : public QAbstractGraphicsShapeItem {
 public:
    enum { Type = UserType + 1 };
 
-    QGraphicsRoundTextItem( QGraphicsItem * parent = 0 );
+    QLightRoundTextItem( QGraphicsItem * parent = 0 );
 
     const QFont &font() const;
     const QString &text() const;
@@ -68,7 +68,7 @@ private:
 
 class QShapeControllerRoundText : public QShapeController {
 public:
-   enum { Type = QGraphicsRoundTextItem::Type };
+   enum { Type = QLightRoundTextItem::Type };
 
    virtual QString name() const;
    virtual QString menuName() const;
@@ -85,4 +85,4 @@ protected:
 };
 
 
-#endif // QGRAPHICSROUNDTEXTITEM_H
+#endif // QLIGHTROUNDTEXTITEM_H

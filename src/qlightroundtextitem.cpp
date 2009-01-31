@@ -18,7 +18,7 @@
 
     $Id$ */
 
-#include "qgraphicsroundtextitem.h"
+#include "qlightroundtextitem.h"
 #include "qdialogroundtext.h"
 #include "qcdscene.h"
 
@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-QGraphicsRoundTextItem::QGraphicsRoundTextItem( QGraphicsItem *parent )
+QLightRoundTextItem::QLightRoundTextItem( QGraphicsItem *parent )
    : QAbstractGraphicsShapeItem( parent ),
    m_radius( 40.0 ),
    m_angle( 0.0 ),
@@ -39,73 +39,73 @@ QGraphicsRoundTextItem::QGraphicsRoundTextItem( QGraphicsItem *parent )
 {
 }
 
-const QFont & QGraphicsRoundTextItem::font() const
+const QFont & QLightRoundTextItem::font() const
 {
    return m_font;
 }
 
-const QString & QGraphicsRoundTextItem::text() const
+const QString & QLightRoundTextItem::text() const
 {
    return m_text;
 }
 
-double QGraphicsRoundTextItem::radius() const
+double QLightRoundTextItem::radius() const
 {
    return m_radius;
 }
 
-double QGraphicsRoundTextItem::angle() const
+double QLightRoundTextItem::angle() const
 {
    return m_angle;
 }
 
-Qt::Alignment QGraphicsRoundTextItem::alignment() const
+Qt::Alignment QLightRoundTextItem::alignment() const
 {
    return m_alignment;
 }
 
-bool QGraphicsRoundTextItem::outside() const
+bool QLightRoundTextItem::outside() const
 {
    return m_outside;
 }
 
-void QGraphicsRoundTextItem::setFont( const QFont &font )
+void QLightRoundTextItem::setFont( const QFont &font )
 {
    prepareGeometryChange();
    m_font = font;
 }
 
-void QGraphicsRoundTextItem::setText( const QString &text )
+void QLightRoundTextItem::setText( const QString &text )
 {
    prepareGeometryChange();
    m_text = text;
 }
 
-void QGraphicsRoundTextItem::setRadius( double radius )
+void QLightRoundTextItem::setRadius( double radius )
 {
    prepareGeometryChange();
    m_radius = radius;
 }
 
-void QGraphicsRoundTextItem::setAngle( double angle )
+void QLightRoundTextItem::setAngle( double angle )
 {
    prepareGeometryChange();
    m_angle = angle;
 }
 
-void QGraphicsRoundTextItem::setAlignment( Qt::Alignment alignment )
+void QLightRoundTextItem::setAlignment( Qt::Alignment alignment )
 {
    prepareGeometryChange();
    m_alignment = alignment;
 }
 
-void QGraphicsRoundTextItem::setOutside( bool outside )
+void QLightRoundTextItem::setOutside( bool outside )
 {
    prepareGeometryChange();
    m_outside = outside;
 }
 
-QRectF QGraphicsRoundTextItem::boundingRect() const
+QRectF QLightRoundTextItem::boundingRect() const
 {
    double height = m_radius;
    if( m_outside ) {
@@ -116,7 +116,7 @@ QRectF QGraphicsRoundTextItem::boundingRect() const
    return QRectF( -height, -height, 2 * height, 2 * height );
 }
 
-QPainterPath QGraphicsRoundTextItem::shape() const
+QPainterPath QLightRoundTextItem::shape() const
 {
    QFontMetrics mcs( m_font );
    double arcAngle = 0.0;
@@ -165,7 +165,7 @@ QPainterPath QGraphicsRoundTextItem::shape() const
 }
 
 
-void QGraphicsRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
+void QLightRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
 {
    Q_UNUSED( option );
    Q_UNUSED( widget );
@@ -217,7 +217,7 @@ void QGraphicsRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphic
    }
 }
 
-QVariant QGraphicsRoundTextItem::itemChange( GraphicsItemChange change, const QVariant & value )
+QVariant QLightRoundTextItem::itemChange( GraphicsItemChange change, const QVariant & value )
 {
    if( scene() && change == ItemPositionHasChanged )
       static_cast<QCDScene *>( scene() )->setChanged();
@@ -239,7 +239,7 @@ QString QShapeControllerRoundText::menuName() const
 
 QGraphicsItem *QShapeControllerRoundText::create() const
 {
-   return new QGraphicsRoundTextItem;
+   return new QLightRoundTextItem;
 }
 
 QItemDialog *QShapeControllerRoundText::createDialog( QWidget *parent ) const
@@ -249,7 +249,7 @@ QItemDialog *QShapeControllerRoundText::createDialog( QWidget *parent ) const
 
 void QShapeControllerRoundText::writeData( QXmlStreamWriter &writer, const QGraphicsItem *item ) const
 {
-   const QGraphicsRoundTextItem *textItem = static_cast< const QGraphicsRoundTextItem * >( item );
+   const QLightRoundTextItem *textItem = static_cast< const QLightRoundTextItem * >( item );
    writer.writeEmptyElement( "pos" );
    writer.writeAttribute( QXmlStreamAttribute( "x", QString::number( textItem->pos().x() ) ) );
    writer.writeAttribute( QXmlStreamAttribute( "y", QString::number( textItem->pos().y() ) ) );
@@ -268,7 +268,7 @@ void QShapeControllerRoundText::readData( const QString &element,
                                           const QString &data,
                                           QGraphicsItem *item ) const
 {
-   QGraphicsRoundTextItem *textItem = static_cast< QGraphicsRoundTextItem * >( item );
+   QLightRoundTextItem *textItem = static_cast< QLightRoundTextItem * >( item );
 
    if( element == "pos" ) {
       textItem->setPos( attrs.value( "x" ).toString().toDouble(),

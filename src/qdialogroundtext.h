@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QDIALOGROUNDTEXT_H
 #define QDIALOGROUNDTEXT_H
@@ -27,7 +27,7 @@ namespace Ui {
     class QDialogRoundText;
 }
 
-class QGraphicsRoundTextItem;
+class QLightRoundTextItem;
 
 class QDialogRoundText : public QItemDialog {
     Q_OBJECT
@@ -54,8 +54,8 @@ private slots:
    void locChanged();
 
 private:
-    Ui::QDialogRoundText   *m_ui;
-    QGraphicsRoundTextItem *m_item;
+    Ui::QDialogRoundText *m_ui;
+    QLightRoundTextItem  *m_item;
 };
 
 #endif // QDIALOGROUNDTEXT_H
