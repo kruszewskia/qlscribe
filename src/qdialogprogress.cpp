@@ -107,7 +107,7 @@ void QDialogProgress::onLabelProgress( long current, long final )
    m_ui->progressPrinting->setMaximum( final );
    m_ui->progressPrinting->setValue( current );
 
-   if( current && double( current ) / final > 0.1 ) {
+   if( current && final / double( current ) < 10.0 ) {
       int elapsed = m_start->elapsed();
       int estimate = double( elapsed ) / current * final;
       m_ui->timeEstimated->setTime( QTime().addMSecs( estimate ) );
