@@ -96,7 +96,7 @@ void QCDView::drawCD( QPainter *painter, const QRectF & rect, bool alpha )
    drawCircle( painter, 59.0 );
 
    painter->setBrush( alpha ? Qt::lightGray : Qt::darkGray );
-   drawCircle( painter, 21.7 );
+   drawCircle( painter, 25.0 );
 
    painter->setBrush( alpha ? Qt::white : Qt::gray );
    drawCircle( painter, 10.7 );
