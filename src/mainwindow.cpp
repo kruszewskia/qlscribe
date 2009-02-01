@@ -37,6 +37,7 @@
 #include <QLabel>
 #include <QCloseEvent>
 
+
 MainWindow::MainWindow( bool enablePrint )
     : QMainWindow( 0 ),
     m_mdiArea( new QMdiArea( this ) ),
