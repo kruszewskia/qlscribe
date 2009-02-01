@@ -129,6 +129,7 @@ void QDialogRoundText::onFont()
 {
    bool ok = true;
    QFont font = QFontDialog::getFont( &ok, m_item->font(), this );
+   //font.setPointSizeF( font.pointSizeF() / 2.0 );
    if( ok ) {
       m_item->setFont( font );
       fontChanged();

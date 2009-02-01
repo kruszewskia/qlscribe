@@ -206,6 +206,9 @@
             </item>
             <item row="0" column="1" >
              <widget class="QFontComboBox" name="fontName" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
               <property name="editable" >
                <bool>false</bool>
               </property>

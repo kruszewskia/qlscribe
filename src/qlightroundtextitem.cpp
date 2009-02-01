@@ -27,6 +27,7 @@
 #include <QStyleOptionGraphicsItem>
 #include <QMessageBox>
 #include <QXmlStreamWriter>
+#include <QTextLayout>
 
 #include <math.h>
 
@@ -37,6 +38,7 @@ QLightRoundTextItem::QLightRoundTextItem( QGraphicsItem *parent )
    m_alignment( Qt::AlignLeft ),
    m_outside( true )
 {
+   setBrush( Qt::black );
 }
 
 const QFont & QLightRoundTextItem::font() const
@@ -118,7 +120,9 @@ QRectF QLightRoundTextItem::boundingRect() const
 
 QPainterPath QLightRoundTextItem::shape() const
 {
-   QFontMetrics mcs( m_font );
+   QFont font( m_font );
+   font.setPointSizeF( m_font.pointSizeF() / 2 );
+   QFontMetrics mcs( font );
    double arcAngle = 0.0;
    const double pad = 1;
 
@@ -172,11 +176,13 @@ void QLightRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsIt
    if( !painter || !m_radius ) return;
    painter->save();
 
-   painter->setFont( m_font );
+   QFont font( m_font );
+   font.setPointSizeF( m_font.pointSizeF() / 2 );
+   painter->setFont( font );
 
    //painter->drawEllipse( - m_radius, - m_radius, m_radius * 2, m_radius * 2 );
 
-   QFontMetrics mcs( m_font );
+   QFontMetrics mcs( font );
 
    const double radi = m_radius - ( m_outside ? 0 : mcs.xHeight() );
    const double diam = 2 * radi;
@@ -193,7 +199,13 @@ void QLightRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsIt
 
    QTransform trans;
    trans.rotateRadians( angle );
+   painter->setRenderHint( QPainter::TextAntialiasing, true );
    painter->setWorldTransform( trans, true );
+
+   QPen p;
+   p.setBrush( brush() );
+   painter->setPen( p );
+   painter->setBrush( Qt::NoBrush );
 
    int prevWidth = 0;
    for( int i = 0; i < m_text.size(); ++i ) {
@@ -203,6 +215,7 @@ void QLightRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsIt
       trans.reset();
       trans.rotateRadians( m_outside ? d : -d );
       painter->setWorldTransform( trans, true );
+
       prevWidth = mcs.width( ch );
 
       painter->drawText( int( -prevWidth / 2.0 ),
@@ -239,7 +252,8 @@ QString QShapeControllerRoundText::menuName() const
 
 QGraphicsItem *QShapeControllerRoundText::create() const
 {
-   return new QLightRoundTextItem;
+   QLightRoundTextItem *item = new QLightRoundTextItem;
+   return item;
 }
 
 QItemDialog *QShapeControllerRoundText::createDialog( QWidget *parent ) const
