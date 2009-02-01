@@ -1,5 +1,13 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.5:
+    Bugfix for crash on writing
+    CD inner size increased to 25mm on QCDView
+    Maximum image size increased to 150
+    Fixed bug with not setting color on round text
+    Text scaled to 1/2
+    Fixed bug with missing button "OK" on pixmap edit dialog
+
 New in 0.4:
     Scene detects when item is moved by mouse and changes status to unsaved
     On installation sticky bit is set, qlscribe becomes root when burns label
