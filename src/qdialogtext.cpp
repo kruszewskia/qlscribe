@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #include "qdialogtext.h"
 #include "ui_qdialogtext.h"
@@ -66,6 +66,7 @@ bool QDialogText::exec( QGraphicsItem *graphicsItem )
    m_item->setText( item->text() );
    m_item->setFont( item->font() );
    m_item->setBrush( item->brush() );
+   m_item->setTransform( item->transform() );
 
    scene.addItem( m_item );
 

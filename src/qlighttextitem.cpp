@@ -53,7 +53,10 @@ QString QShapeControllerText::menuName() const
 
 QGraphicsItem *QShapeControllerText::create() const
 {
-   return new QLightTextItem;
+   QGraphicsItem *item = new QLightTextItem;
+   item->setTransform( QTransform().scale( 0.5, 0.5 ), true );
+
+   return item;
 }
 
 QItemDialog *QShapeControllerText::createDialog( QWidget *parent ) const
