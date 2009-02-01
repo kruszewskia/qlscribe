@@ -79,6 +79,7 @@ bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
       m_ui->spinWidth->setValue( scale.x() );
       m_ui->spinHeight->setValue( scale.y() );
       m_ui->lockedRatio->setChecked( scale.x() == scale.y() ? Qt::Checked : Qt::Unchecked );
+      m_ui->buttonBox->setStandardButtons( m_ui->buttonBox->standardButtons() | QDialogButtonBox::Ok );
    }
 
    connect( m_ui->spinX,          SIGNAL(valueChanged(double)),
