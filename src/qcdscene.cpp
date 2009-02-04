@@ -193,7 +193,8 @@ void QCDScene::read( QXmlStreamReader &reader )
                   + elementName + "\" intead";
 
          m_labelMode = LabelMode( reader.attributes().value( "mode" ).toString().toInt() );
-         m_cdColor = QColor( reader.attributes().value( "color" ).toString() );
+         QString colorStr = reader.attributes().value( "color" ).toString();
+         m_cdColor = colorStr.isEmpty() ? Qt::white : QColor( colorStr );
          gotScene = true;
          continue;
       }
