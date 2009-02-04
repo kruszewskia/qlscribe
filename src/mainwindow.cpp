@@ -26,6 +26,7 @@
 #include "qlightscribe.h"
 #include "qdialogprint.h"
 #include "qdialogprogress.h"
+#include "qdialogcdproperties.h"
 
 #include <QMenuBar>
 #include <QStatusBar>
@@ -80,6 +81,12 @@ MainWindow::MainWindow( bool enablePrint )
    m_menuFile->addAction( tr( "Save as...", "Menu item \"Save as\"" ),
                           this,
                           SLOT(onMenuSaveAs()) );
+
+   m_menuFile->addSeparator();
+
+   m_menuFile->addAction( tr( "Label properties...", "Menu item \"Label propeties...\"" ),
+                          this,
+                          SLOT(onMenuProperties()) );
 
    m_menuFile->addSeparator();
 
@@ -276,6 +283,13 @@ void MainWindow::onMenuSaveAs()
    QCDScene *scene = getScene( m_mdiArea );
    if( scene )
       saveSceneAs( scene );
+}
+
+void MainWindow::onMenuProperties()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene )
+      QDialogCDProperties::exec( this, scene );
 }
 
 void MainWindow::onMenuPrintPreview()

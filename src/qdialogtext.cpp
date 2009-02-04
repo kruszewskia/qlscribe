@@ -32,8 +32,8 @@ QDialogText::QDialogText(QWidget *parent) :
     m_item( 0 )
 {
    m_ui->setupUi(this);
-   connect( m_ui->btnFont,  SIGNAL(clicked()),            this, SLOT(onFont()) );
-   connect( m_ui->btnColor, SIGNAL(clicked()),            this, SLOT(onColor()) );
+   connect( m_ui->btnFont,  SIGNAL(clicked()), this, SLOT(onFont()) );
+   connect( m_ui->btnColor, SIGNAL(clicked()), this, SLOT(onColor()) );
 }
 
 QDialogText::~QDialogText()

@@ -18,14 +18,17 @@
 #
 #    $Id$ 
 
-SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp qdialogpixmap.cpp qdialogroundtext.cpp
-     qdialogtext.cpp qlightroundtextitem.cpp qlightscribe.cpp qshapefactory.cpp 
-     qlighttextitem.cpp qlightpixmapitem.cpp qdialogprint.cpp qdialogprogress.cpp )
+SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp
+     qdialogpixmap.cpp qdialogroundtext.cpp qdialogtext.cpp qlightroundtextitem.cpp 
+     qlightscribe.cpp qshapefactory.cpp qlighttextitem.cpp qlightpixmapitem.cpp 
+     qdialogprint.cpp qdialogprogress.cpp qdialogcdproperties.cpp)
 
-SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui qdialogprint.ui qdialogprogress.ui )
+SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui
+     qdialogprint.ui qdialogprogress.ui qdialogcdproperties.ui)
 
 SET( QLSCRIBE_MOC_HDRS mainwindow.h qcdscene.h qdialogpixmap.h qdialogroundtext.h
-     qdialogtext.h qlightscribe.h qdialogprint.h qdialogprogress.h )
+     qdialogtext.h qlightscribe.h qdialogprint.h qdialogprogress.h
+     qdialogcdproperties.h)
 
 ADD_DEFINITIONS( -Wall )
 

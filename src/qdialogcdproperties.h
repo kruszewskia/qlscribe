@@ -18,49 +18,36 @@
 
     $Id$ */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
 
-#include <QtGui/QMainWindow>
+#ifndef QDIALOGCDPROPERTIES_H
+#define QDIALOGCDPROPERTIES_H
 
-class QMdiArea;
-class QSignalMapper;
+#include <QtGui/QDialog>
+
+namespace Ui {
+    class QDialogCDProperties;
+}
+
 class QCDScene;
 
-class MainWindow : public QMainWindow {
+class QDialogCDProperties : public QDialog {
     Q_OBJECT
-    Q_DISABLE_COPY(MainWindow)
+    Q_DISABLE_COPY(QDialogCDProperties)
 public:
-    explicit MainWindow( bool enablePrint );
-    virtual ~MainWindow();
+   static bool exec( QWidget *parent, QCDScene *scene );
 
-   bool saveScene( QCDScene *scene );
 protected:
-    virtual void closeEvent( QCloseEvent *event );
+   virtual void changeEvent(QEvent *e);
 
 private slots:
-   void onMenuNewLabel( int mode );
-   void onMenuOpen();
-   void onMenuSave();
-   void onMenuSaveAs();
-   void onMenuProperties();
-   void onMenuPrintPreview();
-   void onMenuPrint();
-   void onMenuInsert( int id );
-   void onMenuAbout();
-   void onMenuQtAbout();
+   void onChangeMode();
+   void onColor();
 
 private:
-   bool saveSceneAs( QCDScene *scene );
+   explicit QDialogCDProperties(QWidget *parent = 0);
+   virtual ~QDialogCDProperties();
 
-   QMdiArea       *m_mdiArea;
-
-   QMenu          *m_menuFile;
-   QMenu          *m_menuInsert;
-   QMenu          *m_menuHelp;
-
-   QSignalMapper  *m_insertMapper;
-   QSignalMapper  *m_newLabelMapper;
+   Ui::QDialogCDProperties *m_ui;
 };
 
-#endif // MAINWINDOW_H
+#endif // QDIALOGCDPROPERTIES_H

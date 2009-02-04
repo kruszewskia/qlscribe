@@ -69,6 +69,9 @@ QLightDrive *QDialogPrint::exec( QWidget *parent, QLightScribe::PrintParameters 
 
    params = QLightScribe::PrintParameters(); // reset to default
 
+   if( dialog.m_ui->radioModeFull->isChecked() )
+      params.m_labelMode = modeFull;
+
    if( dialog.m_ui->radioModeTitle->isChecked() )
       params.m_labelMode = modeTitle;
 

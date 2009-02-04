@@ -88,12 +88,14 @@ void QCDScene::setLabelMode( LabelMode mode )
 {
    m_labelMode = mode;
    update();
+   setChanged();
 }
 
 void QCDScene::setCDColor( const QColor &color )
 {
    m_cdColor = color;
    update();
+   setChanged();
 }
 
 void QCDScene::setName()
@@ -121,7 +123,7 @@ void QCDScene::setChanged()
 
 void QCDScene::updateTitles() const
 {
-   QString name = m_name;
+   QString name = tr( "Label: ", "Window title \"Label\"" ) + m_name;
    if( !m_saved )
       name += " *";
 
