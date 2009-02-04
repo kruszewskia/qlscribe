@@ -32,7 +32,8 @@ HEADERS += mainwindow.h \
     qdialogprint.h \
     qdialogprogress.h \
     qlighttextitem.h \
-    qlightpixmapitem.h
+    qlightpixmapitem.h \
+    qlscribe.h
 FORMS += qdialogtext.ui \
     qdialogroundtext.ui \
     qdialogpixmap.ui \

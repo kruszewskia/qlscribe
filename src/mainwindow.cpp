@@ -42,15 +42,31 @@ MainWindow::MainWindow( bool enablePrint )
     : QMainWindow( 0 ),
     m_mdiArea( new QMdiArea( this ) ),
     m_menuFile( 0 ), m_menuInsert( 0 ),
-    m_insertMapper( new QSignalMapper( this ) )
+    m_insertMapper( new QSignalMapper( this ) ),
+    m_newLabelMapper( new QSignalMapper( this ) )
 {
    setCentralWidget( m_mdiArea );
 
    m_menuFile   = menuBar()->addMenu( tr( "File",   "Menu item \"File\"" ) );
 
-   m_menuFile->addAction( tr( "New", "Menu item \"New\"" ),
-                          this,
-                          SLOT(onMenuNew()) );
+   {
+      QMenu *newSubMenu = m_menuFile->addMenu( tr( "New label", "Menu item \"New lable\"" ) );
+      QAction *action = newSubMenu->addAction( tr( "Full", "Menu item \"Full\"" ),
+                                               m_newLabelMapper,
+                                               SLOT(map()) );
+      m_newLabelMapper->setMapping( action, modeFull );
+
+      action = newSubMenu->addAction( tr( "Content", "Menu item \"Content\"" ),
+                                      m_newLabelMapper,
+                                      SLOT(map()) );
+      m_newLabelMapper->setMapping( action, modeContent );
+
+      action = newSubMenu->addAction( tr( "Title", "Menu item \"Title\"" ),
+                                      m_newLabelMapper,
+                                      SLOT(map()) );
+      m_newLabelMapper->setMapping( action, modeTitle );
+   }
+   connect( m_newLabelMapper, SIGNAL(mapped(int)), this, SLOT(onMenuNewLabel(int)) );
 
    m_menuFile->addAction( tr( "Open...", "Menu item \"Open\"" ),
                           this,
@@ -174,10 +190,11 @@ bool MainWindow::saveScene( QCDScene *scene )
     event->accept();
  }
 
-void MainWindow::onMenuNew()
+void MainWindow::onMenuNewLabel( int mode )
 {
    QCDView *newView = new QCDView;
    QCDScene *scene = new QCDScene( newView );
+   scene->setLabelMode( LabelMode( mode ) );
    newView->setScene( scene );
    scene->setName();
 
@@ -268,6 +285,7 @@ void MainWindow::onMenuPrintPreview()
       return;
 
    QLightScribe::PrintParameters params;
+   params.m_labelMode = cdscene->labelMode();
    QLightDrive *drive = QDialogPrint::exec( this, params );
    if( !drive )
       return;

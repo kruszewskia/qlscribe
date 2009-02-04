@@ -54,6 +54,12 @@ QLightDrive *QDialogPrint::exec( QWidget *parent, QLightScribe::PrintParameters 
       return 0;
    }
    QDialogPrint dialog( parent );
+   switch( params.m_labelMode ) {
+   case modeFull    : dialog.m_ui->radioModeFull->setChecked( true ); break;
+   case modeContent : dialog.m_ui->radioModeContent->setChecked( true ); break;
+   case modeTitle   : dialog.m_ui->radioModeTitle->setChecked( true ); break;
+   }
+
    int index = 0;
    foreach( QLightDrive *drv, drives ) {
       dialog.m_ui->comboDrive->insertItem( index++, drv->displayName() );
@@ -64,10 +70,10 @@ QLightDrive *QDialogPrint::exec( QWidget *parent, QLightScribe::PrintParameters 
    params = QLightScribe::PrintParameters(); // reset to default
 
    if( dialog.m_ui->radioModeTitle->isChecked() )
-      params.m_labelMode = QLightScribe::modeTitle;
+      params.m_labelMode = modeTitle;
 
    if( dialog.m_ui->radioModeContent->isChecked() )
-      params.m_labelMode = QLightScribe::modeContent;
+      params.m_labelMode = modeContent;
 
    if( dialog.m_ui->radioQualityNormal->isChecked() )
       params.m_printQuality = QLightScribe::qualityNormal;

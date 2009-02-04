@@ -35,7 +35,9 @@
 QCDScene::QCDScene( QObject * parent )
    : QGraphicsScene( parent ),
    m_index( 0 ),
-   m_saved( true )
+   m_saved( true ),
+   m_labelMode( modeFull ),
+   m_cdColor( Qt::white )
 {
    setSceneRect( -60.0, -60.0, 60.0 * 2, 60.0 * 2 );
 }
@@ -82,6 +84,18 @@ bool QCDScene::save()
    return true;
 }
 
+void QCDScene::setLabelMode( LabelMode mode )
+{
+   m_labelMode = mode;
+   update();
+}
+
+void QCDScene::setCDColor( const QColor &color )
+{
+   m_cdColor = color;
+   update();
+}
+
 void QCDScene::setName()
 {
    if( m_fileName.isEmpty() ) {
@@ -117,6 +131,10 @@ void QCDScene::updateTitles() const
    }
 }
 
+void QCDScene::redrawViews() const
+{
+}
+
 bool QCDScene::saveAs( const QString &fileName )
 {
    QFile file( fileName );
@@ -137,6 +155,8 @@ void QCDScene::write( QXmlStreamWriter &writer )
 {
    writer.writeStartDocument();
    writer.writeStartElement( "scene" );
+   writer.writeAttribute( QXmlStreamAttribute( "mode", QString::number( m_labelMode ) ) );
+   writer.writeAttribute( QXmlStreamAttribute( "color", m_cdColor.name() ) );
 
    QShapeFactory &sfactory = QShapeFactory::instance();
    QList<QGraphicsItem *> list = items();
@@ -170,6 +190,8 @@ void QCDScene::read( QXmlStreamReader &reader )
             throw QString( "QCDScene: missing expected root element \"scene\", got \"" )
                   + elementName + "\" intead";
 
+         m_labelMode = LabelMode( reader.attributes().value( "mode" ).toString().toInt() );
+         m_cdColor = QColor( reader.attributes().value( "color" ).toString() );
          gotScene = true;
          continue;
       }

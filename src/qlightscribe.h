@@ -21,6 +21,8 @@
 #ifndef QLIGHTSCRIBE_H
 #define QLIGHTSCRIBE_H
 
+#include "qlscribe.h"
+
 #include <QThread>
 #include <QPixmap>
 
@@ -37,15 +39,6 @@ class QLightDrive;
 class QLightScribe : public QThread {
    Q_OBJECT
 public:
-   enum LabelMode {
-      /** label the entire disc */
-      modeFull=0,
-      /** label within the title mode constraints */
-      modeTitle=1,
-      /** label within the content mode constraints */
-      modeContent=2
-   };
-
    enum DrawOptions {
       /** disable scaling of bitmaps; they will be cropped if needed */
       drawDefault=0,

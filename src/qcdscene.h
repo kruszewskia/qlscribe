@@ -21,6 +21,8 @@
 #ifndef QCDSCENE_H
 #define QCDSCENE_H
 
+#include "qlscribe.h"
+
 #include <QGraphicsScene>
 
 class QXmlStreamWriter;
@@ -32,6 +34,12 @@ public:
    QCDScene( QObject * parent = 0 );
    virtual ~QCDScene();
 
+   LabelMode labelMode() const { return m_labelMode; }
+   void setLabelMode( LabelMode mode );
+
+   QColor cdColor() const { return m_cdColor; }
+   void setCDColor( const QColor &color );
+
    bool isSaved() const { return m_saved; }
    bool isUnnamed() const { return m_fileName.isEmpty(); }
 
@@ -42,6 +50,7 @@ public:
    bool saveAs( const QString &fileName );
 
    void updateTitles() const;
+   void redrawViews() const;
    QString name() const { return m_name; }
 
 protected:
@@ -59,10 +68,12 @@ private:
    void sendItemTo( bool front );
 
 private:
-   QString m_name;
-   QString m_fileName;
-   int     m_index;
-   bool    m_saved;
+   QString   m_name;
+   QString   m_fileName;
+   int       m_index;
+   bool      m_saved;
+   LabelMode m_labelMode;
+   QColor    m_cdColor;
 };
 
 #endif //QCDSCENE_H

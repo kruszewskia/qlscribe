@@ -39,7 +39,7 @@ protected:
     virtual void closeEvent( QCloseEvent *event );
 
 private slots:
-   void onMenuNew();
+   void onMenuNewLabel( int mode );
    void onMenuOpen();
    void onMenuSave();
    void onMenuSaveAs();
@@ -59,6 +59,7 @@ private:
    QMenu          *m_menuHelp;
 
    QSignalMapper  *m_insertMapper;
+   QSignalMapper  *m_newLabelMapper;
 };
 
 #endif // MAINWINDOW_H
