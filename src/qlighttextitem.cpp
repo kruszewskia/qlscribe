@@ -55,6 +55,7 @@ QGraphicsItem *QShapeControllerText::create() const
 {
    QGraphicsItem *item = new QLightTextItem;
    item->setTransform( QTransform().scale( 0.5, 0.5 ), true );
+   item->setPos( 0, -40.0 );
 
    return item;
 }
