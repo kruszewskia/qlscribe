@@ -1,5 +1,10 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.6:
+    Label mode and background color is added to scene
+    Added dialog to edit properties (color and mode) of the scene (label)
+    Scene passes mode to the print dialog
+
 New in 0.5:
     Bugfix for crash on writing
     CD inner size increased to 25mm on QCDView
