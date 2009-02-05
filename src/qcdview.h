@@ -49,6 +49,7 @@ private:
    void drawCD( QPainter * painter, const QRectF & rect, bool alpha );
 
    QPixmap *m_mask;
+   int      m_labelMode;
 };
 
 #endif // QCDVIEW_H

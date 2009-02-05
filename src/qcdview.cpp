@@ -27,7 +27,8 @@
 
 QCDView::QCDView( QWidget *parent )
    : QGraphicsView( parent ),
-   m_mask( new QPixmap )
+   m_mask( new QPixmap ),
+   m_labelMode( -1 )
 {
    setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
    setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -83,8 +84,7 @@ void QCDView::closeEvent( QCloseEvent *event )
 inline 
 void drawCircle( QPainter *painter, double radi )
 {
-   painter->drawEllipse( int( -radi ), int( -radi ),
-                         int( radi * 2 ), int( radi * 2 ) );
+   painter->drawEllipse( QRectF( -radi, -radi, radi * 2, radi * 2 ) );
 }
 
 void QCDView::drawCD( QPainter *painter, const QRectF & rect, bool alpha )
@@ -92,12 +92,15 @@ void QCDView::drawCD( QPainter *painter, const QRectF & rect, bool alpha )
    painter->setBrush( alpha ? Qt::lightGray : Qt::gray );
    painter->drawRect( rect );
 
+   const double fullInner = 24.7, fullOuter = 60.0;
+
    QCDScene *cdscene = scene();
    if( cdscene ) {
-      double inner = 25.0, outer = 59.0;
+      double inner = 0, outer = 0;
       switch( cdscene->labelMode() ) {
-      case modeTitle :    inner = 30.0; outer = 40.0; break;
-      case modeContent :  inner = 30.0; outer = 50.0; break;
+      case modeFull :     inner = 24.7; outer = 60.0; break;
+      case modeTitle :    inner = 32.0; outer = 37.4; break;
+      case modeContent :  inner = 25.8; outer = 37.4; break;
       }
       if( alpha ) {
          painter->setBrush( Qt::black );
@@ -107,28 +110,28 @@ void QCDView::drawCD( QPainter *painter, const QRectF & rect, bool alpha )
          drawCircle( painter, inner );
       } else {
          QColor darker( cdscene->cdColor().darker( 150 ) );
-         if( outer < 59.0 ) {
+         if( outer < fullOuter ) {
             painter->setBrush( darker );
-            drawCircle( painter, 59.0 );
+            drawCircle( painter, fullOuter );
          }
 
          painter->setBrush( cdscene->cdColor() );
          drawCircle( painter, outer );
 
-         if( inner > 25.0 ) {
+         if( inner > fullInner ) {
             painter->setBrush( darker );
             drawCircle( painter, inner );
          }
 
          painter->setBrush( Qt::darkGray );
-         drawCircle( painter, 25.0 );
+         drawCircle( painter, fullInner );
       }
    } else {
       painter->setBrush( alpha ? Qt::black : Qt::white );
-      drawCircle( painter, 59.0 );
+      drawCircle( painter, fullOuter );
 
       painter->setBrush( alpha ? Qt::lightGray : Qt::darkGray );
-      drawCircle( painter, 25.0 );
+      drawCircle( painter, fullInner );
    }
 
    painter->setBrush( alpha ? Qt::white : Qt::gray );
@@ -138,7 +141,11 @@ void QCDView::drawCD( QPainter *painter, const QRectF & rect, bool alpha )
 void QCDView::drawForeground ( QPainter * painter, const QRectF & rect )
 {
    if( !painter ) return;
-   if( m_mask->size() != frameSize() ) {
+   QCDScene *cdscene = scene();
+   if( m_mask->size() != frameSize() || ( cdscene && m_labelMode != cdscene->labelMode() ) ) {
+      if( cdscene )
+         m_labelMode = cdscene->labelMode();
+
       *m_mask = QPixmap( frameSize() );
 
       {
