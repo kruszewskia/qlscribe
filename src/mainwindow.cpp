@@ -46,6 +46,7 @@ MainWindow::MainWindow( bool enablePrint )
     m_insertMapper( new QSignalMapper( this ) ),
     m_newLabelMapper( new QSignalMapper( this ) )
 {
+   setWindowTitle( tr( "Qt lightScribe", "Main window title \"Qt lightScribe\"" ) );
    setCentralWidget( m_mdiArea );
 
    m_menuFile   = menuBar()->addMenu( tr( "File",   "Menu item \"File\"" ) );
@@ -332,7 +333,7 @@ void MainWindow::onMenuAbout()
    QMessageBox::about( this,
                        tr( "About" ),
                        tr( "<h3>qlscribe - Qt lisghtScribe</h3>"
-                           "<p>release 0.6 $Revision$</p>"
+                           "<p>release 0.7 $Revision$</p>"
                            "<p>visit project at home page "
                            "<a href=\"http://qlscribe.sourceforge.net/\">qlscribe.sourceforge.net</a></p>" ) );
 }
