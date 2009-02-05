@@ -46,6 +46,11 @@ bool QDialogCDProperties::exec( QWidget *parent, QCDScene *scene )
    dialog.setWindowTitle( tr( "Label properties: ", "Dialog title \"Label properties: \"" )
                           + scene->name() );
    dialog.m_ui->cdView->setScene( &lscene );
+   switch( scene->labelMode() ) {
+   case modeFull    : dialog.m_ui->radioModeFull->setChecked( true ); break;
+   case modeTitle   : dialog.m_ui->radioModeTitle->setChecked( true ); break;
+   case modeContent : dialog.m_ui->radioModeContent->setChecked( true ); break;
+   }
 
    if( dialog.QDialog::exec() == Rejected ) return false;
 
