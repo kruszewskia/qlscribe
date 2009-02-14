@@ -267,6 +267,7 @@ void QShapeControllerRoundText::writeData( QXmlStreamWriter &writer, const QGrap
    writer.writeEmptyElement( "pos" );
    writer.writeAttribute( QXmlStreamAttribute( "x", QString::number( textItem->pos().x() ) ) );
    writer.writeAttribute( QXmlStreamAttribute( "y", QString::number( textItem->pos().y() ) ) );
+   writer.writeAttribute( QXmlStreamAttribute( "z", QString::number( textItem->zValue() ) ) );
 
    writer.writeTextElement( "radius", QString::number( textItem->radius() ) );
    writer.writeTextElement( "angle", QString::number( textItem->angle() ) );
@@ -287,6 +288,7 @@ void QShapeControllerRoundText::readData( const QString &element,
    if( element == "pos" ) {
       textItem->setPos( attrs.value( "x" ).toString().toDouble(),
                         attrs.value( "y" ).toString().toDouble() );
+      textItem->setZValue( attrs.value( "z" ).toString().toDouble() );
       return;
    }
 
@@ -309,6 +311,11 @@ void QShapeControllerRoundText::readData( const QString &element,
 
    if( element == "location" ) {
       textItem->setOutside( data.toInt() );
+      return;
+   }
+
+   if( element == "radius" ) {
+      textItem->setRadius( data.toDouble() );
       return;
    }
 
