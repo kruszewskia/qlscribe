@@ -70,10 +70,9 @@ void QShapeControllerPixmap::writeData( QXmlStreamWriter &writer, const QGraphic
          = static_cast< const QGraphicsPixmapItem * >( item );
 
    writer.writeEmptyElement( "pos" );
-   writer.writeAttribute(
-         QXmlStreamAttribute( "x", QString::number( pixmapItem->pos().x() ) ) );
-   writer.writeAttribute(
-         QXmlStreamAttribute( "y", QString::number( pixmapItem->pos().y() ) ) );
+   writer.writeAttribute( QXmlStreamAttribute( "x", QString::number( pixmapItem->pos().x() ) ) );
+   writer.writeAttribute( QXmlStreamAttribute( "y", QString::number( pixmapItem->pos().y() ) ) );
+   writer.writeAttribute( QXmlStreamAttribute( "z", QString::number( pixmapItem->zValue() ) ) );
 
    QPointF scale = pixmapItem->transform().map( QPointF( 1.0, 1.0 ) );
    writer.writeEmptyElement( "scale" );
@@ -96,6 +95,7 @@ void QShapeControllerPixmap::readData( const QString &element,
    if( element == "pos" ) {
       pixmapItem->setPos( attrs.value( "x" ).toString().toDouble(),
                           attrs.value( "y" ).toString().toDouble() );
+      pixmapItem->setZValue( attrs.value( "z" ).toString().toDouble() );
       return;
    }
 

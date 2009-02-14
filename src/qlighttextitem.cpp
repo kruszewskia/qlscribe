@@ -71,6 +71,7 @@ void QShapeControllerText::writeData( QXmlStreamWriter &writer, const QGraphicsI
    writer.writeEmptyElement( "pos" );
    writer.writeAttribute( QXmlStreamAttribute( "x", QString::number( textItem->pos().x() ) ) );
    writer.writeAttribute( QXmlStreamAttribute( "y", QString::number( textItem->pos().y() ) ) );
+   writer.writeAttribute( QXmlStreamAttribute( "z", QString::number( textItem->zValue() ) ) );
 
    writer.writeTextElement( "font", textItem->font().toString() );
    writer.writeTextElement( "color", textItem->brush().color().name() );
@@ -88,6 +89,7 @@ void QShapeControllerText::readData( const QString &element,
    if( element == "pos" ) {
       textItem->setPos( attrs.value( "x" ).toString().toDouble(),
                         attrs.value( "y" ).toString().toDouble() );
+      textItem->setZValue( attrs.value( "z" ).toString().toDouble() );
       return;
    }
 
