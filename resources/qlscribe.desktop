@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Qt lightScribe
+Exec=qlscribe
+Icon=qlscribe.png
+Terminal=false
+Type=Application
+MimeType=application/x-qlscribe;
+Categories=AudioVideo;DiscBurning;
