@@ -1,5 +1,11 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.7:
+    Z-order of items saved and resored
+    Bugfix for not loading radius for round text
+    Console mode printing implemented
+    While printing in console mode text can be replaced by application parameter
+
 New in 0.6:
     Label mode and background color is added to scene
     Added dialog to edit properties (color and mode) of the scene (label)
