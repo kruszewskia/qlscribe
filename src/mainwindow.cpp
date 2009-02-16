@@ -131,9 +131,6 @@ MainWindow::MainWindow( bool enablePrint )
 
 MainWindow::~MainWindow()
 {
-   QLightScribe *scribe = QLightScribe::instance();
-   scribe->stopThread();
-   scribe->wait( 1000 );
 }
 
 void MainWindow::open( const QStringList &files )

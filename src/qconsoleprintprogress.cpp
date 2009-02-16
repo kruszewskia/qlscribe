@@ -41,10 +41,7 @@ void QConsolePrintProgress::onFinished( int status )
    if( !status )
       std::cout << "Print successfull" << std::endl;
    else
-      std::cout << "Prin failed: 0x" << QString::number( status, 16 ) << std::endl;
+      std::cout << "Print failed: 0x" << QString::number( status, 16 ) << std::endl;
 
-   QLightScribe *scribe = QLightScribe::instance();
-   scribe->stopThread();
-   scribe->wait( 1000 );
    qApp->exit( status );
 }

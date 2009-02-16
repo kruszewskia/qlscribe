@@ -153,5 +153,8 @@ int main( int argc, char **argv )
       rez = app.exec();
    }
 
+   QLightScribe *scribe = QLightScribe::instance();
+   scribe->stopThread();
+   scribe->wait( 1000 );
    return rez;
 }
