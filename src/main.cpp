@@ -87,6 +87,15 @@ int main( int argc, char **argv )
          replacements[ param.left( pos ) ] = param.right( param.size() - pos - 1 );
          continue;
       }
+      if( arg == "--drive" || arg == "-d" ) {
+         if( i == arguments.size() - 1 ) {
+            std::cerr << "Error: arg#" << i
+                  << " argument expected for \"" << arg << "\" not enough parameters" << std::endl;
+            return 1;
+         }
+         QString param = arguments[ ++i ];
+         driveIndex = param.toInt();
+      }
       if( arg[0] != '-' )
          files.append( arg );
    }
@@ -139,7 +148,7 @@ int main( int argc, char **argv )
       QLightScribe *scribe = QLightScribe::instance();
       QList< QLightDrive * > drives = scribe->getDrives();
       if( driveIndex >= drives.size() ) {
-         std::cerr << "Error: drive " << driveIndex << " but there are only " << drives.size() << " drives" << std::endl;
+         std::cerr << "Error: drive " << driveIndex << " specified, but there are only " << drives.size() << " drives" << std::endl;
          return 6;
       }
       QConsolePrintProgress progress;
