@@ -33,3 +33,4 @@ FIND_PACKAGE( Qt4 REQUIRED )
 FIND_PACKAGE( LightScribe REQUIRED )
 
 SUBDIRS( src )
+SUBDIRS( resources )
