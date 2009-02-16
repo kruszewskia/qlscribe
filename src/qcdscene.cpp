@@ -48,11 +48,28 @@ QCDScene::~QCDScene()
 {
 }
 
-bool QCDScene::load( const QString &fileName )
+void QCDScene::replace( const QString2String &strings )
+{
+   QShapeFactory &sfactory = QShapeFactory::instance();
+   QList<QGraphicsItem *> list = items();
+
+   for( QString2String::const_iterator st = strings.begin(); st != strings.end(); ++st ) {
+      foreach(QGraphicsItem *item, list ) {
+         QShapeFactory::iterator f = sfactory.find( item->type() );
+         if( f != sfactory.end() )
+            f->second->replace( item, st.key(), st.value() );
+      }
+   }
+}
+
+bool QCDScene::load( const QString &fileName, QString *errMessage )
 {
    QFile file( fileName );
    if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-      QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot open file for reading\n" ) + fileName );
+      if( errMessage )
+         *errMessage = "cannot open file for reading";
+      else
+         QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot open file for reading\n" ) + fileName );
       return false;
    }
    QXmlStreamReader reader( &file );
@@ -60,7 +77,10 @@ bool QCDScene::load( const QString &fileName )
       read( reader );
    }
    catch( const QString &err ) {
-      QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot read file " ) + fileName + "\n" + err );
+      if( errMessage )
+         *errMessage = err;
+      else
+         QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot read file " ) + fileName + "\n" + err );
       return false;
    }
    m_fileName = fileName;
@@ -162,13 +182,13 @@ void QCDScene::write( QXmlStreamWriter &writer )
 
    QShapeFactory &sfactory = QShapeFactory::instance();
    QList<QGraphicsItem *> list = items();
-   for( QList<QGraphicsItem *>::const_iterator it = list.begin(); it != list.end(); ++it ) {
-      QShapeFactory::iterator f = sfactory.find( (*it)->type() );
+   foreach(QGraphicsItem *item, list ) {
+      QShapeFactory::iterator f = sfactory.find( item->type() );
       if( f == sfactory.end() ) {
-         QMessageBox::warning( 0, tr( "Warning" ), tr( "Cannot find controller for type %n", 0, (*it)->type() ) );
+         QMessageBox::warning( 0, tr( "Warning" ), tr( "Cannot find controller for type %n", 0, item->type() ) );
          continue;
       }
-      f->second->write( writer, *it );
+      f->second->write( writer, item );
    }
 
    writer.writeEndElement();

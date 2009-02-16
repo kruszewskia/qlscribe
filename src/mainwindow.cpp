@@ -131,9 +131,26 @@ MainWindow::MainWindow( bool enablePrint )
 
 MainWindow::~MainWindow()
 {
-   QLightScribe *lscribe = QLightScribe::instance();
-   lscribe->stopThread();
-   lscribe->wait( 1000 );
+   QLightScribe *scribe = QLightScribe::instance();
+   scribe->stopThread();
+   scribe->wait( 1000 );
+}
+
+void MainWindow::open( const QStringList &files )
+{
+   foreach( QString fileName, files ) {
+      QCDView *newView = new QCDView;
+      QCDScene *scene = new QCDScene( newView );
+      newView->setScene( scene );
+
+      if( !scene->load( fileName ) ) {
+         delete newView;
+         continue;
+      }
+
+      QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
+      subWindow->show();
+   }
 }
 
 bool MainWindow::saveSceneAs( QCDScene *scene )

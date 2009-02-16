@@ -16,10 +16,13 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QLSCRIBE_H
 #define QLSCRIBE_H
+
+#include <iostream>
+#include <QString>
 
 enum LabelMode {
    /** label the entire disc */
@@ -29,5 +32,7 @@ enum LabelMode {
    /** label within the content mode constraints */
    modeContent=2
 };
+
+std::ostream &operator<<( std::ostream &os, const QString &str );
 
 #endif // QLSCRIBE_H

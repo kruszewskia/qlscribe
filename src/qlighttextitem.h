@@ -43,6 +43,7 @@ public:
    virtual QString menuName() const;
 
    virtual QGraphicsItem *create() const;
+   virtual void replace( QGraphicsItem *item, const QString &from, const QString &to ) const;
 
 protected:
    virtual QItemDialog *createDialog( QWidget *parent ) const;

@@ -88,6 +88,10 @@ QGraphicsItem *QShapeController::read( QXmlStreamReader &reader ) const
    return item;
 }
 
+void QShapeController::replace( QGraphicsItem *, const QString &, const QString & ) const
+{
+}
+
 QShapeFactory &QShapeFactory::QShapeFactory::instance()
 {
    static QShapeFactory inst;

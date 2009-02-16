@@ -31,6 +31,8 @@ class QXmlStreamReader;
 class QCDScene : public QGraphicsScene {
    Q_OBJECT
 public:
+   typedef QMap<QString,QString> QString2String;
+
    QCDScene( QObject * parent = 0 );
    virtual ~QCDScene();
 
@@ -45,7 +47,8 @@ public:
 
    void setChanged();
    void setName();
-   bool load( const QString &fileName );
+   bool load( const QString &fileName, QString *errMessage = 0 );
+   void replace( const QString2String &strings );
    bool save();
    bool saveAs( const QString &fileName );
 

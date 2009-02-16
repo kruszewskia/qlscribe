@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QSHAPEFACTORY_H
 #define QSHAPEFACTORY_H
@@ -46,9 +46,12 @@ public:
    virtual QString name() const = 0;
    virtual QString menuName() const = 0;
    virtual QGraphicsItem *create() const = 0;
+
    bool edit( QGraphicsItem *item, QWidget *parent ) const;
    void write( QXmlStreamWriter &writer, const QGraphicsItem *item ) const;
    QGraphicsItem *read( QXmlStreamReader &reader ) const;
+
+   virtual void replace( QGraphicsItem *item, const QString &from, const QString &to ) const;
 
 protected:
    virtual QItemDialog *createDialog( QWidget *parent ) const = 0;

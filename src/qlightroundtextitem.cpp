@@ -261,6 +261,13 @@ QItemDialog *QShapeControllerRoundText::createDialog( QWidget *parent ) const
    return new QDialogRoundText( parent );
 }
 
+void QShapeControllerRoundText::replace( QGraphicsItem *item, const QString &from, const QString &to ) const
+{
+   QLightRoundTextItem *textItem = static_cast< QLightRoundTextItem * >( item );
+   if( textItem->text() == from )
+      textItem->setText( to );
+}
+
 void QShapeControllerRoundText::writeData( QXmlStreamWriter &writer, const QGraphicsItem *item ) const
 {
    const QLightRoundTextItem *textItem = static_cast< const QLightRoundTextItem * >( item );

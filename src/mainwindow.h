@@ -35,6 +35,8 @@ public:
     virtual ~MainWindow();
 
    bool saveScene( QCDScene *scene );
+   void open( const QStringList &files );
+
 protected:
     virtual void closeEvent( QCloseEvent *event );
 

@@ -78,6 +78,13 @@ void QShapeControllerText::writeData( QXmlStreamWriter &writer, const QGraphicsI
    writer.writeTextElement( "text", textItem->text() );
 }
 
+void QShapeControllerText::replace( QGraphicsItem *item, const QString &from, const QString &to ) const
+{
+   QGraphicsSimpleTextItem *textItem = static_cast< QGraphicsSimpleTextItem * >( item );
+   if( textItem->text() == from )
+      textItem->setText( to );
+}
+
 
 void QShapeControllerText::readData( const QString &element,
                                      const QXmlStreamAttributes &attrs,
