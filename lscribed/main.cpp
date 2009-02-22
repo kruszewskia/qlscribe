@@ -21,9 +21,30 @@
 #include <iostream>
 
 #include <dbus/dbus.h>
+#include "lscribed.h"
 
 int main( int argc, char **argv )
 {
+   DBusError err;
+   dbus_error_init( &err );
+
+   DBusConnection *conn = dbus_bus_get( DBUS_BUS_SYSTEM, &err );
+   if( dbus_error_is_set( &err ) ) {
+      std::cerr << "dbus_bus_get() error: " << err.message << std::endl;
+      dbus_error_free( &err );
+      return 1;
+   }
+   int ret = dbus_bus_request_name( conn, DBusServiceName, DBUS_NAME_FLAG_REPLACE_EXISTING, &err );
+   if( dbus_error_is_set( &err ) ) {
+      std::cerr << "dbus_bus_request_name error: " << err.message << std::endl;
+      dbus_error_free( &err );
+      return 2;
+   }
+   if( ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
+      std::cerr << "could not get ownership of \"" << DBusServiceName << "\" terminating" << std::endl;
+      return 3;
+   }
+   while( dbus_connection_read_write_dispatch( conn, -1 ) );
 
    return 0;
 }
