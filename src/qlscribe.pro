@@ -35,7 +35,6 @@ HEADERS += mainwindow.h \
     qdialogprogress.h \
     qlighttextitem.h \
     qlightpixmapitem.h \
-    qlscribe.h \
     qdialogcdproperties.h \
     qconsoleprintprogress.h
 FORMS += qdialogtext.ui \

@@ -39,7 +39,7 @@ QLightScribe *QLightScribe::instance()
 }
 
 QLightScribe::QLightScribe()
-   : m_managerPrx( new OrgLightscribePrintManagerInterface( "org.lightscribe", "/org/lightscribe/Manager", QDBusConnection::systemBus(), this ) )
+   : m_managerPrx( new OrgLightscribePrintManagerInterface( DBusServiceName, DBusManagerPath, QDBusConnection::systemBus(), this ) )
 {
 }
 
@@ -64,7 +64,7 @@ QList< QLightDrive * > QLightScribe::getDrives()
 
 QLightDrive::QLightDrive( QObject *parent, const QString &path, const QString &name )
    : QObject( parent ),
-     m_drivePrx( new OrgLightscribeDriveInterface( "org.lightscribe", path, QDBusConnection::systemBus(), this ) ),
+     m_drivePrx( new OrgLightscribeDriveInterface( DBusServiceName, path, QDBusConnection::systemBus(), this ) ),
      m_displayName( name ),
      m_path( path )
 {

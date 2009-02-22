@@ -21,9 +21,6 @@
 #ifndef QLSCRIBE_H
 #define QLSCRIBE_H
 
-#include <iostream>
-#include <QString>
-
 enum LabelMode {
    /** label the entire disc */
    modeFull=0,
@@ -62,6 +59,7 @@ enum MediaOptimizationLevel {
    mediaGeneric
 };
 
-std::ostream &operator<<( std::ostream &os, const QString &str );
+const char * const DBusServiceName = "@QLSCRIBE_DBUS_SERVICE@";
+const char * const DBusManagerPath = "@QLSCRIBE_DBUS_MANAGER@";
 
 #endif // QLSCRIBE_H

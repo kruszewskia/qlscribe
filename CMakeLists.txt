@@ -24,6 +24,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 
 SET( CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 
+SET( QLSCRIBE_DBUS_SERVICE org.lightscribe )
+SET( QLSCRIBE_DBUS_MANAGER /org/lightscribe/Manager )
+
 SUBDIRS( src )
 SUBDIRS( resources )
 SUBDIRS( lscribed )

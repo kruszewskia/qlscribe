@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+std::ostream &operator<<( std::ostream &os, const QString &str );
+
 QConsolePrintProgress::QConsolePrintProgress( QLightDrive *drive )
       : m_drive( drive )
 {
