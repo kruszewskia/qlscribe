@@ -24,8 +24,8 @@
 <node>
   <interface name="org.lightscribe.printManager">
     <method name="getDrives">
-      <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QMap &lt;QDBusObjectPath,QString&gt;"/>
-      <arg type="a{os}" direction="out"/>
+      <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QMap &lt;QString,QString&gt;"/>
+      <arg type="a{ss}" direction="out"/>
     </method>
   </interface>
   <interface name="org.lightscribe.drive">
@@ -36,6 +36,9 @@
     <signal name="labelProgress">
       <arg name="current" type="i" direction="out"/>
       <arg name="final" type="i" direction="out"/>
+    </signal>
+    <signal name="timeEstimate">
+      <arg name="time" type="i" direction="out"/>
     </signal>
     <signal name="finished">
       <arg name="status" type="i" direction="out"/>
