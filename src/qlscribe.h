@@ -33,6 +33,35 @@ enum LabelMode {
    modeContent=2
 };
 
+enum DrawOptions {
+   /** disable scaling of bitmaps; they will be cropped if needed */
+   drawDefault=0,
+   /** Fit the height to the label size */
+   drawFitHeightToLabel=1,
+   /** Fit the width to the label size */
+   drawFitWidthToLabel=2,
+   /** Fit the smallest dimension to the label size */
+   drawFitSmallestToLabel=4
+};
+
+enum PrintQuality {
+   /** Best and slowest. */
+   qualityBest=0,
+   /** OK for everyday use. */
+   qualityNormal=1,
+   /** Fast but lower contrast. */
+   qualityDraft=2
+};
+
+enum MediaOptimizationLevel {
+   /** Require that media is present and optimized labeling
+         * parameters are available */
+   mediaRecognized,
+   /** Require that media is present but optimized labeling
+         * parameters are not available */
+   mediaGeneric
+};
+
 std::ostream &operator<<( std::ostream &os, const QString &str );
 
 #endif // QLSCRIBE_H

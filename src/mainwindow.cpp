@@ -313,14 +313,14 @@ void MainWindow::onMenuPrintPreview()
    if( !cdscene )
       return;
 
-   QLightScribe::PrintParameters params;
+   PrintParameters params;
    params.m_labelMode = cdscene->labelMode();
    QLightDrive *drive = QDialogPrint::exec( this, params );
    if( !drive )
       return;
 
    try {
-      QPixmap pixmap = QLightScribe::instance()->preview( drive, params, cdscene, QSize( 400, 400 ) );
+      QPixmap pixmap = drive->preview( params, cdscene, QSize( 400, 400 ) );
 
       QLabel *label = new QLabel;
       label->setPixmap( pixmap );

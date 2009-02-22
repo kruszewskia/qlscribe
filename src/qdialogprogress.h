@@ -31,6 +31,7 @@ class QCDScene;
 class QAbstractButton;
 class QTime;
 class QTimer;
+class QLightDrive;
 
 class QDialogProgress : public QDialog {
    Q_OBJECT
@@ -50,10 +51,11 @@ protected:
     virtual void changeEvent(QEvent *e);
 
 private:
-    explicit QDialogProgress(QWidget *parent = 0);
+    QDialogProgress(QWidget *parent, QLightDrive *drive );
     virtual ~QDialogProgress();
 
     Ui::QDialogProgress *m_ui;
+    QLightDrive         *m_drive;
     QTime               *m_start;
     QTimer              *m_timer;
 };

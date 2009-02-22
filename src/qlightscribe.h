@@ -23,106 +23,49 @@
 
 #include "qlscribe.h"
 
-#include <QThread>
 #include <QPixmap>
-
-#include <map>
-
-#include <lightscribe_errors.h>
+#include <QMetaType>
+#include <QMap>
+#include <QDBusObjectPath>
 
 class QCDScene;
-class QMutex;
-class QWaitCondition;
-
 class QLightDrive;
 
-class QLightScribe : public QThread {
-   Q_OBJECT
-public:
-   enum DrawOptions {
-      /** disable scaling of bitmaps; they will be cropped if needed */
-      drawDefault=0,
-      /** Fit the height to the label size */
-      drawFitHeightToLabel=1,
-      /** Fit the width to the label size */
-      drawFitWidthToLabel=2,
-      /** Fit the smallest dimension to the label size */
-      drawFitSmallestToLabel=4
-   };
+struct PrintParameters {
+   LabelMode              m_labelMode;
+   DrawOptions            m_drawOptions;
+   PrintQuality           m_printQuality;
+   MediaOptimizationLevel m_mediaOptimizationLevel;
 
-   enum PrintQuality {
-      /** Best and slowest. */
-      qualityBest=0,
-      /** OK for everyday use. */
-      qualityNormal=1,
-      /** Fast but lower contrast. */
-      qualityDraft=2
-   };
-
-   enum MediaOptimizationLevel {
-      /** Require that media is present and optimized labeling
-         * parameters are available */
-      mediaRecognized,
-      /** Require that media is present but optimized labeling
-         * parameters are not available */
-      mediaGeneric
-   };
-
-   struct PrintParameters {
-      LabelMode              m_labelMode;
-      DrawOptions            m_drawOptions;
-      PrintQuality           m_printQuality;
-      MediaOptimizationLevel m_mediaOptimizationLevel;
-
-      PrintParameters()
+   PrintParameters()
             : m_labelMode( modeFull ), m_drawOptions( drawDefault ),
             m_printQuality( qualityBest ), m_mediaOptimizationLevel( mediaRecognized )  {}
-      PrintParameters( LabelMode labelMode, DrawOptions drawOptions, PrintQuality printQuality, MediaOptimizationLevel mediaOptimizationLevel )
+   PrintParameters( LabelMode labelMode, DrawOptions drawOptions, PrintQuality printQuality, MediaOptimizationLevel mediaOptimizationLevel )
             : m_labelMode( labelMode ), m_drawOptions( drawOptions ),
             m_printQuality( printQuality ), m_mediaOptimizationLevel( mediaOptimizationLevel )  {}
-   };
+};
 
+Q_DECLARE_METATYPE(PrintParameters);
+
+typedef QMap<QDBusObjectPath, QString> QObject2StringMap;
+Q_DECLARE_METATYPE(QObject2StringMap);
+
+class QLightScribe : public QObject {
+   Q_OBJECT
+public:
    static QLightScribe *instance();
 
-   QList< QLightDrive * > getDrives( bool refresh = false );
-   QPixmap preview( QLightDrive *drive, const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString );
-   void print( QLightDrive *drive, const PrintParameters &params, QCDScene *scene );
-
-   friend bool clAbortLabel();
-public slots:
-   void abort();
-   void stopThread();
-
-signals:
-   void prepareProgress( long current, long final );
-   void labelProgress( long current, long final );
-   void timeEstimate( long time );
-   void finished( int status );
-
-protected:
-   virtual void run ();
+   QList<QLightDrive *> getDrives();
 
 private:
-   static bool clAbortLabel();
-   static void clReportPrepareProgress(long current, long final);
-   static void clReportLabelProgress(long current, long final);
-   static void clReportFinished(LSError status);
-   static bool clReportLabelTimeEstimate(long time);
-
    QLightScribe();
    virtual ~QLightScribe();
 
-   struct Task;
-
    QList< QLightDrive * > m_drives;
-   Task                  *m_task;
-   bool                   m_aborted;
-   QMutex                *m_mutex;
-   QWaitCondition        *m_waitQueue;
-   QWaitCondition        *m_waitDone;
 };
 
-class QLightDrive {
+class QLightDrive : public QObject {
+   Q_OBJECT
 public:
    const QString &productName() const { return m_productName; }
    const QString &vendorName() const { return m_vendorName; }
@@ -133,6 +76,18 @@ public:
    double outerRadius() const { return m_outerRadius; }
 
    friend class QLightScribe;
+
+   QPixmap preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString );
+   void print( const PrintParameters &params, QCDScene *scene );
+
+public slots:
+   void abort();
+
+signals:
+   void prepareProgress( long current, long final );
+   void labelProgress( long current, long final );
+   void timeEstimate( long time );
+   void finished( int status );
 
 private:
    QString m_productName;

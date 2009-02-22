@@ -18,6 +18,9 @@
 #
 #    $Id$ 
 
+FIND_PACKAGE( Qt4 REQUIRED )
+SET( QT_USE_QTDBUS 1 )
+
 SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp
      qdialogpixmap.cpp qdialogroundtext.cpp qdialogtext.cpp qlightroundtextitem.cpp 
      qlightscribe.cpp qshapefactory.cpp qlighttextitem.cpp qlightpixmapitem.cpp 
@@ -38,11 +41,31 @@ QT4_WRAP_UI( QLSCRIBE_UI_HDRS ${QLSCRIBE_UIS} )
 
 QT4_WRAP_CPP( QLSCRIBE_MOC_SRCS ${QLSCRIBE_MOC_HDRS} )
 
+MACRO(ADD_DBUS_INTERFACE _sources _interface _basename)
+         GET_FILENAME_COMPONENT(_infile ${_interface} ABSOLUTE)
+         SET(_header ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.h)
+         SET(_impl   ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.cpp)
+         SET(_moc    ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.moc)
+
+         ADD_CUSTOM_COMMAND(OUTPUT ${_impl} ${_header}
+           COMMAND ${QT_DBUSXML2CPP_EXECUTABLE} -m -i qlightscribe.h -p ${_basename} ${_infile}
+           DEPENDS ${_infile})
+
+         SET_SOURCE_FILES_PROPERTIES(${_impl} PROPERTIES SKIP_AUTOMOC TRUE)
+
+         QT4_GENERATE_MOC(${_header} ${_moc})
+
+         SET(${_sources} ${${_sources}} ${_impl} ${_header} ${_moc})
+         MACRO_ADD_FILE_DEPENDENCIES(${_impl} ${_moc})
+ENDMACRO(ADD_DBUS_INTERFACE)
+
+ADD_DBUS_INTERFACE( QLSCRIBE_DBUS_SRCS lightscribe.xml lightscribe_interface )
+
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR}/src ${CMAKE_SOURCE_DIR}/src )
 
-ADD_EXECUTABLE( qlscribe ${QLSCRIBE_SRCS} ${QLSCRIBE_MOC_SRCS} ${QLSCRIBE_UI_HDRS} )
+ADD_EXECUTABLE( qlscribe ${QLSCRIBE_SRCS} ${QLSCRIBE_MOC_SRCS} ${QLSCRIBE_UI_HDRS} ${QLSCRIBE_DBUS_SRCS} )
 
-TARGET_LINK_LIBRARIES( qlscribe ${QT_LIBRARIES} ${LSCRIBE_LIBRARIES} )
+TARGET_LINK_LIBRARIES( qlscribe ${QT_LIBRARIES} )
 
 INSTALL( TARGETS qlscribe 
          DESTINATION bin 

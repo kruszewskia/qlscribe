@@ -46,7 +46,7 @@ void QDialogPrint::changeEvent(QEvent *e)
     }
 }
 
-QLightDrive *QDialogPrint::exec( QWidget *parent, QLightScribe::PrintParameters &params )
+QLightDrive *QDialogPrint::exec( QWidget *parent, PrintParameters &params )
 {
    QList<QLightDrive *> drives = QLightScribe::instance()->getDrives();
    if( drives.isEmpty() ) {
@@ -67,7 +67,7 @@ QLightDrive *QDialogPrint::exec( QWidget *parent, QLightScribe::PrintParameters 
    if( dialog.QDialog::exec() == Rejected )
       return 0;
 
-   params = QLightScribe::PrintParameters(); // reset to default
+   params = PrintParameters(); // reset to default
 
    if( dialog.m_ui->radioModeFull->isChecked() )
       params.m_labelMode = modeFull;
@@ -79,13 +79,13 @@ QLightDrive *QDialogPrint::exec( QWidget *parent, QLightScribe::PrintParameters 
       params.m_labelMode = modeContent;
 
    if( dialog.m_ui->radioQualityNormal->isChecked() )
-      params.m_printQuality = QLightScribe::qualityNormal;
+      params.m_printQuality = qualityNormal;
 
    if( dialog.m_ui->radioQualityDraft->isChecked() )
-      params.m_printQuality = QLightScribe::qualityDraft;
+      params.m_printQuality = qualityDraft;
 
    if( dialog.m_ui->radioMediaGeneric->isChecked() )
-      params.m_mediaOptimizationLevel = QLightScribe::mediaGeneric;
+      params.m_mediaOptimizationLevel = mediaGeneric;
 
    return drives.at( dialog.m_ui->comboDrive->currentIndex() );
 }

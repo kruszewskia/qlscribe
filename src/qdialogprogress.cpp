@@ -29,9 +29,10 @@
 #include <QTime>
 #include <QTimer>
 
-QDialogProgress::QDialogProgress(QWidget *parent) :
-    QDialog(parent),
+QDialogProgress::QDialogProgress( QWidget *parent, QLightDrive *drive )
+   : QDialog(parent),
     m_ui(new Ui::QDialogProgress),
+    m_drive( drive ),
     m_start( new QTime ),
     m_timer( new QTimer( this ) )
 {
@@ -61,23 +62,23 @@ void QDialogProgress::changeEvent(QEvent *e)
 
 bool QDialogProgress::exec( QWidget *parent, QCDScene *scene )
 {
-   QLightScribe::PrintParameters params;
+   PrintParameters params;
    params.m_labelMode = scene->labelMode();
    QLightDrive *drive = QDialogPrint::exec( parent, params );
    if( !drive )
       return false;
 
    QLightScribe *scribe = QLightScribe::instance();
-   QDialogProgress dialog( parent );
+   QDialogProgress dialog( parent, drive );
    dialog.setWindowTitle( tr( "Printing: " ) + scene->name() );
 
    connect( dialog.m_ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), &dialog, SLOT(onButtonClicked(QAbstractButton*)) );
-   connect( scribe, SIGNAL(prepareProgress(long,long)), &dialog, SLOT(onPrepareProgress(long,long)) );
-   connect( scribe, SIGNAL(labelProgress(long,long)), &dialog, SLOT(onLabelProgress(long,long)) );
-   connect( scribe, SIGNAL(timeEstimate(long)), &dialog, SLOT(onTimeEstimate(long)) );
-   connect( scribe, SIGNAL(finished(int)), &dialog, SLOT(onFinished(int)) );
+   connect( drive, SIGNAL(prepareProgress(long,long)), &dialog, SLOT(onPrepareProgress(long,long)) );
+   connect( drive, SIGNAL(labelProgress(long,long)), &dialog, SLOT(onLabelProgress(long,long)) );
+   connect( drive, SIGNAL(timeEstimate(long)), &dialog, SLOT(onTimeEstimate(long)) );
+   connect( drive, SIGNAL(finished(int)), &dialog, SLOT(onFinished(int)) );
 
-   scribe->print( drive, params, scene );
+   drive->print( params, scene );
    dialog.QDialog::exec();
    return true;
 }
@@ -90,7 +91,7 @@ void QDialogProgress::onButtonClicked( QAbstractButton *button )
                                  tr( "Are you sure you want to interrupt?" ),
                                  QMessageBox::Yes | QMessageBox::No,
                                  QMessageBox::No ) == QMessageBox::Yes ) {
-         QLightScribe::instance()->abort();
+         m_drive->abort();
          button->setDisabled( true );
       }
    } else

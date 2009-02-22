@@ -58,7 +58,7 @@ int main( int argc, char **argv )
    QStringList files;
    QCDScene::QString2String replacements;
    int driveIndex = 0;
-   QLightScribe::PrintParameters params;
+   PrintParameters params;
    bool labelModeOverriden = false;
 
    for( int i = 1; i < arguments.size(); ++i ) {
@@ -153,7 +153,7 @@ int main( int argc, char **argv )
       }
       QConsolePrintProgress progress;
       std::cout << "Printing label " << files.front() << std::endl;
-      scribe->print( drives[driveIndex], params, &scene );
+      drives[driveIndex]->print( params, &scene );
       rez = app.exec();
    } else {
       MainWindow mwindow( enablePrint );
@@ -161,9 +161,5 @@ int main( int argc, char **argv )
       mwindow.open( files );
       rez = app.exec();
    }
-
-   QLightScribe *scribe = QLightScribe::instance();
-   scribe->stopThread();
-   scribe->wait( 1000 );
    return rez;
 }
