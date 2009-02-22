@@ -1,3 +1,6 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" 
+                      "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
 <!-- qlscribe - Qt based application to print lightScribe discs
 
       Copyright (C) 2009 Vyacheslav Kononenko <vyacheslav@kononenko.net>
@@ -18,10 +21,8 @@
 
       $Id$
 -->
-<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" 
-                      "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
-  <interface name="org.lightscribe">
+  <interface name="org.lightscribe.printManager">
     <method name="getDrives">
       <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QMap &lt;QDBusObjectPath,QString&gt;"/>
       <arg type="a{os}" direction="out"/>
@@ -40,7 +41,7 @@
       <arg name="status" type="i" direction="out"/>
     </signal>
     <method name="preview">
-      <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="const QLightScribe::PrintParameters &amp;"/>
+      <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="const PrintParameters &amp;"/>
       <annotation name="com.trolltech.QtDBus.QtTypeName.In2" value="QSize"/>
       <arg type="s" direction="out"/>
       <arg name="params" type="(iiii)" direction="in"/>
@@ -48,7 +49,7 @@
       <arg name="previewSize" type="(ii)" direction="in"/>
     </method>
     <method name="print">
-      <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="const QLightScribe::PrintParameters &amp;"/>
+      <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="const PrintParameters &amp;"/>
       <arg name="params" type="(iiii)" direction="in"/>
       <arg name="image" type="ay" direction="in"/>
     </method>
