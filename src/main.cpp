@@ -28,8 +28,6 @@
 
 #include <iostream>
 
-uid_t realUserId;
-
 std::ostream &operator<<( std::ostream &os, const QString &str )
 {
    return os << str.toAscii().data();
@@ -108,29 +106,6 @@ int main( int argc, char **argv )
       return 3;
    }
 
-   bool enablePrint = false;
-   if( geteuid() ) {
-      if( !doPrint ) {
-         if( QMessageBox::question( 0,
-                                    QObject::tr( "Confirmation" ),
-                                    QObject::tr( "Print functionality requires setuid (sticky) flag set on the application\n"
-                                                 "This program does not seem to have it set, print functionality will be disabled\n"
-                                                 "You still will be able to do print preview and edit documents\n"
-                                                 "Do you want to continue?" ),
-                                    QMessageBox::Yes | QMessageBox::No,
-                                    QMessageBox::No )
-            == QMessageBox::No )
-            return 4;
-      } else {
-         std::cerr << "Error: setuid flag is not set, cannot print" << std::endl;
-         return 4;
-      }
-   } else {
-      realUserId = getuid();
-      setreuid( 0, realUserId );
-      enablePrint = true;
-   }
-
    int rez = 0;
 
    if( doPrint ) {
@@ -156,7 +131,7 @@ int main( int argc, char **argv )
       drives[driveIndex]->print( params, &scene );
       rez = app.exec();
    } else {
-      MainWindow mwindow( enablePrint );
+      MainWindow mwindow( true );
       mwindow.show();
       mwindow.open( files );
       rez = app.exec();
