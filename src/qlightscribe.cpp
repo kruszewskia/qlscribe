@@ -20,11 +20,13 @@
 
 #include "qlightscribe.h"
 #include "qcdscene.h"
-//#include "lightscribe_interface.h"
+#include "lightscribe_interface.h"
 
 #include <QPainter>
 #include <QBuffer>
 #include <QTemporaryFile>
+#include <QDBusConnection>
+#include <QMessageBox>
 
 //#include <lightscribe_cxx.h>
 
@@ -37,6 +39,7 @@ QLightScribe *QLightScribe::instance()
 }
 
 QLightScribe::QLightScribe()
+   : m_managerPrx( new OrgLightscribePrintManagerInterface( "org.lightscribe", "/org/lightscribe/Manager", QDBusConnection::systemBus(), this ) )
 {
 }
 
@@ -46,97 +49,75 @@ QLightScribe::~QLightScribe()
 
 QList< QLightDrive * > QLightScribe::getDrives()
 {
+   if( m_drives.empty() ) {
+      QDBusReply<QObject2StringMap> reply = m_managerPrx->getDrives();
+      if( !reply.isValid() ) {
+         QMessageBox::critical( 0, tr( "DBus Error" ), tr( "Error on request: " ) + reply.error().message() );
+      } else {
+         const QObject2StringMap &map = reply.value();
+         for( QObject2StringMap::const_iterator i = map.begin(); i != map.end(); ++i )
+            m_drives.push_back( new QLightDrive( this, i.key(), i.value() ) );
+      }
+   }
    return m_drives;
 }
 
-static
-QImage *printScene( QCDScene *scene )
+QLightDrive::QLightDrive( QObject *parent, const QString &path, const QString &name )
+   : QObject( parent ),
+     m_drivePrx( new OrgLightscribeDriveInterface( "org.lightscribe", path, QDBusConnection::systemBus(), this ) ),
+     m_displayName( name ),
+     m_path( path )
 {
-   QImage *image = new QImage( 2772, 2772, QImage::Format_RGB888 );
-   image->fill( 0xFFFFFFFF );
+   connect( m_drivePrx, SIGNAL(finished(int)), this, SIGNAL(finished(int)) );
+   connect( m_drivePrx, SIGNAL(prepareProgress( long, long )), this, SIGNAL(prepareProgress( long, long )) );
+   connect( m_drivePrx, SIGNAL(labelProgress( long , long )), this, SIGNAL(labelProgress( long , long )) );
+   connect( m_drivePrx, SIGNAL(timeEstimate( long )), this, SIGNAL(timeEstimate( long )) );
+}
+
+static
+void printScene( QCDScene *scene, QByteArray &array )
+{
+   QImage image( 2772, 2772, QImage::Format_RGB888 );
+   image.fill( 0xFFFFFFFF );
 
    scene->clearSelection();
    {
-      QPainter painter( image );
-      scene->render( &painter, image->rect() );
+      QPainter painter( &image );
+      scene->render( &painter, image.rect() );
    }
-   image->setDotsPerMeterX( 23622 );
-   image->setDotsPerMeterY( 23622 );
+   image.setDotsPerMeterX( 23622 );
+   image.setDotsPerMeterY( 23622 );
 
-   return image;
+   array.clear();
+   QBuffer buffer( &array );
+   buffer.open( QIODevice::WriteOnly );
+   image.save( &buffer, "bmp", 100 );
 }
 
 QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString )
 {
-   return QPixmap();
+   QByteArray array;
+   printScene( scene, array );
+   QDBusReply<QString> reply = m_drivePrx->preview( params, array, size );
+   if( !reply.isValid() )
+      throw reply.error().message();
+
+   QString fname = reply.value();
+   QPixmap pixmap( fname );
+   QFile( fname ).remove();
+   return pixmap;
 }
 
-void QLightDrive::print( const PrintParameters &params, QCDScene *scene )
+void QLightDrive::print( const PrintParameters &params, QCDScene *scene ) throw( QString )
 {
+   QByteArray array;
+   printScene( scene, array );
+   QDBusReply<void> reply = m_drivePrx->print( params, array );
+   if( !reply.isValid() )
+      throw reply.error().message();
 }
 
 void QLightDrive::abort()
 {
+   m_drivePrx->abort();
 }
-
-
-
-
-/*namespace {
-   class AutoUidSetter {
-   public:
-      AutoUidSetter() : m_saved( 0 ) {}
-      AutoUidSetter( uid_t userId ) : m_saved( 0 ) { set( userId ); }
-      ~AutoUidSetter() { unset(); }
-
-      void set( uid_t userId )
-      {
-         if( userId ) {
-            setreuid( userId, 0 );
-            m_saved = userId;
-         }
-      }
-      void unset()
-      {
-         if( m_saved ) {
-            setreuid( 0, m_saved );
-            m_saved = 0;
-         }
-      }
-
-   private:
-      uid_t m_saved;
-   };
-
-   typedef void (LightScribe::DiscPrinter::*DiscPrinterOp)();
-
-   template<DiscPrinterOp dlock, DiscPrinterOp dunlock >
-         class AutoOp {
-   public:
-      AutoOp( LightScribe::DiscPrinter &printer ) : m_printer( &printer ), m_locked( false ) {}
-      AutoOp() { unlock(); }
-
-      void lock()
-      {
-         if( !m_locked ) {
-            (m_printer->*dlock)();
-            m_locked = true;
-         }
-      }
-
-      void unlock()
-      {
-         if( m_locked ) {
-            try {
-               (m_printer->*dunlock)();
-            }
-            catch(...){}
-            m_locked = false;
-         }
-      }
-
-   private:
-      LightScribe::DiscPrinter *m_printer;
-      bool                      m_locked;
-   };
-}*/

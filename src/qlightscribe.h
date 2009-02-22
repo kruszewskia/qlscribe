@@ -26,7 +26,6 @@
 #include <QPixmap>
 #include <QMetaType>
 #include <QMap>
-#include <QDBusObjectPath>
 
 class QCDScene;
 class QLightDrive;
@@ -47,8 +46,10 @@ struct PrintParameters {
 
 Q_DECLARE_METATYPE(PrintParameters);
 
-typedef QMap<QDBusObjectPath, QString> QObject2StringMap;
+typedef QMap<QString, QString> QObject2StringMap;
 Q_DECLARE_METATYPE(QObject2StringMap);
+
+class OrgLightscribePrintManagerInterface;
 
 class QLightScribe : public QObject {
    Q_OBJECT
@@ -61,8 +62,11 @@ private:
    QLightScribe();
    virtual ~QLightScribe();
 
-   QList< QLightDrive * > m_drives;
+   OrgLightscribePrintManagerInterface *m_managerPrx;
+   QList< QLightDrive * >               m_drives;
 };
+
+class OrgLightscribeDriveInterface;
 
 class QLightDrive : public QObject {
    Q_OBJECT
@@ -75,10 +79,10 @@ public:
    double innerRadius() const { return m_innerRadius; }
    double outerRadius() const { return m_outerRadius; }
 
-   friend class QLightScribe;
-
    QPixmap preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString );
-   void print( const PrintParameters &params, QCDScene *scene );
+   void print( const PrintParameters &params, QCDScene *scene ) throw( QString );
+
+   friend class QLightScribe;
 
 public slots:
    void abort();
@@ -90,13 +94,17 @@ signals:
    void finished( int status );
 
 private:
-   QString m_productName;
-   QString m_vendorName;
-   QString m_displayName;
-   QString m_path;
+   QLightDrive( QObject *parent, const QString &path, const QString &name );
 
-   double m_innerRadius;
-   double m_outerRadius;
+   OrgLightscribeDriveInterface *m_drivePrx;
+
+   QString                       m_productName;
+   QString                       m_vendorName;
+   QString                       m_displayName;
+   QString                       m_path;
+
+   double                        m_innerRadius;
+   double                        m_outerRadius;
 };
 
 #endif // QLIGHTSCRIBE_H
