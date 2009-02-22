@@ -3,10 +3,12 @@
 
 #include <QObject>
 
+class QLightDrive;
+
 class QConsolePrintProgress : public QObject {
    Q_OBJECT
 public:
-   QConsolePrintProgress();
+   QConsolePrintProgress( QLightDrive *drive );
    ~QConsolePrintProgress();
 
 private slots:
@@ -14,6 +16,9 @@ private slots:
    void onLabelProgress( long current, long final );
    void onTimeEstimate( long time );
    void onFinished(int status );
+
+private:
+   QLightDrive *m_drive;
 };
 
 #endif // QCONSOLEPRINTPROGRESS_H

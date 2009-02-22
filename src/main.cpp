@@ -126,9 +126,11 @@ int main( int argc, char **argv )
          std::cerr << "Error: drive " << driveIndex << " specified, but there are only " << drives.size() << " drives" << std::endl;
          return 6;
       }
-      QConsolePrintProgress progress;
       std::cout << "Printing label " << files.front() << std::endl;
-      drives[driveIndex]->print( params, &scene );
+
+      QLightDrive *drive = drives[driveIndex];
+      QConsolePrintProgress progress( drive );
+      drive->print( params, &scene );
       rez = app.exec();
    } else {
       MainWindow mwindow( true );

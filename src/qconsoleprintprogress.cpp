@@ -5,14 +5,13 @@
 
 #include <iostream>
 
-QConsolePrintProgress::QConsolePrintProgress()
+QConsolePrintProgress::QConsolePrintProgress( QLightDrive *drive )
+      : m_drive( drive )
 {
-   QLightScribe *scribe = QLightScribe::instance();
-
-   connect( scribe, SIGNAL(prepareProgress(long,long)), this, SLOT(onPrepareProgress(long,long)) );
-   connect( scribe, SIGNAL(labelProgress(long,long)), this, SLOT(onLabelProgress(long,long)) );
-   connect( scribe, SIGNAL(timeEstimate(long)), this, SLOT(onTimeEstimate(long)) );
-   connect( scribe, SIGNAL(finished(int)), this, SLOT(onFinished(int)) );
+   connect( drive, SIGNAL(prepareProgress(long,long)), this, SLOT(onPrepareProgress(long,long)) );
+   connect( drive, SIGNAL(labelProgress(long,long)), this, SLOT(onLabelProgress(long,long)) );
+   connect( drive, SIGNAL(timeEstimate(long)), this, SLOT(onTimeEstimate(long)) );
+   connect( drive, SIGNAL(finished(int)), this, SLOT(onFinished(int)) );
 
 }
 
