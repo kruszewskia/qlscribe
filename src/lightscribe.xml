@@ -58,5 +58,8 @@
     </method>
     <method name="abort">
     </method>
+    <method name="name">
+      <arg type="s" direction="out"/>
+    </method>
   </interface>
 </node>
