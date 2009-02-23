@@ -44,10 +44,10 @@ struct PrintParameters {
             m_printQuality( printQuality ), m_mediaOptimizationLevel( mediaOptimizationLevel )  {}
 };
 
-Q_DECLARE_METATYPE(PrintParameters);
+Q_DECLARE_METATYPE( PrintParameters );
 
 typedef QMap<QString, QString> QObject2StringMap;
-Q_DECLARE_METATYPE(QObject2StringMap);
+Q_DECLARE_METATYPE( QObject2StringMap );
 
 class OrgLightscribePrintManagerInterface;
 
@@ -88,9 +88,9 @@ public slots:
    void abort();
 
 signals:
-   void prepareProgress( long current, long final );
-   void labelProgress( long current, long final );
-   void timeEstimate( long time );
+   void prepareProgress( int current, int final );
+   void labelProgress( int current, int final );
+   void timeEstimate( int time );
    void finished( int status );
 
 private:

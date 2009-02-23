@@ -73,9 +73,9 @@ bool QDialogProgress::exec( QWidget *parent, QCDScene *scene )
    dialog.setWindowTitle( tr( "Printing: " ) + scene->name() );
 
    connect( dialog.m_ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), &dialog, SLOT(onButtonClicked(QAbstractButton*)) );
-   connect( drive, SIGNAL(prepareProgress(long,long)), &dialog, SLOT(onPrepareProgress(long,long)) );
-   connect( drive, SIGNAL(labelProgress(long,long)), &dialog, SLOT(onLabelProgress(long,long)) );
-   connect( drive, SIGNAL(timeEstimate(long)), &dialog, SLOT(onTimeEstimate(long)) );
+   connect( drive, SIGNAL(prepareProgress(int,int)), &dialog, SLOT(onPrepareProgress(int,int)) );
+   connect( drive, SIGNAL(labelProgress(int,int)), &dialog, SLOT(onLabelProgress(int,int)) );
+   connect( drive, SIGNAL(timeEstimate(int)), &dialog, SLOT(onTimeEstimate(int)) );
    connect( drive, SIGNAL(finished(int)), &dialog, SLOT(onFinished(int)) );
 
    drive->print( params, scene );
@@ -98,13 +98,13 @@ void QDialogProgress::onButtonClicked( QAbstractButton *button )
       done( 0 );
 }
 
-void QDialogProgress::onPrepareProgress( long current, long final )
+void QDialogProgress::onPrepareProgress( int current, int final )
 {
    m_ui->progressPreparation->setMaximum( final );
    m_ui->progressPreparation->setValue( current );
 }
 
-void QDialogProgress::onLabelProgress( long current, long final )
+void QDialogProgress::onLabelProgress( int current, int final )
 {
    m_ui->progressPrinting->setMaximum( final );
    m_ui->progressPrinting->setValue( current );
@@ -116,7 +116,7 @@ void QDialogProgress::onLabelProgress( long current, long final )
    }
 }
 
-void QDialogProgress::onTimeEstimate( long time )
+void QDialogProgress::onTimeEstimate( int time )
 {
    m_ui->timeEstimated->setTime( QTime().addSecs( time ) );
 }

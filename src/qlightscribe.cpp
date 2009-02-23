@@ -31,6 +31,28 @@
 //#include <lightscribe_cxx.h>
 
 //using namespace LightScribe;
+// Marshall the PrintParameters data into a D-BUS argument
+ QDBusArgument &operator<<( QDBusArgument &argument, const PrintParameters &p )
+ {
+     argument.beginStructure();
+     argument << p.m_labelMode << p.m_drawOptions << p.m_printQuality << p.m_mediaOptimizationLevel;
+     argument.endStructure();
+     return argument;
+ }
+
+ // Retrieve the PrintProperties data from the D-BUS argument
+ const QDBusArgument &operator>>( const QDBusArgument &argument, PrintParameters &p )
+ {
+     argument.beginStructure();
+     int drawOptions = 0, labelMode = 0, mediaOptimizationLevel = 0, printQuality = 0;
+     argument >> labelMode >> drawOptions >> printQuality >> mediaOptimizationLevel;
+     argument.endStructure();
+     p = PrintParameters( LabelMode( labelMode ),
+                          DrawOptions( drawOptions ),
+                          PrintQuality( printQuality ),
+                          MediaOptimizationLevel( mediaOptimizationLevel ) );
+     return argument;
+ }
 
 QLightScribe *QLightScribe::instance()
 {
@@ -41,6 +63,8 @@ QLightScribe *QLightScribe::instance()
 QLightScribe::QLightScribe()
    : m_managerPrx( new OrgLightscribePrintManagerInterface( DBusServiceName, DBusManagerPath, QDBusConnection::systemBus(), this ) )
 {
+   qDBusRegisterMetaType<PrintParameters>();
+   qDBusRegisterMetaType<QObject2StringMap>();
 }
 
 QLightScribe::~QLightScribe()
@@ -69,9 +93,9 @@ QLightDrive::QLightDrive( QObject *parent, const QString &path, const QString &n
      m_path( path )
 {
    connect( m_drivePrx, SIGNAL(finished(int)), this, SIGNAL(finished(int)) );
-   connect( m_drivePrx, SIGNAL(prepareProgress( long, long )), this, SIGNAL(prepareProgress( long, long )) );
-   connect( m_drivePrx, SIGNAL(labelProgress( long , long )), this, SIGNAL(labelProgress( long , long )) );
-   connect( m_drivePrx, SIGNAL(timeEstimate( long )), this, SIGNAL(timeEstimate( long )) );
+   connect( m_drivePrx, SIGNAL(prepareProgress( int, int )), this, SIGNAL(prepareProgress( int, int )) );
+   connect( m_drivePrx, SIGNAL(labelProgress( int , int )), this, SIGNAL(labelProgress( int, int )) );
+   connect( m_drivePrx, SIGNAL(timeEstimate( int )), this, SIGNAL(timeEstimate( int )) );
 }
 
 static

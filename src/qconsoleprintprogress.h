@@ -12,9 +12,9 @@ public:
    ~QConsolePrintProgress();
 
 private slots:
-   void onPrepareProgress( long current, long final );
-   void onLabelProgress( long current, long final );
-   void onTimeEstimate( long time );
+   void onPrepareProgress( int current, int final );
+   void onLabelProgress( int current, int final );
+   void onTimeEstimate( int time );
    void onFinished(int status );
 
 private:

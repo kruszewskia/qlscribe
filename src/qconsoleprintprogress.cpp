@@ -10,9 +10,9 @@ std::ostream &operator<<( std::ostream &os, const QString &str );
 QConsolePrintProgress::QConsolePrintProgress( QLightDrive *drive )
       : m_drive( drive )
 {
-   connect( drive, SIGNAL(prepareProgress(long,long)), this, SLOT(onPrepareProgress(long,long)) );
-   connect( drive, SIGNAL(labelProgress(long,long)), this, SLOT(onLabelProgress(long,long)) );
-   connect( drive, SIGNAL(timeEstimate(long)), this, SLOT(onTimeEstimate(long)) );
+   connect( drive, SIGNAL(prepareProgress(int,int)), this, SLOT(onPrepareProgress(int,int)) );
+   connect( drive, SIGNAL(labelProgress(int,int)), this, SLOT(onLabelProgress(int,int)) );
+   connect( drive, SIGNAL(timeEstimate(int)), this, SLOT(onTimeEstimate(int)) );
    connect( drive, SIGNAL(finished(int)), this, SLOT(onFinished(int)) );
 
 }
@@ -21,17 +21,17 @@ QConsolePrintProgress::~QConsolePrintProgress()
 {
 }
 
-void QConsolePrintProgress::onPrepareProgress( long current, long final )
+void QConsolePrintProgress::onPrepareProgress( int current, int final )
 {
    std::cout << "Preparing label: " << current << '/' << final << "         \r";
 }
 
-void QConsolePrintProgress::onLabelProgress( long current, long final )
+void QConsolePrintProgress::onLabelProgress( int current, int final )
 {
    std::cout << "Printing label: " << current << '/' << final << "         \r";
 }
 
-void QConsolePrintProgress::onTimeEstimate( long time )
+void QConsolePrintProgress::onTimeEstimate( int time )
 {
    std::cout << std::endl;
 }
