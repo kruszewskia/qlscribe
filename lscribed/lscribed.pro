@@ -8,5 +8,7 @@ TEMPLATE = lib
 INCLUDEPATH += /usr/include/dbus-1.0/
 CONFIG += staticlib
 SOURCES += main.cpp \
-    dbuscpp.cpp
+    dbuscpp.cpp \
+    manager.cpp \
+    drive.cpp
 HEADERS += dbuscpp.h

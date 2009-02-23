@@ -96,6 +96,11 @@ void Message::append( const char *str )
    dbus_message_append_args( m_message, DBUS_TYPE_STRING, &str, DBUS_TYPE_INVALID );
 }
 
+const char *Message::path()
+{
+   return dbus_message_get_path( m_message );
+}
+
 Message::~Message()
 {
    dbus_message_unref( m_message );

@@ -22,6 +22,7 @@
 #define DBUSCPP_H
 
 #include <dbus/dbus.h>
+#include <string>
 
 namespace DBusCpp {
 
@@ -44,6 +45,7 @@ public:
 
    MessageIter openContainer( int eemType, const char *signature );
 
+   void append( const std::string &str ) { append( str.c_str() ); }
    void append( const char *str );
    friend class Message;
 private:
@@ -68,7 +70,10 @@ public:
    { return dbus_message_is_method_call( m_message, interface, method ); }
 
    MessageIter appendIter();
+   void append( const std::string &str ) { append( str.c_str() ); }
    void append( const char *str );
+
+   const char *path();
 
    friend class Connection;
 private:

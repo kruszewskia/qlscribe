@@ -19,6 +19,9 @@
     $Id$ */
 
 #include "dbuscpp.h"
+#include "lscribed.h"
+
+#include <stdio.h>
 
 static const char *strManagerIntrospect =
 "<!DOCTYPE node PUBLIC \"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN\"\
@@ -66,14 +69,11 @@ DBusHandlerResult processManagerMessage( DBusConnection *connPtr, DBusMessage *m
       {
          MessageIter sub = args.openContainer( DBUS_TYPE_ARRAY, "{ss}" );
 
-         for( int i = 0; i < 2; ++i ) {
+         for( Drives::const_iterator it = drives.begin(); it != drives.end(); ++it ) {
             MessageIter itemIterator = sub.openContainer( DBUS_TYPE_DICT_ENTRY, 0 );
 
-            char buff[ 128 ];
-            const char *str = buff;
-            sprintf( buff, "%s/drive%d", DBusDrivesPath, i );
-            itemIterator.append( str );
-            itemIterator.append( str );
+            itemIterator.append( std::string( DBusDrivesPath ) + "/" + it->first );
+            itemIterator.append( it->second );
          }
       }
 
@@ -81,9 +81,9 @@ DBusHandlerResult processManagerMessage( DBusConnection *connPtr, DBusMessage *m
       return DBUS_HANDLER_RESULT_HANDLED;
    }
 
-   Message reply = message.newError( DBUS_ERROR_NOT_SUPPORTED, "method is not supported" );
-   conn.send( reply );
-   return DBUS_HANDLER_RESULT_HANDLED;
+   //Message reply = message.newError( DBUS_ERROR_NOT_SUPPORTED, "method is not supported" );
+   //conn.send( reply );
+   return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
 
