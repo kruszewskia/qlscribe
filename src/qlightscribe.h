@@ -24,8 +24,8 @@
 #include "qlscribe.h"
 
 #include <QPixmap>
-#include <QMetaType>
 #include <QMap>
+#include <QMetaType>
 
 class QCDScene;
 class QLightDrive;
@@ -46,7 +46,7 @@ struct PrintParameters {
 
 Q_DECLARE_METATYPE( PrintParameters );
 
-typedef QMap<QString, QString> QObject2StringMap;
+typedef QMap<QString,QString> QObject2StringMap;
 Q_DECLARE_METATYPE( QObject2StringMap );
 
 class OrgLightscribePrintManagerInterface;

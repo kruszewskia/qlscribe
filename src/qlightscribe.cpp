@@ -26,6 +26,7 @@
 #include <QBuffer>
 #include <QTemporaryFile>
 #include <QDBusConnection>
+#include <QDBusArgument>
 #include <QMessageBox>
 
 //#include <lightscribe_cxx.h>
