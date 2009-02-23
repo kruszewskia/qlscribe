@@ -73,7 +73,7 @@ DBusHandlerResult processIntrospectMessage( DBusConnection *connPtr, DBusMessage
       introspect += "</node>";
 
       Message reply = message.newMethodReturn();
-      reply.append( introspect.c_str() );
+      reply.append( introspect );
       conn.send( reply );
       return DBUS_HANDLER_RESULT_HANDLED;
    }
