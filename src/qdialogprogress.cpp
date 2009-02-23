@@ -68,7 +68,6 @@ bool QDialogProgress::exec( QWidget *parent, QCDScene *scene )
    if( !drive )
       return false;
 
-   QLightScribe *scribe = QLightScribe::instance();
    QDialogProgress dialog( parent, drive );
    dialog.setWindowTitle( tr( "Printing: " ) + scene->name() );
 
@@ -111,7 +110,7 @@ void QDialogProgress::onLabelProgress( int current, int final )
 
    if( current && final / double( current ) < 10.0 ) {
       int elapsed = m_start->elapsed();
-      int estimate = double( elapsed ) / current * final;
+      int estimate = int( double( elapsed ) / current * final );
       m_ui->timeEstimated->setTime( QTime().addMSecs( estimate ) );
    }
 }

@@ -125,7 +125,7 @@ QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, co
    printScene( scene, array );
    QDBusReply<QString> reply = m_drivePrx->preview( params, array, size );
    if( !reply.isValid() )
-      throw reply.error().message();
+      throw QString( "DBus error: (%1) %2" ).arg( reply.error().name(), reply.error().message() );
 
    QString fname = reply.value();
    QPixmap pixmap( fname );
@@ -139,7 +139,7 @@ void QLightDrive::print( const PrintParameters &params, QCDScene *scene ) throw(
    printScene( scene, array );
    QDBusReply<void> reply = m_drivePrx->print( params, array );
    if( !reply.isValid() )
-      throw reply.error().message();
+      throw QString( "DBus error: (%1) %2" ).arg( reply.error().name(), reply.error().message() );
 }
 
 void QLightDrive::abort()

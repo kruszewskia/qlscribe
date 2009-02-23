@@ -329,7 +329,7 @@ void MainWindow::onMenuPrintPreview()
       subWindow->show();
    }
    catch( const QString &err ) {
-      QMessageBox::critical( this, tr( "Error" ), err );
+      QMessageBox::critical( this, tr( "Error on print preview" ), err );
    }
 }
 
@@ -339,7 +339,12 @@ void MainWindow::onMenuPrint()
    if( !cdscene )
       return;
 
-   QDialogProgress::exec( this, cdscene );
+   try {
+      QDialogProgress::exec( this, cdscene );
+   }
+   catch( const QString &err ) {
+      QMessageBox::critical( this, tr( "Error on print" ), err );
+   }
 }
 
 void MainWindow::onMenuAbout()
