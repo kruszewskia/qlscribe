@@ -147,6 +147,7 @@ QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, co
 
 void QLightDrive::print( const PrintParameters &params, QCDScene *scene ) throw( QString )
 {
+   qApp->setOverrideCursor( Qt::WaitCursor );
    QByteArray array;
    printScene( scene, array );
    /*QList<QVariant> argumentList;
@@ -155,6 +156,7 @@ void QLightDrive::print( const PrintParameters &params, QCDScene *scene ) throw(
                                                    QLatin1String( "print" ),
                                                    argumentList);*/
    QDBusReply<void> reply = m_drivePrx->print( params, array );
+   qApp->restoreOverrideCursor();
    if( !reply.isValid() )
       throw QString( "DBus error: (%1) %2" ).arg( reply.error().name(), reply.error().message() );
 }
