@@ -22,6 +22,7 @@
 #include "qcdscene.h"
 #include "lightscribe_interface.h"
 
+#include <QApplication>
 #include <QPainter>
 #include <QBuffer>
 #include <QTemporaryFile>
@@ -75,7 +76,9 @@ QLightScribe::~QLightScribe()
 QList< QLightDrive * > QLightScribe::getDrives()
 {
    if( m_drives.empty() ) {
+      qApp->setOverrideCursor( Qt::WaitCursor );
       QDBusReply<QObject2StringMap> reply = m_managerPrx->getDrives();
+      qApp->restoreOverrideCursor();
       if( !reply.isValid() ) {
          QMessageBox::critical( 0, tr( "DBus Error" ), tr( "Error on request: " ) + reply.error().message() );
       } else {
@@ -121,9 +124,18 @@ void printScene( QCDScene *scene, QByteArray &array )
 
 QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString )
 {
+   qApp->setOverrideCursor( Qt::WaitCursor );
    QByteArray array;
    printScene( scene, array );
+
+   /*QList<QVariant> argumentList;
+   argumentList << qVariantFromValue( params ) << qVariantFromValue( array )
+                << qVariantFromValue( size );
+   QDBusReply<QString> reply = m_drivePrx->callWithArgumentList( QDBus::BlockWithGui,
+                                                                 QLatin1String( "preview" ),
+                                                                 argumentList);*/
    QDBusReply<QString> reply = m_drivePrx->preview( params, array, size );
+   qApp->restoreOverrideCursor();
    if( !reply.isValid() )
       throw QString( "DBus error: (%1) %2" ).arg( reply.error().name(), reply.error().message() );
 
@@ -137,6 +149,11 @@ void QLightDrive::print( const PrintParameters &params, QCDScene *scene ) throw(
 {
    QByteArray array;
    printScene( scene, array );
+   /*QList<QVariant> argumentList;
+   argumentList << qVariantFromValue( params ) << qVariantFromValue( array );
+   QDBusReply<void> reply =  callWithArgumentList( QDBus::BlockWithGui,
+                                                   QLatin1String( "print" ),
+                                                   argumentList);*/
    QDBusReply<void> reply = m_drivePrx->print( params, array );
    if( !reply.isValid() )
       throw QString( "DBus error: (%1) %2" ).arg( reply.error().name(), reply.error().message() );
