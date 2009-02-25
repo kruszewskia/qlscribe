@@ -96,13 +96,19 @@ DBusHandlerResult DriveHandler::processMessage( const Message &msg )
    if( f == drives.end() )
       return rez;
 
+   rez = DBUS_HANDLER_RESULT_HANDLED;
    std::cout << "calling method on item " << item << std::endl;
    if( msg.isMethodCall( "org.lightscribe.drive", "name" ) ) {
       Message reply = msg.newMethodReturn();
       reply.append( f->second );
       connection()->send( reply );
-      return rez = DBUS_HANDLER_RESULT_HANDLED;
+      return rez;
    }
+   if( msg.isMethodCall( "org.lightscribe.drive", "preview" ) ) {
+      return rez;
+   }
+   Message reply = msg.newError( DBUS_ERROR_NOT_SUPPORTED, "method is not supported" );
+   connection()->send( reply );
    return rez;
 }
 

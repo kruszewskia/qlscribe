@@ -56,7 +56,8 @@ namespace {
 Connection::Connection( DBusConnection *conn )
    : m_connection( conn )
 {
-   vtable.message_function = processMessage;
+   if( !vtable.message_function )
+      vtable.message_function = processMessage;
 }
 
 Connection::~Connection()

@@ -76,7 +76,7 @@ public:
 private:
    MessageIter() : m_container( 0 ) {}
 
-   DBusMessageIter m_iter;
+   DBusMessageIter  m_iter;
    DBusMessageIter *m_container;
 };
 
