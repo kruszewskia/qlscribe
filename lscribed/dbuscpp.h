@@ -23,19 +23,44 @@
 
 #include <dbus/dbus.h>
 #include <string>
+#include <map>
 
 namespace DBusCpp {
 
 class Message;
+class Connection;
+
+class MessageHandler {
+public:
+   MessageHandler() : m_connection( 0 ) {}
+   virtual ~MessageHandler();
+
+   virtual DBusHandlerResult processMessage( const Message &msg ) = 0;
+
+   Connection *connection() const { return m_connection; }
+
+   static std::string generateInrospectHeader( const std::string &nodename = std::string() );
+
+   friend class Connection;
+
+private:
+   Connection *m_connection;
+};
 
 class Connection {
 public:
-   Connection( DBusConnection *conn ) : m_connection( conn ) {}
+   Connection( DBusConnection *conn );
+   ~Connection();
 
    dbus_uint32_t send( const Message &msg );
+   void registerHandler( const std::string &path, MessageHandler *handler, bool fallback );
 
+   DBusConnection *ptr() const { return m_connection; }
 private:
+   typedef std::map< std::string, MessageHandler * > Handlers;
+
    DBusConnection *m_connection;
+   Handlers        m_handlers;
 };
 
 class MessageIter {
@@ -63,17 +88,17 @@ public:
 
    static Message parameter( DBusMessage *msg ) { return Message( msg, false ); }
 
-   Message newMethodReturn();
-   Message newError( const char *error, const char *message );
+   Message newMethodReturn() const;
+   Message newError( const char *error, const char *message ) const;
 
-   bool isMethodCall( const char *interface, const char *method )
+   bool isMethodCall( const char *interface, const char *method ) const
    { return dbus_message_is_method_call( m_message, interface, method ); }
 
    MessageIter appendIter();
    void append( const std::string &str ) { append( str.c_str() ); }
    void append( const char *str );
 
-   const char *path();
+   const char *path() const;
 
    friend class Connection;
 private:

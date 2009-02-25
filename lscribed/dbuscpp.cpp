@@ -22,12 +22,68 @@
 
 using namespace DBusCpp;
 
+MessageHandler::~MessageHandler()
+{
+}
+
+std::string MessageHandler::generateInrospectHeader( const std::string &nodename )
+{
+   std::string rez = "<!DOCTYPE node PUBLIC \"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN\" "
+                     "\"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd\">";
+
+   rez += " <node";
+   if( !nodename.empty() )
+      rez += "=\"" + nodename + "\"";
+   rez += "> <interface name=\"org.freedesktop.DBus.Introspectable\">"
+          "  <method name=\"Introspect\">"
+          "    <arg name=\"data\" direction=\"out\" type=\"s\"/>"
+          "  </method>"
+          "</interface>";
+   return rez;
+}
+
+namespace {
+   DBusObjectPathVTable vtable;
+   DBusHandlerResult processMessage( DBusConnection *connPtr,
+                                     DBusMessage *messagePtr,
+                                     void *data )
+   {
+      Message message = Message::parameter( messagePtr );
+      return reinterpret_cast< MessageHandler * >( data )->processMessage( message );
+   }
+ }
+
+Connection::Connection( DBusConnection *conn )
+   : m_connection( conn )
+{
+   vtable.message_function = processMessage;
+}
+
+Connection::~Connection()
+{
+   for( Handlers::iterator it = m_handlers.begin(); it != m_handlers.end(); ++it ) {
+      dbus_connection_unregister_object_path( m_connection, it->first.c_str() );
+      delete it->second;
+   }
+}
+
 dbus_uint32_t Connection::send( const Message &msg )
 {
    dbus_uint32_t rez;
    dbus_connection_send( m_connection, msg.m_message, &rez );
    return rez;
 }
+
+void Connection::registerHandler( const std::string &path, MessageHandler *handler, bool fallback )
+{
+   handler->m_connection = this;
+   m_handlers.insert( std::make_pair( path, handler ) );
+   if( fallback )
+      dbus_connection_register_fallback( m_connection, path.c_str(), &vtable, handler );
+   else
+      dbus_connection_register_object_path( m_connection, path.c_str(), &vtable, handler );
+}
+
 
 MessageIter::MessageIter( const MessageIter &an )
    : m_iter( an.m_iter ), m_container( an.m_container )
@@ -74,12 +130,12 @@ Message::Message( DBusMessage *msg, bool ownership )
       dbus_message_ref( m_message );
 }
 
-Message Message::newMethodReturn()
+Message Message::newMethodReturn() const
 {
    return Message( dbus_message_new_method_return( m_message ), true );
 }
 
-Message Message::newError( const char *error, const char *message )
+Message Message::newError( const char *error, const char *message ) const
 {
    return Message( dbus_message_new_error( m_message, error, message ), true );
 }
@@ -96,7 +152,7 @@ void Message::append( const char *str )
    dbus_message_append_args( m_message, DBUS_TYPE_STRING, &str, DBUS_TYPE_INVALID );
 }
 
-const char *Message::path()
+const char *Message::path() const
 {
    return dbus_message_get_path( m_message );
 }

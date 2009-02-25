@@ -20,19 +20,15 @@
 
 #include <iostream>
 
-#include "dbuscpp.h"
+#include "drivehandler.h"
 #include "lscribed.h"
+
+using namespace DBusCpp;
 
 Drives drives;
 
 static const char *strDriveIntrospect =
-"<node>\
-  <interface name=\"org.freedesktop.DBus.Introspectable\">\
-    <method name=\"Introspect\">\
-      <arg name=\"data\" direction=\"out\" type=\"s\"/>\
-    </method>\
-  </interface>\
-  <interface name=\"org.lightscribe.drive\">\
+"<interface name=\"org.lightscribe.drive\">\
     <signal name=\"prepareProgress\">\
       <arg name=\"current\" type=\"i\" direction=\"out\"/>\
       <arg name=\"final\" type=\"i\" direction=\"out\"/>\
@@ -62,19 +58,14 @@ static const char *strDriveIntrospect =
     <method name=\"name\">\
       <arg direction=\"out\" type=\"s\"/>\
     </method>\
-  </interface>\
-</node>";
+  </interface>";
 
 
-DBusHandlerResult processDriveMessage( DBusConnection *connPtr, DBusMessage *messagePtr, void *data )
+DBusHandlerResult DriveHandler::processMessage( const Message &msg )
 {
    DBusHandlerResult rez = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-   using namespace DBusCpp;
 
-   Connection conn( connPtr );
-   Message message = Message::parameter( messagePtr );
-
-   const char *path = message.path();
+   const char *path = msg.path();
    if( !path )
       return rez;
 
@@ -84,23 +75,20 @@ DBusHandlerResult processDriveMessage( DBusConnection *connPtr, DBusMessage *mes
 
    if( item[ 0 ] == '/' ) ++item;
 
-   if( message.isMethodCall( "org.freedesktop.DBus.Introspectable", "Introspect" ) ) {
+   if( msg.isMethodCall( "org.freedesktop.DBus.Introspectable", "Introspect" ) ) {
 
-
-      std::string introspect = introspectHeader;
+      std::string introspect = generateInrospectHeader();
       if( strcmp( item, "drives" ) == 0 ) {
-         introspect += "<node>";
-         putIntrospectInterface( introspect );
          for( Drives::const_iterator it = drives.begin(); it != drives.end(); ++it )
             introspect += "<node name=\"" + it->first + "\"/>";
-         introspect += "</node>";
       }
       else
          introspect += strDriveIntrospect;
+      introspect += "</node>";
 
-      Message reply = message.newMethodReturn();
+      Message reply = msg.newMethodReturn();
       reply.append( introspect );
-      conn.send( reply );
+      connection()->send( reply );
       return rez = DBUS_HANDLER_RESULT_HANDLED;
    }
 
@@ -109,10 +97,10 @@ DBusHandlerResult processDriveMessage( DBusConnection *connPtr, DBusMessage *mes
       return rez;
 
    std::cout << "calling method on item " << item << std::endl;
-   if( message.isMethodCall( "org.lightscribe.drive", "name" ) ) {
-      Message reply = message.newMethodReturn();
+   if( msg.isMethodCall( "org.lightscribe.drive", "name" ) ) {
+      Message reply = msg.newMethodReturn();
       reply.append( f->second );
-      conn.send( reply );
+      connection()->send( reply );
       return rez = DBUS_HANDLER_RESULT_HANDLED;
    }
    return rez;

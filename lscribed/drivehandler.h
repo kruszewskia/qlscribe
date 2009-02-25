@@ -18,17 +18,18 @@
 
     $Id$ */
 
-#ifndef LSCRIBED_H
-#define LSCRIBED_H
+#ifndef DRIVEHANDLER_H
+#define DRIVEHANDLER_H
 
-#include <map>
-#include <string>
+#include "dbuscpp.h"
 
-typedef std::map< std::string, std::string > Drives;
-extern Drives drives;
+namespace DBusCpp {
 
-const char * const DBusServiceName = "@QLSCRIBE_DBUS_SERVICE@";
-const char * const DBusManagerPath = "@QLSCRIBE_DBUS_MANAGER@";
-const char * const DBusDrivesPath = "@QLSCRIBE_DBUS_DRIVES@";
+class DriveHandler : public MessageHandler {
+public:
+   virtual DBusHandlerResult processMessage( const Message &msg );
+};
 
-#endif // LSCRIBED_H
+}
+
+#endif // DRIVEHANDLER_H

@@ -9,6 +9,10 @@ INCLUDEPATH += /usr/include/dbus-1.0/
 CONFIG += staticlib
 SOURCES += main.cpp \
     dbuscpp.cpp \
-    manager.cpp \
-    drive.cpp
-HEADERS += dbuscpp.h
+    managerhandler.cpp \
+    drivehandler.cpp \
+    introspecthandler.cpp
+HEADERS += dbuscpp.h \
+    drivehandler.h \
+    managerhandler.h \
+    introspecthandler.h
