@@ -38,11 +38,10 @@ DBusHandlerResult IntrospectHandler::processMessage( const Message &msg )
          if( pathlen != 1 ) ++pathlen;
          const char *end = strchr( DBusManagerPath + pathlen, '/' );
          if( end ) {
-            char sub[128];
             const int sublen = end - DBusManagerPath - pathlen;
-            strncpy( sub, DBusManagerPath + pathlen, sublen );
-            sub[ sublen ] = 0;
-            introspect += std::string( "<node name=\"" ) + sub + "\"/>";
+            introspect += "<node name=\"" +
+                          std::string( DBusManagerPath + pathlen, sublen )
+                          + "\"/>";
          } else
             introspect += "<node name=\"Manager\"/><node name=\"drives\"/>";
       }
