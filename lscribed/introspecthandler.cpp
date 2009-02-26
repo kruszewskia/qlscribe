@@ -21,6 +21,8 @@
 #include "introspecthandler.h"
 #include "lscribed.h"
 
+#include <string.h>
+
 using namespace DBusCpp;
 
 DBusHandlerResult IntrospectHandler::processMessage( const Message &msg )

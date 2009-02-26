@@ -20,6 +20,8 @@
 
 #include <iostream>
 
+#include <string.h>
+
 #include "drivehandler.h"
 #include "lscribed.h"
 
