@@ -148,9 +148,12 @@ DrivesManager::DrivesManager()
 {
 }
 
-void DrivesManager::init( DBusCpp::Connection conn )
+void DrivesManager::init( DBusCpp::Connection conn, bool debug )
 {
    m_connection = conn;
+
+   if( debug )
+      m_drives.push_back( new Drive( -1, "drived", "Debug printer" ) );
 
    DiscPrintMgr manager;
    EnumDiscPrinters printers = manager.EnumDiscPrinters();

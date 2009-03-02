@@ -58,7 +58,7 @@ public:
 
    static DrivesManager &instance();
 
-   void init( DBusCpp::Connection conn );
+   void init( DBusCpp::Connection conn, bool debug );
 
    const_iterator begin() const { return m_drives.begin(); }
    const_iterator end() const { return m_drives.end(); }

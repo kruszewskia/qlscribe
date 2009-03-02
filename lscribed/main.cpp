@@ -56,7 +56,7 @@ int main( int argc, char **argv )
    conn.registerHandler( DBusManagerPath, new DBusCpp::ManagerHandler, false );
    conn.registerHandler( DBusDrivesPath, new DBusCpp::DriveHandler, true );
 
-   DrivesManager::instance().init( conn );
+   DrivesManager::instance().init( conn, true );
 
    while( dbus_connection_read_write_dispatch( conn.ptr(), -1 ) );
 
