@@ -50,6 +50,7 @@ private:
 class Connection {
 public:
    Connection( DBusConnection *conn );
+   Connection( const Connection &conn ) : m_connection( conn.m_connection ) {}
    ~Connection();
 
    dbus_uint32_t send( const Message &msg );
@@ -80,6 +81,27 @@ private:
    DBusMessageIter *m_container;
 };
 
+class MessageConstIter {
+public:
+   MessageConstIter recurse() const;
+
+   std::string signature() const;
+   bool next() { return dbus_message_iter_next( &m_iter ); }
+   bool hasNext() const { return dbus_message_iter_has_next( const_cast< DBusMessageIter *>( &m_iter ) ); }
+
+   void *getFixedArray( int &elements ) const;
+   template <typename T> T getValue() const
+   {
+      T rez = T();
+      dbus_message_iter_get_basic( const_cast< DBusMessageIter *>( &m_iter ), &rez );
+      return rez;
+   }
+
+   friend class Message;
+private:
+   DBusMessageIter  m_iter;
+};
+
 class Message {
 public:
    explicit Message( int type );
@@ -94,11 +116,14 @@ public:
    bool isMethodCall( const char *interface, const char *method ) const
    { return dbus_message_is_method_call( m_message, interface, method ); }
 
+   MessageConstIter constIter() const;
    MessageIter appendIter();
    void append( const std::string &str ) { append( str.c_str() ); }
    void append( const char *str );
 
    const char *path() const;
+   const char *interface() const;
+   const char *member() const;
 
    friend class Connection;
 private:

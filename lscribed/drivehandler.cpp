@@ -22,12 +22,11 @@
 
 #include <string.h>
 
-#include "drivehandler.h"
 #include "lscribed.h"
+#include "drivehandler.h"
+#include "drives.h"
 
 using namespace DBusCpp;
-
-Drives drives;
 
 static const char *strDriveIntrospect =
 "<interface name=\"org.lightscribe.drive\">\
@@ -77,12 +76,14 @@ DBusHandlerResult DriveHandler::processMessage( const Message &msg )
 
    if( item[ 0 ] == '/' ) ++item;
 
+   DrivesManager &manager = DrivesManager::instance();
+
    if( msg.isMethodCall( "org.freedesktop.DBus.Introspectable", "Introspect" ) ) {
 
       std::string introspect = generateInrospectHeader();
       if( strcmp( item, "drives" ) == 0 ) {
-         for( Drives::const_iterator it = drives.begin(); it != drives.end(); ++it )
-            introspect += "<node name=\"" + it->first + "\"/>";
+         for( DrivesManager::const_iterator it = manager.begin(); it != manager.end(); ++it )
+            introspect += "<node name=\"" + (*it)->path() + "\"/>";
       }
       else
          introspect += strDriveIntrospect;
@@ -94,23 +95,21 @@ DBusHandlerResult DriveHandler::processMessage( const Message &msg )
       return rez = DBUS_HANDLER_RESULT_HANDLED;
    }
 
-   Drives::const_iterator f = drives.find( item );
-   if( f == drives.end() )
+   const char *interface = msg.interface();
+   if( !interface || strcmp( interface, "org.lightscribe.drive" ) )
+      return rez;
+
+   const char *member = msg.member();
+   if( !member )
+      return rez;
+
+   DrivesManager::const_iterator f = manager.find( item );
+   if( f == manager.end() )
       return rez;
 
    rez = DBUS_HANDLER_RESULT_HANDLED;
-   std::cout << "calling method on item " << item << std::endl;
-   if( msg.isMethodCall( "org.lightscribe.drive", "name" ) ) {
-      Message reply = msg.newMethodReturn();
-      reply.append( f->second );
-      connection()->send( reply );
-      return rez;
-   }
-   if( msg.isMethodCall( "org.lightscribe.drive", "preview" ) ) {
-      return rez;
-   }
-   Message reply = msg.newError( DBUS_ERROR_NOT_SUPPORTED, "method is not supported" );
-   connection()->send( reply );
+   std::cout << "calling method " << member << " on item " << item << std::endl;
+   (*f)->invoke( member, msg );
    return rez;
 }
 

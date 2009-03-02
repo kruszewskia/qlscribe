@@ -18,8 +18,9 @@
 
     $Id$ */
 
-#include "managerhandler.h"
 #include "lscribed.h"
+#include "managerhandler.h"
+#include "drives.h"
 
 using namespace DBusCpp;
 
@@ -53,11 +54,12 @@ DBusHandlerResult ManagerHandler::processMessage( const Message &msg )
       {
          MessageIter sub = args.openContainer( DBUS_TYPE_ARRAY, "{ss}" );
 
-         for( Drives::const_iterator it = drives.begin(); it != drives.end(); ++it ) {
+         DrivesManager &manager = DrivesManager::instance();
+         for( DrivesManager::const_iterator it = manager.begin(); it != manager.end(); ++it ) {
             MessageIter itemIterator = sub.openContainer( DBUS_TYPE_DICT_ENTRY, 0 );
 
-            itemIterator.append( std::string( DBusDrivesPath ) + "/" + it->first );
-            itemIterator.append( it->second );
+            itemIterator.append( std::string( DBusDrivesPath ) + "/" + (*it)->path() );
+            itemIterator.append( (*it)->name() );
          }
       }
 

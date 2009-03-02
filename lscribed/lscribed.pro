@@ -11,8 +11,10 @@ SOURCES += main.cpp \
     dbuscpp.cpp \
     managerhandler.cpp \
     drivehandler.cpp \
-    introspecthandler.cpp
+    introspecthandler.cpp \
+    drives.cpp
 HEADERS += dbuscpp.h \
     drivehandler.h \
     managerhandler.h \
-    introspecthandler.h
+    introspecthandler.h \
+    drives.h

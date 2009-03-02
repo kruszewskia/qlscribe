@@ -30,7 +30,7 @@ IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_COMPILER_IS_GNUCXX )
      SET( CMAKE_EXE_LINKER_FLAGS "-m32 -pthread ${CMAKE_EXE_LINKER_FLAGS}" )
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_COMPILER_IS_GNUCXX )
 
-SET( LSCRIBED_SRCS main.cpp dbuscpp.cpp managerhandler.cpp drivehandler.cpp
+SET( LSCRIBED_SRCS main.cpp dbuscpp.cpp drives.cpp managerhandler.cpp drivehandler.cpp
                    introspecthandler.cpp )
 
 ADD_DEFINITIONS( -Wall )

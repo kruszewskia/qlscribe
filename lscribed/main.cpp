@@ -26,9 +26,12 @@
 #include "introspecthandler.h"
 #include "managerhandler.h"
 #include "drivehandler.h"
+#include "drives.h"
 
 int main( int argc, char **argv )
 {
+   dbus_threads_init_default();
+
    DBusError err;
    dbus_error_init( &err );
 
@@ -53,8 +56,7 @@ int main( int argc, char **argv )
    conn.registerHandler( DBusManagerPath, new DBusCpp::ManagerHandler, false );
    conn.registerHandler( DBusDrivesPath, new DBusCpp::DriveHandler, true );
 
-   drives.insert( std::make_pair( "drive0", "DRIVE 0" ) );
-   drives.insert( std::make_pair( "drive1", "DRIVE 1" ) );
+   DrivesManager::instance().init( conn );
 
    while( dbus_connection_read_write_dispatch( conn.ptr(), -1 ) );
 

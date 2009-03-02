@@ -113,6 +113,28 @@ void MessageIter::append( const char *str )
    dbus_message_iter_append_basic( &m_iter, DBUS_TYPE_STRING, &str );
 }
 
+std::string MessageConstIter::signature() const
+{
+   char *ptr = dbus_message_iter_get_signature( const_cast< DBusMessageIter *>( &m_iter ) );
+   std::string rez( ptr );
+   dbus_free( ptr );
+   return rez;
+}
+
+MessageConstIter MessageConstIter::recurse() const
+{
+   MessageConstIter rez;
+   dbus_message_iter_recurse( const_cast< DBusMessageIter *>( &m_iter ), &rez.m_iter );
+   return rez;
+}
+
+void *MessageConstIter::getFixedArray( int &elements ) const
+{
+   void *data =0;
+   dbus_message_iter_get_fixed_array( const_cast< DBusMessageIter *>( &m_iter ), &data, &elements );
+   return data;
+}
+
 Message::Message( int type )
 {
    m_message = dbus_message_new( type );
@@ -131,6 +153,11 @@ Message::Message( DBusMessage *msg, bool ownership )
       dbus_message_ref( m_message );
 }
 
+Message::~Message()
+{
+   dbus_message_unref( m_message );
+}
+
 Message Message::newMethodReturn() const
 {
    return Message( dbus_message_new_method_return( m_message ), true );
@@ -139,6 +166,13 @@ Message Message::newMethodReturn() const
 Message Message::newError( const char *error, const char *message ) const
 {
    return Message( dbus_message_new_error( m_message, error, message ), true );
+}
+
+MessageConstIter Message::constIter() const
+{
+   MessageConstIter rez;
+   dbus_message_iter_init( m_message, &rez.m_iter );
+   return rez;
 }
 
 MessageIter Message::appendIter()
@@ -158,7 +192,13 @@ const char *Message::path() const
    return dbus_message_get_path( m_message );
 }
 
-Message::~Message()
+const char *Message::interface() const
 {
-   dbus_message_unref( m_message );
+   return dbus_message_get_interface( m_message );
 }
+
+const char *Message::member() const
+{
+   return dbus_message_get_member( m_message );
+}
+
