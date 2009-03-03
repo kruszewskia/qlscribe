@@ -257,6 +257,10 @@ void Drive::routine()
 
       const char *function = 0;
       try {
+         const size_t bitmapHeaderSize = 54;
+
+         if( imageSize <= bitmapHeaderSize )
+            throw "Invalid image";
 
          function = "LS_DiscPrintMgr_Create";
          DiscPrintMgr manager;
@@ -270,8 +274,6 @@ void Drive::routine()
 
          function = "LS_DiscPrinter_OpenPrintSession";
          DiscPrintSession session = printer.OpenPrintSession();
-
-         const size_t bitmapHeaderSize = 54;
 
          DBusCpp::Message reply = m_message->newMethodReturn();
 
