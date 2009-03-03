@@ -158,6 +158,14 @@ Message::~Message()
    dbus_message_unref( m_message );
 }
 
+Message Message::newSignal( const std::string &path,
+                            const std::string &interface,
+                            const std::string &name )
+{
+   return Message( dbus_message_new_signal( path.c_str(), interface.c_str(), name.c_str() ),
+                   true );
+}
+
 Message Message::newMethodReturn() const
 {
    return Message( dbus_message_new_method_return( m_message ), true );
@@ -185,6 +193,11 @@ MessageIter Message::appendIter()
 void Message::append( const char *str )
 {
    dbus_message_append_args( m_message, DBUS_TYPE_STRING, &str, DBUS_TYPE_INVALID );
+}
+
+void Message::append( int32_t i )
+{
+   dbus_message_append_args( m_message, DBUS_TYPE_INT32, &i, DBUS_TYPE_INVALID );
 }
 
 const char *Message::path() const

@@ -19,12 +19,62 @@
     $Id$ */
 
 #include "drives.h"
+#include "lscribed.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <lightscribe_cxx.h>
 #include <fstream>
 #include <iostream>
 
 using namespace LightScribe;
+
+static pthread_key_t drivesKey;
+
+static Drive *getDriveForThread()
+{
+   return reinterpret_cast<Drive *>( pthread_getspecific( drivesKey ) );
+}
+
+static bool clAbortLabel()
+{
+   Drive *drive = getDriveForThread();
+   return drive ? drive->isAborted() : true;
+}
+
+static void clReportPrepareProgress( long current, long final )
+{
+}
+
+void clReportLabelProgress( long current, long final )
+{
+}
+
+void clReportFinished( LSError status )
+{
+   Drive *drive = getDriveForThread();
+   if( drive ) {
+      DBusCpp::Message msg = DBusCpp::Message::newSignal( drive->fullPath(),
+                                                          "org.lightscribe.drive",
+                                                          "finished" );
+      msg.append( status );
+      DrivesManager::instance().connection().send( msg );
+   }
+}
+
+bool clReportLabelTimeEstimate( long time )
+{
+   return false;
+}
+
+static std::string generateTmp()
+{
+   char *temp = tempnam( 0, ".bmp" );
+   std::string rez( temp );
+   free( temp );
+   return rez;
+}
 
 Drive::Drive( int index, const std::string &path, const std::string &name )
    : m_index( index ), m_path( path ), m_name( name ), m_threadStarted( false ), m_message( 0 )
@@ -38,6 +88,11 @@ Drive::~Drive()
       pthread_join( m_thread, 0 );
       pthread_cond_destroy( &m_cond );
    }
+}
+
+std::string Drive::fullPath() const
+{
+   return std::string( DBusDrivesPath ) + "/" + path();
 }
 
 void *routine( void *ptr )
@@ -79,6 +134,7 @@ void Drive::invoke( const std::string &method, const DBusCpp::Message &msg )
 
 void Drive::routine()
 {
+   pthread_setspecific( drivesKey, this );
    DrivesManager &man = DrivesManager::instance();
 
    bool first = true;
@@ -96,6 +152,8 @@ void Drive::routine()
 
       pthread_mutex_unlock( &mutex );
 
+      bool preview = strcmp( m_message->member(), "preview" ) == 0;
+
       LS_LabelMode mode;
       LS_DrawOptions options;
       LS_PrintQuality quality;
@@ -103,6 +161,9 @@ void Drive::routine()
 
       char *image = 0;
       int imageSize = 0;
+
+      LS_Size size;
+
       try {
          DBusCpp::MessageConstIter iter = m_message->constIter();
          if( iter.signature() != "(iiii)" )
@@ -113,9 +174,7 @@ void Drive::routine()
          mode    = LS_LabelMode( sub.getValue<int32_t>() ); sub.next();
          options = LS_DrawOptions( sub.getValue<int32_t>() ); sub.next();
          quality = LS_PrintQuality( sub.getValue<int32_t>() ); sub.next();
-         level   = LS_MediaOptimizationLevel( sub.getValue<int32_t>() ); sub.next();
-
-         std::cout << "got parameters " << std::endl;
+         level   = LS_MediaOptimizationLevel( sub.getValue<int32_t>() );
 
          if( !iter.next() )
             throw std::string( "image argument missing" );
@@ -126,6 +185,17 @@ void Drive::routine()
          sub = iter.recurse();
 
          image = reinterpret_cast< char * >( sub.getFixedArray( imageSize ) );
+
+         if( preview ) {
+            if( !iter.next() )
+               throw std::string( "size argument missing" );
+            if( iter.signature() != "(ii)" )
+               throw std::string( "invalid argument for size: " ) + iter.signature() + ", (ii) expected";
+
+            sub = iter.recurse();
+            size.x = sub.getValue<int32_t>(); sub.next();
+            size.y = sub.getValue<int32_t>();
+         }
       }
       catch( const std::string &str ) {
          std::cout << "exception " << str << std::endl;
@@ -133,13 +203,103 @@ void Drive::routine()
          man.connection().send( reply );
          continue;
       }
-      {
-         std::ofstream out( "/tmp/image.bmp" );
-         out.write( image, imageSize );
+
+      std::string tmpFile;
+      if( preview )
+         tmpFile = generateTmp();
+
+      if( m_index == -1 ) {
+         DBusCpp::Message reply = m_message->newMethodReturn();
+
+         if( preview ) { // this is debug drive, so just write input into output
+            std::ofstream out( tmpFile.c_str() );
+            out.write( image, imageSize );
+            out.close();
+
+            reply.append( tmpFile );
+         }
+         man.connection().send( reply );
+         continue;
       }
-      DBusCpp::Message reply = m_message->newMethodReturn();
-      reply.append( "/tmp/image.bmp" );
-      man.connection().send( reply );
+
+      const char *function = 0;
+      try {
+
+         function = "LS_DiscPrintMgr_Create";
+         DiscPrintMgr manager;
+
+         function = "LS_DiscPrintMgr_EnumDiscPrinters";
+         EnumDiscPrinters printers = manager.EnumDiscPrinters();
+         if( m_index >= printers.Count() )
+            throw std::string( "internal error: invalid index" );
+
+         DiscPrinter printer = printers.Item( m_index );
+
+         function = "LS_DiscPrinter_OpenPrintSession";
+         DiscPrintSession session = printer.OpenPrintSession();
+
+         const size_t bitmapHeaderSize = 54;
+
+         DBusCpp::Message reply = m_message->newMethodReturn();
+
+         if( preview ) {
+
+            function = "LS_DiscPrintSession_PrintPreview";
+            session.PrintPreview( LS_windows_bitmap,
+                                  mode,
+                                  options,
+                                  quality,
+                                  level,
+                                  image + 14,
+                                  bitmapHeaderSize - 14,
+                                  image + bitmapHeaderSize,
+                                  imageSize - bitmapHeaderSize,
+                                  const_cast< char *>( tmpFile.c_str() ),
+                                  LS_windows_bitmap,
+                                  size,
+                                  true );
+            reply.append( tmpFile );
+            man.connection().send( reply );
+
+         } else {
+
+            LS_PrintCallbacks callbacks;
+            callbacks.AbortLabel = clAbortLabel;
+            callbacks.ReportPrepareProgress = clReportPrepareProgress;
+            callbacks.ReportLabelProgress = clReportLabelProgress;
+            callbacks.ReportFinished = clReportFinished;
+            callbacks.ReportLabelTimeEstimate = clReportLabelTimeEstimate;
+            session.SetProgressCallback( &callbacks );
+
+            man.connection().send( reply );
+
+            function = 0;
+            session.PrintDisc( LS_windows_bitmap,
+                               mode,
+                               options,
+                               quality,
+                               level,
+                               image + 14,
+                               bitmapHeaderSize - 14,
+                               image + bitmapHeaderSize,
+                               imageSize - bitmapHeaderSize );
+         }
+      }
+      catch( LightScribe::LSException &ex ) {
+         if( function ) {
+            char message[ 255 ];
+            sprintf( message, "\"%s()\" failed with code 0x%X", function, ex.GetCode() );
+            DBusCpp::Message reply = m_message->newError( DBUS_ERROR_FAILED, message );
+            man.connection().send( reply );
+         } else
+            clReportFinished( ex.GetCode() );
+         continue;
+      }
+      catch( const std::string &str ) {
+         DBusCpp::Message reply = m_message->newError( DBUS_ERROR_FAILED, str.c_str() );
+         man.connection().send( reply );
+         continue;
+      }
    }
 }
 
@@ -150,6 +310,7 @@ DrivesManager::DrivesManager()
 
 void DrivesManager::init( DBusCpp::Connection conn, bool debug )
 {
+   pthread_key_create( &drivesKey, 0 );
    m_connection = conn;
 
    if( debug )

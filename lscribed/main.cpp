@@ -58,7 +58,7 @@ int main( int argc, char **argv )
 
    DrivesManager::instance().init( conn, true );
 
-   while( dbus_connection_read_write_dispatch( conn.ptr(), -1 ) );
+   while( dbus_connection_read_write_dispatch( conn.ptr(), 10 ) );
 
    return 0;
 }

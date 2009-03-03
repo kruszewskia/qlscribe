@@ -55,6 +55,7 @@ public:
 
    dbus_uint32_t send( const Message &msg );
    void registerHandler( const std::string &path, MessageHandler *handler, bool fallback );
+   void flush() { dbus_connection_flush( m_connection ); }
 
    DBusConnection *ptr() const { return m_connection; }
 private:
@@ -113,6 +114,10 @@ public:
    Message newMethodReturn() const;
    Message newError( const char *error, const char *message ) const;
 
+   static Message newSignal( const std::string &path,
+                             const std::string &interface,
+                             const std::string &name );
+
    bool isMethodCall( const char *interface, const char *method ) const
    { return dbus_message_is_method_call( m_message, interface, method ); }
 
@@ -120,6 +125,7 @@ public:
    MessageIter appendIter();
    void append( const std::string &str ) { append( str.c_str() ); }
    void append( const char *str );
+   void append( int32_t i );
 
    const char *path() const;
    const char *interface() const;

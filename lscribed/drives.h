@@ -29,7 +29,9 @@
 class Drive {
 public:
    const std::string &path() const { return m_path; }
+   std::string fullPath() const;
    const std::string &name() const { return m_name; }
+   bool isAborted() const { return m_aborted; }
 
    void invoke( const std::string &method, const DBusCpp::Message &msg );
 
@@ -45,6 +47,7 @@ private:
    int               m_index;
    std::string       m_path;
    std::string       m_name;
+   bool              m_aborted;
    bool              m_threadStarted;
    pthread_t         m_thread;
    pthread_cond_t    m_cond;
