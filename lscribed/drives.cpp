@@ -45,10 +45,28 @@ static bool clAbortLabel()
 
 static void clReportPrepareProgress( long current, long final )
 {
+   Drive *drive = getDriveForThread();
+   if( drive ) {
+      DBusCpp::Message msg = DBusCpp::Message::newSignal( drive->fullPath(),
+                                                          "org.lightscribe.drive",
+                                                          "prepareProgress" );
+      msg.append( current );
+      msg.append( final );
+      DrivesManager::instance().connection().send( msg );
+   }
 }
 
-void clReportLabelProgress( long current, long final )
+static void clReportLabelProgress( long current, long final )
 {
+   Drive *drive = getDriveForThread();
+   if( drive ) {
+      DBusCpp::Message msg = DBusCpp::Message::newSignal( drive->fullPath(),
+                                                          "org.lightscribe.drive",
+                                                          "labelProgress" );
+      msg.append( current );
+      msg.append( final );
+      DrivesManager::instance().connection().send( msg );
+   }
 }
 
 void clReportFinished( LSError status )
@@ -63,8 +81,16 @@ void clReportFinished( LSError status )
    }
 }
 
-bool clReportLabelTimeEstimate( long time )
+static bool clReportLabelTimeEstimate( long time )
 {
+   Drive *drive = getDriveForThread();
+   if( drive ) {
+      DBusCpp::Message msg = DBusCpp::Message::newSignal( drive->fullPath(),
+                                                          "org.lightscribe.drive",
+                                                          "timeEstimate" );
+      msg.append( time );
+      DrivesManager::instance().connection().send( msg );
+   }
    return false;
 }
 
@@ -112,6 +138,12 @@ void Drive::invoke( const std::string &method, const DBusCpp::Message &msg )
       man.connection().send( reply );
       return;
    }
+   if( method == "abort" ) {
+      m_aborted = true;
+      DBusCpp::Message reply = msg.newMethodReturn();
+      man.connection().send( reply );
+      return;
+   }
    if( method == "preview" || method == "print" ) {
       if( !m_threadStarted ) {
          m_threadStarted = true;
@@ -123,6 +155,7 @@ void Drive::invoke( const std::string &method, const DBusCpp::Message &msg )
          DBusCpp::Message reply = msg.newError( DBUS_ERROR_FAILED, "drive is busy, try again later" );
          man.connection().send( reply );
       }
+      m_aborted = false;
       m_message = new DBusCpp::Message( msg );
       pthread_cond_signal( &m_cond );
       pthread_mutex_unlock( &mutex );
