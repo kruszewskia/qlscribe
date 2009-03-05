@@ -121,11 +121,17 @@ std::string Drive::fullPath() const
    return std::string( DBusDrivesPath ) + "/" + path();
 }
 
+bool Drive::active() const
+{
+   return m_message != 0;
+}
+
 void *routine( void *ptr )
 {
    reinterpret_cast< Drive * >( ptr )->routine();
    return ptr;
 }
+
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -259,7 +265,7 @@ void Drive::routine()
       try {
          const size_t bitmapHeaderSize = 54;
 
-         if( imageSize <= bitmapHeaderSize )
+         if( size_t( imageSize ) <= bitmapHeaderSize )
             throw "Invalid image";
 
          function = "LS_DiscPrintMgr_Create";
@@ -375,6 +381,15 @@ DrivesManager &DrivesManager::instance()
    static DrivesManager theManager;
    return theManager;
 
+}
+
+bool DrivesManager::active() const
+{
+   for( const_iterator f = begin(); f != end(); ++f )
+      if( (*f)->active() )
+         return true;
+
+   return false;
 }
 
 DrivesManager::const_iterator DrivesManager::find( const std::string &path ) const

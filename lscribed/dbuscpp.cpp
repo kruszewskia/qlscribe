@@ -19,6 +19,7 @@
     $Id$ */
 
 #include "dbuscpp.h"
+#include "lscribed.h"
 
 using namespace DBusCpp;
 
@@ -49,6 +50,7 @@ namespace {
                                      void *data )
    {
       Message message = Message::parameter( messagePtr );
+      lastActivity = time( 0 );
       return reinterpret_cast< MessageHandler * >( data )->processMessage( message );
    }
  }

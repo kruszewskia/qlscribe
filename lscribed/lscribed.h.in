@@ -28,4 +28,6 @@ const char * const DBusServiceName = "@QLSCRIBE_DBUS_SERVICE@";
 const char * const DBusManagerPath = "@QLSCRIBE_DBUS_MANAGER@";
 const char * const DBusDrivesPath = "@QLSCRIBE_DBUS_DRIVES@";
 
+extern unsigned int lastActivity;
+
 #endif // LSCRIBED_H

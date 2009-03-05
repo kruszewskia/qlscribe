@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <string.h>
+#include <signal.h>
+#include <stdlib.h>
 
 #include "lscribed.h"
 #include "dbuscpp.h"
@@ -28,14 +30,70 @@
 #include "drivehandler.h"
 #include "drives.h"
 
+unsigned int lastActivity = 0;
+unsigned int activityTimeout = 300; // 5 min by default
+bool terminateOnTimeout = false;
+int alarmInterval = 1;
+bool debug = false;
+
+void onAlarm( int )
+{
+   alarm( alarmInterval );
+   unsigned int curr = time( 0 );
+
+   if( lastActivity == 0 ) {
+      lastActivity = curr;
+      return;
+   }
+   if( curr - lastActivity < activityTimeout )
+      return;
+
+   if( DrivesManager::instance().active() ) {
+      lastActivity = curr;
+      return;
+   }
+   terminateOnTimeout = true;
+}
+
+void usage()
+{
+   std::cerr << "usage: lscribed [--help] [--timeout t] [--debug]" << std::endl;
+   std::cerr << "\t--help     print this message" << std::endl;
+   std::cerr << "\t--timeout  interval (seconds) to terminate after inactivity 0 - disable, default 300" << std::endl;
+   std::cerr << "\t--debug    to enable virtual drive and print debug statements" << std::endl;
+}
+
 int main( int argc, char **argv )
 {
+   for( int i = 1; i < argc; ++i ) {
+      if( strcmp( argv[i], "--help" ) == 0 ) {
+         usage();
+         return 1;
+      }
+
+      if( strcmp( argv[i], "--timeout" ) == 0 ) {
+         if( i == argc - 1 ) {
+            std::cerr << "Error: agrument for --timeout expected" << std::endl;
+            usage();
+            return 2;
+         }
+         activityTimeout = atoi( argv[ ++ i ] );
+         continue;
+      }
+      if( strcmp( argv[i], "--debug" ) == 0 ) {
+         debug = true;
+         continue;
+      }
+      std::cerr << "Error: unknown parameter " << argv[ i ] << std::endl;
+      usage();
+      return 3;
+   }
    dbus_threads_init_default();
 
    DBusError err;
    dbus_error_init( &err );
 
-   DBusCpp::Connection conn ( dbus_bus_get( DBUS_BUS_SYSTEM, &err ) );
+   DBusCpp::Connection conn ( dbus_bus_get_private( DBUS_BUS_SYSTEM, &err ) );
    if( dbus_error_is_set( &err ) ) {
       std::cerr << "dbus_bus_get() error: " << err.message << std::endl;
       dbus_error_free( &err );
@@ -56,9 +114,16 @@ int main( int argc, char **argv )
    conn.registerHandler( DBusManagerPath, new DBusCpp::ManagerHandler, false );
    conn.registerHandler( DBusDrivesPath, new DBusCpp::DriveHandler, true );
 
-   DrivesManager::instance().init( conn, true );
+   DrivesManager::instance().init( conn, debug );
+   if( activityTimeout ) {
+      signal( SIGALRM, onAlarm );
+      alarm( alarmInterval );
+   }
 
-   while( dbus_connection_read_write_dispatch( conn.ptr(), 10 ) );
+   while( dbus_connection_read_write_dispatch( conn.ptr(), 10 ) ) {
+      if( terminateOnTimeout )
+         dbus_connection_close( conn.ptr() );
+   }
 
    return 0;
 }

@@ -34,6 +34,7 @@ public:
    bool isAborted() const { return m_aborted; }
 
    void invoke( const std::string &method, const DBusCpp::Message &msg );
+   bool active() const;
 
    friend class DrivesManager;
    friend void *routine( void * );
@@ -66,6 +67,8 @@ public:
    const_iterator begin() const { return m_drives.begin(); }
    const_iterator end() const { return m_drives.end(); }
    const_iterator find( const std::string &path ) const;
+
+   bool active() const;
 
    DBusCpp::Connection connection() const { return m_connection; }
 
