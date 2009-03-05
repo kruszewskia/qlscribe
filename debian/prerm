@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "remove" -o "$1" = "upgrade" ] ; then
+	PID=`pidof lscribed`
+	if [ "X$PID" != "X" ] ; then
+		kill $PID
+	fi
+fi
+
+if [ "$1" = "remove" ] ; then
+	rm -f /etc/dbus-1/system.d/lightscribe.conf
+	rm -f /usr/share/dbus-1/system-services/org.lightscribe.Manager.service
+	/etc/init.d/dbus reload
+fi
+
+#DEBHELPER#
+
+exit 0
+
+

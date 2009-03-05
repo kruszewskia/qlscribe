@@ -14,7 +14,8 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	mkdir -p build
-	cd build; cmake .. -DCMAKE_INSTALL_PREFIX=$(CURDIR)/debian/qlscribe/usr
+	cd build; cmake .. -DCMAKE_INSTALL_PREFIX=$(CURDIR)/debian/qlscribe/usr \
+                           -DFINAL_INSTALL_PREFIX=/usr
 	touch configure-stamp
 
 
@@ -77,7 +78,7 @@ binary-arch: build install
 #	dh_link
 #	dh_strip
 	dh_compress
-#	dh_fixperms #need suid
+	dh_fixperms
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb

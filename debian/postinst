@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ] ; then
+	cp -f /usr/share/qlscribe/lightscribe.conf /etc/dbus-1/system.d/
+	cp -f /usr/share/qlscribe/org.lightscribe.Manager.service /usr/share/dbus-1/system-services/
+	/etc/init.d/dbus reload
+fi
+
+#DEBHELPER#
+
+exit 0
+
+

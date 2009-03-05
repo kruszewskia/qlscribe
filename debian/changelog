@@ -1,5 +1,5 @@
-qlscribe (0.7-0ubuntu1) unstable; urgency=low
-
+qlscribe (0.8-0ubuntu1) unstable; urgency=low
+  * Release 0.8 imported
   * Initial release
 
  -- Vyacheslav Kononenko <vyacheslav@kononenko.net>  Sun, 15 Feb 2009 21:49:41 -0500
