@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=@QLSCRIBE_DBUS_MANAGER_SERVICE@
+Exec=@CMAKE_INSTALL_PREFIX@/sbin/lscribed
+User=root
