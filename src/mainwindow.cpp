@@ -337,8 +337,8 @@ void MainWindow::onMenuPrint()
 {
    QCDScene *cdscene = getScene( m_mdiArea );
    if( !cdscene )
-      return;
 
+      return;
    try {
       QDialogProgress::exec( this, cdscene );
    }

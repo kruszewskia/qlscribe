@@ -25,8 +25,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 SET( CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 
 SET( QLSCRIBE_DBUS_SERVICE org.lightscribe )
-SET( QLSCRIBE_DBUS_MANAGER /org/lightscribe/Manager ) # path to manager
-SET( QLSCRIBE_DBUS_DRIVES /org/lightscribe/drives )   # base path under which drives located
+SET( QLSCRIBE_DBUS_MANAGER_SERVICE ${QLSCRIBE_DBUS_SERVICE}.Manager )
+SET( QLSCRIBE_DBUS_DRIVES_SERVICE ${QLSCRIBE_DBUS_SERVICE}.drives )
+SET( QLSCRIBE_DBUS_PATH /org/lightscribe )
+SET( QLSCRIBE_DBUS_MANAGER_PATH ${QLSCRIBE_DBUS_PATH}/Manager ) # path to manager
+SET( QLSCRIBE_DBUS_DRIVES_PATH ${QLSCRIBE_DBUS_PATH}/drives )   # base path under which drives located
 
 SUBDIRS( src )
 SUBDIRS( resources )

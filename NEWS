@@ -1,5 +1,11 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.8:
+    Application is splitted into 2 parts: qlscribe and dbus daemon lscribed
+    qlscribe does not require sticky bit and can be compiled in 64 bit mode if necessary
+    lscribed provides lightScribe service through system bus
+    lscribed is activated by dbus daemon and automatically terminates after 5 minutes of inactivity
+
 New in 0.7:
     Z-order of items saved and resored
     Bugfix for not loading radius for round text

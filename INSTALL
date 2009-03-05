@@ -4,31 +4,36 @@ Qt lightScribe Installaton instructions
 To compile and install, first download release from http://qlscribe.sourceforge.net/
 or check out project from subversion repository for particular release:
 
-      svn co https://qlscribe.svn.sourceforge.net/svnroot/qlscribe/tags/release-N.M qlscribe
+     svn co https://qlscribe.svn.sourceforge.net/svnroot/qlscribe/tags/release-N.M qlscribe
 
 or if you want to test latest development version:
 
-      svn co https://qlscribe.svn.sourceforge.net/svnroot/qlscribe/trunk qlscribe
+     svn co https://qlscribe.svn.sourceforge.net/svnroot/qlscribe/trunk qlscribe
 
 Then go to the source directory and type:
 
-  mkdir build
-  cd build
-  cmake ..
+    mkdir build
+    cd build
+    cmake ..
 
 (If you want to install in a different path, use instead:
-  cmake .. -DCMAKE_INSTALL_PREFIX=/install/path)
-  make
-  sudo make install
+    cmake .. -DCMAKE_INSTALL_PREFIX=/install/path)
+    make
+    sudo make install
 
 If cmake fails to find lightScribe API specify environment variable LIGHTSCRIBEDIR:
 
-  LIGHTSCRIBEDIR=/opt/lightscribe cmake ..
+    LIGHTSCRIBEDIR=/opt/lightscribe cmake ..
 
 Include files should be in ${LIGHTSCRIBEDIR}/include and lib in ${LIGHTSCRIBEDIR}/lib
 
-Once installed, you can start Qt lightScribe by typing "qlscribe", but due to API
-requirement if you want to burn qlscribe has to be started by root as "sudo qlscribe"
+You need manually install dbus config and service files. They are located in INSTALL_PATH/share/qlscribe
+So on my ubuntu system I do 
+    sudo cp /usr/local/share/qlscribe/lightscribe.conf /etc/dbus-1/system.d/ 
+    sudo cp /usr/local/share/qlscribe/org.lightscribe.Manager.service /usr/share/dbus-1/system-services/
+    sudo /etc/init.d/dbus reload
+
+Your system may have different path please refer dbus system daemon documentation
 
 You need to download lightScribe SDK for qlscribe to build and lightScribe runtime
 for qlscribe to run. For details see lightScribe webpage:
