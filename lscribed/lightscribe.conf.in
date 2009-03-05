@@ -15,6 +15,7 @@
   <policy context="default">
     <allow send_interface="@QLSCRIBE_DBUS_MANAGER_SERVICE@"/>
     <allow send_interface="@QLSCRIBE_DBUS_DRIVES_SERVICE@"/>
+    <allow receive_interface="@QLSCRIBE_DBUS_DRIVES_SERVICE@"/>
   </policy>
 
 </busconfig>
