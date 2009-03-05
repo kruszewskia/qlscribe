@@ -59,7 +59,7 @@ enum MediaOptimizationLevel {
    mediaGeneric
 };
 
-const char * const DBusServiceName = "@QLSCRIBE_DBUS_SERVICE@";
-const char * const DBusManagerPath = "@QLSCRIBE_DBUS_MANAGER@";
+const char * const DBusServiceName = "@QLSCRIBE_DBUS_MANAGER_SERVICE@";
+const char * const DBusManagerPath = "@QLSCRIBE_DBUS_MANAGER_PATH@";
 
 #endif // QLSCRIBE_H

@@ -63,7 +63,10 @@ QLightScribe *QLightScribe::instance()
 }
 
 QLightScribe::QLightScribe()
-   : m_managerPrx( new OrgLightscribePrintManagerInterface( DBusServiceName, DBusManagerPath, QDBusConnection::systemBus(), this ) )
+   : m_managerPrx( new OrgLightscribePrintManagerInterface( DBusServiceName,
+                                                            DBusManagerPath,
+                                                            QDBusConnection::systemBus(),
+                                                            this ) )
 {
    qDBusRegisterMetaType<PrintParameters>();
    qDBusRegisterMetaType<QObject2StringMap>();
