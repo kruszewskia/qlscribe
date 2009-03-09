@@ -21,6 +21,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QMap>
+#include <QPainter>
 #include "mainwindow.h"
 #include "qcdscene.h"
 #include "qlightscribe.h"
@@ -41,6 +42,8 @@ void usage()
          << "\tParameters:\n"
          << "\t\t--help | -h               - print this message\n"
          << "\t\t--print | -p              - switch to print mode\n"
+         << "\t\t--image | -i image        - print to this image\n"
+         << "\t\t--size  | -s size         - image size, 400 by default\n"
          << "\t\t--drive | -d NUMBER       - use this drive, starts from 0, 0 is default\n"
          << "\t\t--replace | -r KEY=VALUE  - replace text from KEY to VALUE\n"
          << std::endl;
@@ -56,6 +59,8 @@ int main( int argc, char **argv )
    QStringList files;
    QCDScene::QString2String replacements;
    int driveIndex = 0;
+   int imageSize = 400;
+   QString imageName;
    PrintParameters params;
    bool labelModeOverriden = false;
 
@@ -94,6 +99,30 @@ int main( int argc, char **argv )
          QString param = arguments[ ++i ];
          driveIndex = param.toInt();
       }
+      if( arg == "--image" || arg == "-i" ) {
+         if( i == arguments.size() - 1 ) {
+            std::cerr << "Error: arg#" << i
+                  << " argument expected for \"" << arg << "\" not enough parameters" << std::endl;
+            return 1;
+         }
+         doPrint = true;
+         imageName = arguments[ ++i ];
+         continue;
+      }
+      if( arg == "--size" || arg == "-s" ) {
+         if( i == arguments.size() - 1 ) {
+            std::cerr << "Error: arg#" << i
+                  << " argument expected for \"" << arg << "\" not enough parameters" << std::endl;
+            return 1;
+         }
+         imageSize = arguments[ ++i ].toInt();
+         if( imageSize <=0 ) {
+            std::cerr << "Error: arg#" << i
+                  << " invalid argument for image size, value > 0 is expected" << std::endl;
+            return 2;
+         }
+         continue;
+      }
       if( arg[0] != '-' )
          files.append( arg );
    }
@@ -120,10 +149,32 @@ int main( int argc, char **argv )
       if( !labelModeOverriden )
          params.m_labelMode = scene.labelMode();
 
+      if( !imageName.isEmpty() ) {
+         QImage image( imageSize, imageSize, QImage::Format_RGB888 );
+         image.fill( 0xFFFFFFFF );
+         {
+            QPainter painter( &image );
+
+            /*int innerSize = int( imageSize / 120.0 * 24.7 );
+            int center = imageSize / 2;
+            painter.setBrush( Qt::lightGray );
+            painter.drawEllipse( 0, 0, imageSize, imageSize );
+            painter.setBrush( Qt::white );
+            painter.drawEllipse( center - innerSize, center - innerSize,
+                                 innerSize * 2, innerSize * 2 );*/
+            scene.render( &painter, image.rect() );
+         }
+         std::cerr << "Printing to \"" << imageName << "\" as "
+                   << imageSize << "x" << imageSize <<"  image"
+                   << std::endl;
+         image.save( imageName );
+         return 0;
+      }
       QLightScribe *scribe = QLightScribe::instance();
       QList< QLightDrive * > drives = scribe->getDrives();
       if( driveIndex >= drives.size() ) {
-         std::cerr << "Error: drive " << driveIndex << " specified, but there are only " << drives.size() << " drives" << std::endl;
+         std::cerr << "Error: drive " << driveIndex
+               << " specified, but there are only " << drives.size() << " drives" << std::endl;
          return 6;
       }
       std::cout << "Printing label " << files.front() << std::endl;
@@ -132,6 +183,7 @@ int main( int argc, char **argv )
       QConsolePrintProgress progress( drive );
       drive->print( params, &scene );
       rez = app.exec();
+
    } else {
       MainWindow mwindow( true );
       mwindow.show();
