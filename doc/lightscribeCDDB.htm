@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<meta name="keywords" content="Qt,lightscribe,linux,cddb">
+
+<meta name="GENERATOR" content="PageBreeze Free HTML Editor (http://www.pagebreeze.com)">
+<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" >
+<title>HOWTO print CDDB titles with Qt lightscribe</title>
+
+<style>
+<!--
+h1 { font-family: Arial, sans-serif; font-size: 30px; }
+h2 { font-family: Arial, sans-serif; font-size: 18px; }
+
+body,p,b,i,em,dt,dd,dl,sl,caption,th,td,tr,u,blink,select,option,form,div,li { font-family: Arial, sans-serif; font-size: 12px; }
+-->
+</style>
+
+</head>
+<body bgcolor="#ffffff">
+<h3 align="center"> HOWTO print CDDB titles with Qt lightscribe</h3>
+<p>This document describes how you can create a qlscribe 
+template for printing labels with CDDB information embedded. So let's start.</p>
+<h5>1 Materials used.</h5>
+<p>qlscribe version 0.9 or later is used. If you have older 
+version please <a 
+href="https://sourceforge.net/project/showfiles.php?group_id=251217">update</a>  </p>
+<p>I downloaded label images from <a 
+href="http://www.lightscribe.com/ideas/index.aspx?id=2358">lightScribe design 
+center</a></p>
+<p>Music album&nbsp;I used just as an example, I do not 
+actually have this disc nor copy of it.</p>
+<p>cddbcmd utility is part of package cddb and on Ubuntu 
+can be downloaded from standard repository:</p>
+<pre>	sudo apt-get install cddb</pre>
+<h5>2 Create new label and load image</h5>
+<p>Start qlscribe, hit File -&gt; New Label -&gt; Full. You 
+should see something like this:</p>
+<p><img height="10" hspace="0" 
+src="Program Files/PageBreeze/Sample Website/bg_page.jpg" width=74 border=0>          
+    </p>
+<p>Insert image Edit -&gt; Insert -&gt; Image then on 
+dialog click "Load image.." select image "tape.jpg" downloaded from <a 
+href="http://www.lightscribe.com/ideas/index.aspx?id=2358">lightScribe design 
+center</a>&nbsp;Here how&nbsp;my label is&nbsp;looking now:</p>
+<p><img height="10" hspace="0" 
+src="Program Files/PageBreeze/Sample Website/bg_page.jpg" width=74 border=0>      </p>
+<h5>3 Create text placeholders</h5>
+<p>Now select Edit -&gt; Insert -&gt; Text&nbsp;and on 
+dialog put text "?DTITLE?". Question marks around name will make this text 
+dissapear in qlscribe console mode print. This could be not necessary for disk 
+title as it usually set in CDDB titke anyway, but would not harm. But we will 
+need to set question marks on song names, as number of placeholders of title 
+names should be at least not less than songs on the disk. Adjust font size, so 
+when printed it would fit in white area. Now move your text box in the 
+place:</p>
+<p><img height="10" hspace="0" 
+src="Program Files/PageBreeze/Sample Website/bg_page.jpg" width=74 border=0>        
+            
+             
+                
+              
+                
+               
+</p>
+<p>First we would create a placeholder for the first song, 
+adjust font properly and then copy/paste it for others. So Edit -&gt; Insert 
+-&gt; Text and put "?TITLE1?". Again if we would not put question marks around 
+name it will still work, but unused placeholders will be printed as ugly 
+TITLE5... strings. Move the text box to the proper position and press Ctrl-C or 
+from menu Edit -&gt; Copy. Press Ctrl-V and move the text box to the new postion 
+for TITLE2. Right click, then "edit..." and change text to "?TITLE2?". Repeat 
+until you have enough titles. Your label could look like this one now:</p>
+<p><img height="10" hspace="0" 
+src="Program Files/PageBreeze/Sample Website/bg_page.jpg" width=74 border=0></p>
+<p>Hit menu File -&gt; Save, save it&nbsp;for example 
+as&nbsp;"tape.qrx" and exit qlscribe.</p>
+<h5>4 Download CDDB data</h5>
+<p>If you do not have audio disk in cd-rom you can lookup 
+your disk genre/id from website. Copy it and run this command:</p>
+<pre>		cddbcmd cddb get blah 12345 &gt; blah.txt</pre>
+<p>Check that file have proper data, it should look similar 
+to this:</p>
+<pre>mlnsdsdflksj</pre>
+<h5>5 Test you template</h5>
+<p>Now we can test how our created at step 2-3 template works with the data. Run qlscribe 
+in console mode to print label as an image:</p>
+<pre>		qlscribe --image blahlabel.jpg --file blah.txt tape.qlx</pre>
+<p>If everything fine you should now see file blahlabel.jpg 
+in the current directory. Here is what I got for mine:</p>
+<p><img height="10" hspace="0" 
+src="Program Files/PageBreeze/Sample Website/bg_page.jpg" width=74 border=0>         
+          </p>
+<h5>6 Print label</h5>
+<p>Now if you are happy with the result at step 5 you can print label 
+directly:</p>
+<pre>		qlscribe --print --file blah.txt tape.qlx</pre>
+<p>Enjoy!</p>
+<p>Please send comments,&nbsp;suggestions or noticed errors 
+directly to <a 
+href="mailto:vyacheslav@kononenko.net">mailto:vyacheslav@kononenko.net</a> or 
+visit <a 
+href="http://qlscribe.sourceforge.net">http://qlscribe.sourceforge.net</a> and create 
+an item in the Bug tracker.</p>
+</body>
+</html>
