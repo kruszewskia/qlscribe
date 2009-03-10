@@ -22,6 +22,8 @@
 #include <QMessageBox>
 #include <QMap>
 #include <QPainter>
+#include <QFile>
+#include <QTextStream>
 #include "mainwindow.h"
 #include "qcdscene.h"
 #include "qlightscribe.h"
@@ -46,6 +48,7 @@ void usage()
          << "\t\t--size  | -s size         - image size, 400 by default\n"
          << "\t\t--drive | -d NUMBER       - use this drive, starts from 0, 0 is default\n"
          << "\t\t--replace | -r KEY=VALUE  - replace text from KEY to VALUE\n"
+         << "\t\t--file | -f filename      - read replacements in format KEY=VALUE from file\n"
          << std::endl;
 }
 
@@ -61,6 +64,7 @@ int main( int argc, char **argv )
    int driveIndex = 0;
    int imageSize = 400;
    QString imageName;
+   QString replacementsFile;
    PrintParameters params;
    bool labelModeOverriden = false;
 
@@ -88,6 +92,29 @@ int main( int argc, char **argv )
             return 2;
          }
          replacements[ param.left( pos ) ] = param.right( param.size() - pos - 1 );
+         continue;
+      }
+      if( arg == "--file" || arg == "-f" ) {
+         if( i == arguments.size() - 1 ) {
+            std::cerr << "Error: arg#" << i
+                  << " argument expected for \"" << arg << "\" not enough parameters" << std::endl;
+            return 1;
+         }
+         QFile data( arguments[ ++i ] );
+         if( !data.open( QIODevice::ReadOnly ) ) {
+            std::cerr << "cannot open file \"" << arguments[ i ] << "\" for reading" << std::endl;
+            return 2;
+         }
+         QTextStream stream( &data );
+         while( true ) {
+            QString line = stream.readLine();
+            if( line.isNull() )
+               break;
+            int pos = line.indexOf( '=' );
+            if( pos == -1 )
+               continue;
+            replacements[ line.left( pos ) ] = line.right( line.size() - pos - 1 );
+         }
          continue;
       }
       if( arg == "--drive" || arg == "-d" ) {
