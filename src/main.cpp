@@ -177,7 +177,7 @@ int main( int argc, char **argv )
          params.m_labelMode = scene.labelMode();
 
       if( !imageName.isEmpty() ) {
-         QImage image( imageSize, imageSize, QImage::Format_RGB888 );
+         QImage image( imageSize, imageSize, QImage::Format_RGB32 );
          image.fill( 0xFFFFFFFF );
          {
             QPainter painter( &image );
