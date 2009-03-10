@@ -55,6 +55,8 @@ private slots:
    void onMenuAbout();
    void onMenuQtAbout();
 
+   void updateMenu();
+
 private:
    bool saveSceneAs( QCDScene *scene );
 
@@ -64,6 +66,15 @@ private:
    QMenu          *m_menuEdit;
    QMenu          *m_menuInsert;
    QMenu          *m_menuHelp;
+
+   QAction        *m_actionSave;
+   QAction        *m_actionSaveAs;
+   QAction        *m_actionLabelProperties;
+   QAction        *m_actionPrint;
+   QAction        *m_actionPrintPreview;
+   QAction        *m_actionCopy;
+   QAction        *m_actionCut;
+   QAction        *m_actionPaste;
 
    QSignalMapper  *m_insertMapper;
    QSignalMapper  *m_newLabelMapper;

@@ -37,6 +37,8 @@
 #include <QFileDialog>
 #include <QLabel>
 #include <QCloseEvent>
+#include <QApplication>
+#include <QClipboard>
 
 
 MainWindow::MainWindow( bool enablePrint )
@@ -74,54 +76,56 @@ MainWindow::MainWindow( bool enablePrint )
                           this,
                           SLOT(onMenuOpen()) );
 
-   m_menuFile->addAction( tr( "Save", "Menu item \"Save\"" ),
-                          this,
-                          SLOT(onMenuSave()),
-                          QKeySequence( Qt::CTRL + Qt::Key_S ) );
+   m_actionSave = m_menuFile->addAction( tr( "Save", "Menu item \"Save\"" ),
+                                         this,
+                                         SLOT(onMenuSave()),
+                                         QKeySequence( Qt::CTRL + Qt::Key_S ) );
 
-   m_menuFile->addAction( tr( "Save as...", "Menu item \"Save as\"" ),
-                          this,
-                          SLOT(onMenuSaveAs()) );
-
-   m_menuFile->addSeparator();
-
-   m_menuFile->addAction( tr( "Label properties...", "Menu item \"Label propeties...\"" ),
-                          this,
-                          SLOT(onMenuProperties()) );
+   m_actionSaveAs = m_menuFile->addAction( tr( "Save as...", "Menu item \"Save as\"" ),
+                                           this,
+                                           SLOT(onMenuSaveAs()) );
 
    m_menuFile->addSeparator();
 
-   m_menuFile->addAction( tr( "Print preview...", "Menu item \"Print preview\"" ),
-                          this,
-                          SLOT(onMenuPrintPreview()) );
+   m_actionLabelProperties =
+         m_menuFile->addAction( tr( "Label properties...", "Menu item \"Label propeties...\"" ),
+                                this,
+                                SLOT(onMenuProperties()) );
 
-   QAction *printAction =
+   m_menuFile->addSeparator();
+
+   m_actionPrintPreview =
+         m_menuFile->addAction( tr( "Print preview...", "Menu item \"Print preview\"" ),
+                                this,
+                                SLOT(onMenuPrintPreview()) );
+
+   m_actionPrint =
          m_menuFile->addAction( tr( "Print...", "Menu item \"Print\"" ),
                                 this,
                                 SLOT(onMenuPrint()) );
-   if( !enablePrint )
-      printAction->setEnabled( false );
 
    m_menuFile->addAction( tr( "Exit", "Menu item \"Exit\"" ),
                           this,
-                          SLOT(close()));
+                          SLOT(close()),
+                          QKeySequence( Qt::CTRL + Qt::Key_X ) );
+
 
    m_menuEdit = menuBar()->addMenu( tr( "Edit",   "Menu item \"Edit\"" ) );
 
-   m_menuEdit->addAction( tr( "Copy", "Menu item \"Copy\"" ),
-                          this,
-                          SLOT(onMenuCopy()),
-                          QKeySequence( Qt::CTRL + Qt::Key_C ) );
+   m_actionCopy = m_menuEdit->addAction( tr( "Copy", "Menu item \"Copy\"" ),
+                                         this,
+                                         SLOT(onMenuCopy()),
+                                         QKeySequence( Qt::CTRL + Qt::Key_C ) );
 
-   m_menuEdit->addAction( tr( "Cut", "Menu item \"Cut\"" ),
-                          this,
-                          SLOT(onMenuCut()),
-                          QKeySequence( Qt::CTRL + Qt::Key_X ) );
+   m_actionCut = m_menuEdit->addAction( tr( "Cut", "Menu item \"Cut\"" ),
+                                        this,
+                                        SLOT(onMenuCut()),
+                                        QKeySequence( Qt::CTRL + Qt::Key_X ) );
 
-   m_menuEdit->addAction( tr( "Paste", "Menu item \"Paste\"" ),
-                          this,
-                          SLOT(onMenuPaste()),
-                          QKeySequence( Qt::CTRL + Qt::Key_V ) );
+   m_actionPaste = m_menuEdit->addAction( tr( "Paste", "Menu item \"Paste\"" ),
+                                          this,
+                                          SLOT(onMenuPaste()),
+                                          QKeySequence( Qt::CTRL + Qt::Key_V ) );
 
    m_menuInsert = m_menuEdit->addMenu( tr( "Insert", "Menu item \"Insert\"" ) );
 
@@ -144,6 +148,13 @@ MainWindow::MainWindow( bool enablePrint )
        connect( action, SIGNAL(triggered()), m_insertMapper, SLOT(map()) );
     }
     connect( m_insertMapper, SIGNAL(mapped(int)), this, SLOT(onMenuInsert(int)) );
+
+    connect( QApplication::clipboard(), SIGNAL(changed(QClipboard::Mode)),
+             this, SLOT(updateMenu()) );
+    connect( m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
+             this, SLOT(updateMenu()) );
+
+    updateMenu();
 }
 
 MainWindow::~MainWindow()
@@ -236,6 +247,7 @@ void MainWindow::onMenuNewLabel( int mode )
    scene->setLabelMode( LabelMode( mode ) );
    newView->setScene( scene );
    scene->setName();
+   connect( scene, SIGNAL(selectionChanged()), this, SLOT(updateMenu()) );
 
    QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
    subWindow->show();
@@ -298,6 +310,7 @@ void MainWindow::onMenuOpen()
       delete newView;
       return;
    }
+   connect( scene, SIGNAL(selectionChanged()), this, SLOT(updateMenu()) );
 
    QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
    subWindow->show();
@@ -398,4 +411,29 @@ void MainWindow::onMenuAbout()
 void MainWindow::onMenuQtAbout()
 {
    QMessageBox::aboutQt( this );
+}
+
+void MainWindow::updateMenu()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+
+   m_actionSave->setEnabled( scene );
+   m_actionSaveAs->setEnabled( scene );
+   m_actionLabelProperties->setEnabled( scene );
+   m_actionPrint->setEnabled( scene );
+   m_actionPrintPreview->setEnabled( scene );
+   m_menuInsert->setEnabled( scene );
+
+   if( !scene ) {
+      m_actionCopy->setEnabled( false );
+      m_actionCut->setEnabled( false );
+      m_actionPaste->setEnabled( false );
+   } else {
+      const QMimeData *mdata = QApplication::clipboard()->mimeData();
+      m_actionPaste->setEnabled( mdata && mdata->hasFormat( itemMimeType ) );
+
+      bool selected = scene->selectedItems().count();
+      m_actionCopy->setEnabled( selected );
+      m_actionCut->setEnabled( selected );
+   }
 }
