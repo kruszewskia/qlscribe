@@ -60,6 +60,11 @@ void QCDScene::replace( const QString2String &strings )
             f->second->replace( item, st.key(), st.value() );
       }
    }
+   foreach(QGraphicsItem *item, list ) {
+      QShapeFactory::iterator f = sfactory.find( item->type() );
+      if( f != sfactory.end() )
+         f->second->replace( item, "", "" ); // to clean placeholders
+   }
 }
 
 bool QCDScene::load( const QString &fileName, QString *errMessage )

@@ -81,7 +81,16 @@ void QShapeControllerText::writeData( QXmlStreamWriter &writer, const QGraphicsI
 void QShapeControllerText::replace( QGraphicsItem *item, const QString &from, const QString &to ) const
 {
    QGraphicsSimpleTextItem *textItem = static_cast< QGraphicsSimpleTextItem * >( item );
-   if( textItem->text() == from )
+
+   bool placeHolder = textItem->text().left( 1 ) == "?" && textItem->text().right( 1 ) == "?";
+
+   bool replace = false;
+   if( from.isEmpty() )
+      replace = placeHolder;
+   else
+      replace = textItem->text() == ( placeHolder ? QString( "?%1?" ).arg( from ) : from );
+
+   if( replace )
       textItem->setText( to );
 }
 
