@@ -52,6 +52,9 @@ public:
    bool save();
    bool saveAs( const QString &fileName );
 
+   void putItemToClipboard( bool move );
+   void getItemFromClipboard();
+
    void updateTitles() const;
    void redrawViews() const;
    QString name() const { return m_name; }
@@ -61,12 +64,15 @@ protected:
 
 private slots:
    void onMenuEdit();
+   void onMenuCopy();
+   void onMenuCut();
    void onMenuToFront();
    void onMenuToBack();
    void onMenuDelete();
 
 private:
    void write( QXmlStreamWriter &writer );
+   bool readItem( QXmlStreamReader &reader );
    void read( QXmlStreamReader &reader );
    void sendItemTo( bool front );
 

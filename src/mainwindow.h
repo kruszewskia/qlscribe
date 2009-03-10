@@ -48,6 +48,9 @@ private slots:
    void onMenuProperties();
    void onMenuPrintPreview();
    void onMenuPrint();
+   void onMenuCopy();
+   void onMenuCut();
+   void onMenuPaste();
    void onMenuInsert( int id );
    void onMenuAbout();
    void onMenuQtAbout();
@@ -58,6 +61,7 @@ private:
    QMdiArea       *m_mdiArea;
 
    QMenu          *m_menuFile;
+   QMenu          *m_menuEdit;
    QMenu          *m_menuInsert;
    QMenu          *m_menuHelp;
 

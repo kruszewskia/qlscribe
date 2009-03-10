@@ -31,6 +31,9 @@
 #include <QMessageBox>
 #include <QGraphicsView>
 #include <QRegExp>
+#include <QApplication>
+#include <QClipboard>
+#include <QMimeData>
 
 QCDScene::QCDScene( QObject * parent )
    : QGraphicsScene( parent ),
@@ -200,11 +203,33 @@ void QCDScene::write( QXmlStreamWriter &writer )
    writer.writeEndDocument();
 }
 
+
+bool QCDScene::readItem( QXmlStreamReader &reader )
+{
+   QShapeFactory &sfactory = QShapeFactory::instance();
+
+   QString type = reader.attributes().value( "type" ).toString();
+   QShapeFactory::iterator f = sfactory.find( type );
+   if( f == sfactory.end() ) {
+      QMessageBox::warning( 0,
+                            "Warning",
+                            QString( "QCDScene: unknown item type \"" )
+                            + type + "\"" );
+      return false;
+   }
+   QGraphicsItem *item = f->second->read( reader );
+   if( item ) {
+      item->setFlag( QGraphicsItem::ItemIsMovable, true );
+      item->setFlag( QGraphicsItem::ItemIsSelectable, true );
+      addItem( item );
+      return true;
+   }
+   return false;
+}
+
 void QCDScene::read( QXmlStreamReader &reader )
 {
    bool gotScene = false;
-
-   QShapeFactory &sfactory = QShapeFactory::instance();
 
    while( !reader.atEnd() ) {
       QXmlStreamReader::TokenType ttype = reader.readNext();
@@ -225,25 +250,68 @@ void QCDScene::read( QXmlStreamReader &reader )
       }
 
       if( elementName == "item" ) {
-         QString type = reader.attributes().value( "type" ).toString();
-         QShapeFactory::iterator f = sfactory.find( type );
-         if( f == sfactory.end() ) {
-            QMessageBox::warning( 0,
-                                  "Warning",
-                                  QString( "QCDScene: unknown item type \"" )
-                                  + type + "\"" );
-            continue;
-         }
-         QGraphicsItem *item = f->second->read( reader );
-         if( item ) {
-            item->setFlag( QGraphicsItem::ItemIsMovable, true );
-            item->setFlag( QGraphicsItem::ItemIsSelectable, true );
-            addItem( item );
-         }
+         readItem( reader );
       } else
          throw QString( "QCDScene: unknown element \"" ) + elementName + "\"";
    }
 
+}
+
+void QCDScene::putItemToClipboard( bool move )
+{
+   QList<QGraphicsItem *> list = selectedItems();
+   if( list.empty() )
+      return;
+   QGraphicsItem *item = list.front();
+
+   QShapeFactory &sfactory = QShapeFactory::instance();
+   QShapeFactory::iterator f = sfactory.find( item->type() );
+   if( f == sfactory.end() ) {
+      QMessageBox::warning( 0, tr( "Warning" ), tr( "Cannot find controller for type %n", 0, item->type() ) );
+      return;
+   }
+
+   QByteArray array;
+   QXmlStreamWriter writer( &array );
+
+   f->second->write( writer, item );
+   QMimeData *mdata = new QMimeData;
+   mdata->setData( itemMimeType, array );
+   mdata->setText( array.data() );
+
+   QApplication::clipboard()->setMimeData( mdata );
+
+   if( move ) {
+      removeItem( item );
+      delete item;
+      setChanged();
+   }
+}
+
+void QCDScene::getItemFromClipboard()
+{
+   const QMimeData *mdata = QApplication::clipboard()->mimeData();
+   if( !mdata )
+      return;
+
+   if( !mdata->hasFormat( itemMimeType ) )
+      return;
+
+   QByteArray array = mdata->data( itemMimeType );
+   QXmlStreamReader reader( array );
+
+   while( !reader.atEnd() ) {
+      QXmlStreamReader::TokenType ttype = reader.readNext();
+      if( ttype != QXmlStreamReader::StartElement )
+         continue;
+
+      QString elementName = reader.name().toString();
+
+      if( elementName == "item" ) {
+         if( readItem( reader ) )
+            setChanged();
+      }
+   }
 }
 
 void QCDScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *mouseEvent )
@@ -254,6 +322,8 @@ void QCDScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *mouseEvent )
    item->setSelected( true );
    QMenu menu;
    menu.addAction( tr( "edit..." ), this, SLOT( onMenuEdit() ) );
+   menu.addAction( tr( "copy" ), this, SLOT( onMenuCopy() ) );
+   menu.addAction( tr( "cut" ), this, SLOT( onMenuCut() ) );
    menu.addAction( tr( "bring to Front" ), this, SLOT( onMenuToFront() ) );
    menu.addAction( tr( "send to Back" ), this, SLOT( onMenuToBack() ) );
    menu.addAction( tr( "delete" ), this, SLOT( onMenuDelete() ) );
@@ -267,6 +337,16 @@ void QCDScene::onMenuEdit()
       return;
    QGraphicsItem *item = list.front();
    QShapeFactory::instance().edit( item, 0 );
+}
+
+void QCDScene::onMenuCopy()
+{
+   putItemToClipboard( false );
+}
+
+void QCDScene::onMenuCut()
+{
+   putItemToClipboard( true );
 }
 
 void QCDScene::onMenuToFront()

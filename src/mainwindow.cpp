@@ -49,7 +49,7 @@ MainWindow::MainWindow( bool enablePrint )
    setWindowTitle( tr( "Qt lightScribe", "Main window title \"Qt lightScribe\"" ) );
    setCentralWidget( m_mdiArea );
 
-   m_menuFile   = menuBar()->addMenu( tr( "File",   "Menu item \"File\"" ) );
+   m_menuFile = menuBar()->addMenu( tr( "File",   "Menu item \"File\"" ) );
 
    {
       QMenu *newSubMenu = m_menuFile->addMenu( tr( "New label", "Menu item \"New lable\"" ) );
@@ -76,8 +76,8 @@ MainWindow::MainWindow( bool enablePrint )
 
    m_menuFile->addAction( tr( "Save", "Menu item \"Save\"" ),
                           this,
-                          SLOT(onMenuSave()) );
-
+                          SLOT(onMenuSave()),
+                          QKeySequence( Qt::CTRL + Qt::Key_S ) );
 
    m_menuFile->addAction( tr( "Save as...", "Menu item \"Save as\"" ),
                           this,
@@ -106,7 +106,24 @@ MainWindow::MainWindow( bool enablePrint )
                           this,
                           SLOT(close()));
 
-   m_menuInsert = menuBar()->addMenu( tr( "Insert", "Menu item \"Insert\"" ) );
+   m_menuEdit = menuBar()->addMenu( tr( "Edit",   "Menu item \"Edit\"" ) );
+
+   m_menuEdit->addAction( tr( "Copy", "Menu item \"Copy\"" ),
+                          this,
+                          SLOT(onMenuCopy()),
+                          QKeySequence( Qt::CTRL + Qt::Key_C ) );
+
+   m_menuEdit->addAction( tr( "Cut", "Menu item \"Cut\"" ),
+                          this,
+                          SLOT(onMenuCut()),
+                          QKeySequence( Qt::CTRL + Qt::Key_X ) );
+
+   m_menuEdit->addAction( tr( "Paste", "Menu item \"Paste\"" ),
+                          this,
+                          SLOT(onMenuPaste()),
+                          QKeySequence( Qt::CTRL + Qt::Key_V ) );
+
+   m_menuInsert = m_menuEdit->addMenu( tr( "Insert", "Menu item \"Insert\"" ) );
 
    m_menuHelp = menuBar()->addMenu( tr( "Help", "Menu item \"Help\"" ) );
 
@@ -345,6 +362,27 @@ void MainWindow::onMenuPrint()
    catch( const QString &err ) {
       QMessageBox::critical( this, tr( "Error on print" ), err );
    }
+}
+
+void MainWindow::onMenuCopy()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene )
+      scene->putItemToClipboard( false );
+}
+
+void MainWindow::onMenuCut()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene )
+      scene->putItemToClipboard( true );
+}
+
+void MainWindow::onMenuPaste()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene )
+      scene->getItemFromClipboard();
 }
 
 void MainWindow::onMenuAbout()
