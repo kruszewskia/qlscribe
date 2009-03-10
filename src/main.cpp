@@ -24,6 +24,7 @@
 #include <QPainter>
 #include <QFile>
 #include <QTextStream>
+#include <QIcon>
 #include "mainwindow.h"
 #include "qcdscene.h"
 #include "qlightscribe.h"
@@ -56,6 +57,7 @@ int main( int argc, char **argv )
 {
    QApplication app( argc, argv );
    app.addLibraryPath( "/usr/lib32/qt4/plugins" );
+   app.setWindowIcon( QIcon( ":/qlscribe64.png" ) );
 
    bool doPrint = false;
    QStringList arguments = app.arguments();
