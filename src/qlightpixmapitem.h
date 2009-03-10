@@ -30,8 +30,14 @@ class QLightPixmapItem : public QGraphicsPixmapItem
 public:
     QLightPixmapItem();
 
+    void imageName( const QString &name ) { m_imageName = name; }
+    const QString &imageName() const { return m_imageName; }
+
 protected:
    virtual QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
+
+private:
+   QString m_imageName;
 };
 
 class QShapeControllerPixmap : public QShapeController {

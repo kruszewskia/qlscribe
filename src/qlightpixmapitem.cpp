@@ -66,8 +66,8 @@ QItemDialog *QShapeControllerPixmap::createDialog( QWidget *parent ) const
 
 void QShapeControllerPixmap::writeData( QXmlStreamWriter &writer, const QGraphicsItem *item ) const
 {
-   const QGraphicsPixmapItem *pixmapItem
-         = static_cast< const QGraphicsPixmapItem * >( item );
+   const QLightPixmapItem *pixmapItem
+         = static_cast< const QLightPixmapItem * >( item );
 
    writer.writeEmptyElement( "pos" );
    writer.writeAttribute( QXmlStreamAttribute( "x", QString::number( pixmapItem->pos().x() ) ) );
@@ -81,7 +81,7 @@ void QShapeControllerPixmap::writeData( QXmlStreamWriter &writer, const QGraphic
    writer.writeAttribute(
          QXmlStreamAttribute( "sy", QString::number( scale.y() ) ) );
 
-   writer.writeTextElement( "image", pixmapItem->data( 0 ).toString() );
+   writer.writeTextElement( "image", pixmapItem->imageName() );
 }
 
 
@@ -90,7 +90,7 @@ void QShapeControllerPixmap::readData( const QString &element,
                                      const QString &data,
                                      QGraphicsItem *item ) const
 {
-   QGraphicsPixmapItem *pixmapItem = static_cast< QGraphicsPixmapItem * >( item );
+   QLightPixmapItem *pixmapItem = static_cast< QLightPixmapItem * >( item );
 
    if( element == "pos" ) {
       pixmapItem->setPos( attrs.value( "x" ).toString().toDouble(),
@@ -105,12 +105,12 @@ void QShapeControllerPixmap::readData( const QString &element,
    }
 
    if( element == "image" ) {
-      pixmapItem->setData( 0, data );
       QPixmap pixmap( data );
       if( pixmap.isNull() ) {
          throw QString( "QShapeControllerPixmap: image loading from \"" ) +
                data + "\" failed";
       }
+      pixmapItem->imageName( data );
       pixmapItem->setPixmap( pixmap );
       pixmapItem->setOffset( -QPointF( pixmap.size().height(), pixmap.size().width()  ) / 2.0 );
       return;

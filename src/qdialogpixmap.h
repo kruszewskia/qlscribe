@@ -27,7 +27,7 @@ namespace Ui {
     class QDialogPixmap;
 }
 
-class QGraphicsPixmapItem;
+class QLightPixmapItem;
 
 class QDialogPixmap : public QItemDialog {
     Q_OBJECT
@@ -48,8 +48,8 @@ private slots:
    void sizeChanged();
 
 private:
-    Ui::QDialogPixmap   *m_ui;
-    QGraphicsPixmapItem *m_item;
+    Ui::QDialogPixmap *m_ui;
+    QLightPixmapItem  *m_item;
 };
 
 

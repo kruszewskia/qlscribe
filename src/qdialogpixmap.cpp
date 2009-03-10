@@ -20,9 +20,9 @@
 
 #include "qdialogpixmap.h"
 #include "ui_qdialogpixmap.h"
+#include "qlightpixmapitem.h"
 #include "qcdscene.h"
 
-#include <QGraphicsPixmapItem>
 #include <QImageReader>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -54,25 +54,25 @@ void QDialogPixmap::changeEvent(QEvent *e)
 
 bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
 {
-   QGraphicsPixmapItem *item = dynamic_cast< QGraphicsPixmapItem * >( graphicsItem );
+   QLightPixmapItem *item = dynamic_cast< QLightPixmapItem * >( graphicsItem );
    if( !item )
       return false;
 
    QCDScene scene;
    m_ui->cdView->setScene( &scene );
-   m_item = new QGraphicsPixmapItem;
+   m_item = new QLightPixmapItem;
 
    m_item->setPos( item->pos() );
    m_item->setOffset( item->offset() );
    m_item->setPixmap( item->pixmap() );
-   m_item->setData( 0, item->data( 0 ) );
+   m_item->imageName( item->imageName() );
    m_item->setTransform( item->transform() );
 
    scene.addItem( m_item );
 
    m_ui->spinX->setValue( m_item->pos().x() );
    m_ui->spinY->setValue( m_item->pos().y() );
-   m_ui->lineEdit->setText( m_item->data( 0 ).toString() );
+   m_ui->lineEdit->setText( m_item->imageName() );
    if( !m_item->pixmap().isNull() ) {
       QSize size = m_item->pixmap().size();
       QPointF scale = m_item->transform().map( QPointF( size.width(), size.height() ) );
@@ -105,7 +105,7 @@ bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
    item->setPos( m_item->pos() );
    item->setOffset( m_item->offset() );
    item->setPixmap( m_item->pixmap() );
-   item->setData( 0, m_item->data( 0 ) );
+   item->imageName( m_item->imageName() );
    item->setTransform( m_item->transform() );
 
    return true;
@@ -131,7 +131,7 @@ void QDialogPixmap::onLoadImage()
       return;
    }
    m_item->setPixmap( pixmap );
-   m_item->setData( 0, fileName );
+   m_item->imageName( fileName );
    m_item->setOffset( -QPointF( pixmap.size().width(), pixmap.size().height()  ) / 2.0 );
 
    m_ui->lineEdit->setText( fileName );
