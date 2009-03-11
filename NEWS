@@ -1,5 +1,12 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.9:
+    Parameter --image added to print label in console mode into image
+    Parameter --file added to process file in format KEY=VALUE
+    Copy/cut/paste added for items in label
+    Menu rearranged and menu items enabled/disabled based on state
+    Application icon added    
+
 New in 0.8:
     Application is splitted into 2 parts: qlscribe and dbus daemon lscribed
     qlscribe does not require sticky bit and can be compiled in 64 bit mode if necessary
