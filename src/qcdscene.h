@@ -44,13 +44,19 @@ public:
 
    bool isSaved() const { return m_saved; }
    bool isUnnamed() const { return m_fileName.isEmpty(); }
+   bool canUndo() const;
+   bool canRedo() const;
 
-   void setChanged();
+   void itemMoved() { m_itemMoved = true; }
+   void setChanged( bool undo = true );
    void setName();
+   void start( LabelMode mode );
    bool load( const QString &fileName, QString *errMessage = 0 );
    void replace( const QString2String &strings );
    bool save();
    bool saveAs( const QString &fileName );
+   void undo() { unredo( true ); }
+   void redo() { unredo( false ); }
 
    void putItemToClipboard( bool move );
    void getItemFromClipboard();
@@ -59,8 +65,12 @@ public:
    void redrawViews() const;
    QString name() const { return m_name; }
 
+signals:
+   void changed();
+
 protected:
    virtual void contextMenuEvent( QGraphicsSceneContextMenuEvent *contextMenuEvent );
+   virtual void mouseReleaseEvent ( QGraphicsSceneMouseEvent *mouseEvent );
 
 private slots:
    void onMenuEdit();
@@ -75,14 +85,21 @@ private:
    bool readItem( QXmlStreamReader &reader );
    void read( QXmlStreamReader &reader );
    void sendItemTo( bool front );
+   void pushUndo();
+   void unredo( bool undo );
 
 private:
-   QString   m_name;
-   QString   m_fileName;
-   int       m_index;
-   bool      m_saved;
-   LabelMode m_labelMode;
-   QColor    m_cdColor;
+   typedef QList<QString> UndoBuffer;
+
+   QString                    m_name;
+   QString                    m_fileName;
+   int                        m_index;
+   bool                       m_saved;
+   bool                       m_itemMoved;
+   LabelMode                  m_labelMode;
+   QColor                     m_cdColor;
+   UndoBuffer                 m_undoBuffer;
+   UndoBuffer::const_iterator m_undoPosition;
 };
 
 #endif //QCDSCENE_H

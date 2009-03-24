@@ -39,10 +39,13 @@ QCDScene::QCDScene( QObject * parent )
    : QGraphicsScene( parent ),
    m_index( 0 ),
    m_saved( true ),
+   m_itemMoved( false ),
    m_labelMode( modeFull ),
-   m_cdColor( Qt::white )
+   m_cdColor( Qt::white ),
+   m_undoPosition( m_undoBuffer.end() )
 {
    setSceneRect( -60.0, -60.0, 60.0 * 2, 60.0 * 2 );
+
 }
 
 //#include <iostream>
@@ -70,6 +73,12 @@ void QCDScene::replace( const QString2String &strings )
    }
 }
 
+void QCDScene::start( LabelMode mode )
+{
+   setLabelMode( mode );
+   pushUndo();
+}
+
 bool QCDScene::load( const QString &fileName, QString *errMessage )
 {
    QFile file( fileName );
@@ -94,8 +103,11 @@ bool QCDScene::load( const QString &fileName, QString *errMessage )
    m_fileName = fileName;
    m_saved = true;
    setName();
+
+   pushUndo();
    return true;
 }
+
 
 bool QCDScene::save()
 {
@@ -143,10 +155,32 @@ void QCDScene::setName()
    updateTitles();
 }
 
-void QCDScene::setChanged()
+void QCDScene::setChanged( bool undo )
 {
    m_saved = false;
    updateTitles();
+
+   if( undo && m_undoPosition != m_undoBuffer.end() )
+      pushUndo();
+
+   emit changed();
+}
+
+void QCDScene::pushUndo()
+{
+   if( canRedo() ) {
+      UndoBuffer::iterator pos = m_undoBuffer.begin() + 1 + ( m_undoPosition - m_undoBuffer.begin() );
+      m_undoBuffer.erase( pos, m_undoBuffer.end() );
+   }
+
+   QString data;
+   QXmlStreamWriter writer( &data );
+   write( writer );
+   m_undoBuffer.push_back( data );
+   if( m_undoBuffer.size() > 20 )
+      m_undoBuffer.pop_front();
+
+   m_undoPosition = m_undoBuffer.end() - 1;
 }
 
 void QCDScene::updateTitles() const
@@ -330,6 +364,16 @@ void QCDScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *mouseEvent )
    menu.exec( mouseEvent->screenPos() );
 }
 
+void QCDScene::mouseReleaseEvent ( QGraphicsSceneMouseEvent *mouseEvent )
+{
+   if( m_itemMoved ) {
+      setChanged();
+      m_itemMoved = false;
+   }
+
+   QGraphicsScene::mouseReleaseEvent( mouseEvent );
+}
+
 void QCDScene::onMenuEdit()
 {
    QList<QGraphicsItem *> list = selectedItems();
@@ -387,4 +431,37 @@ void QCDScene::sendItemTo( bool front )
          zValue = item->zValue() - 0.1;
    }
    selectedItem->setZValue( zValue );
+   setChanged();
+}
+
+bool QCDScene::canUndo() const
+{
+   return m_undoPosition - m_undoBuffer.begin() > 0;
+}
+
+bool QCDScene::canRedo() const
+{
+   return m_undoBuffer.end() - m_undoPosition > 1;
+}
+
+void QCDScene::unredo( bool undo )
+{
+   if( undo ) {
+      if( !canUndo() )
+      return;
+      --m_undoPosition;
+   } else {
+      if( !canRedo() )
+         return;
+      ++m_undoPosition;
+   }
+
+   try {
+      clear();
+      QXmlStreamReader reader( *m_undoPosition );
+      read( reader );
+   }
+   catch(...) {
+   }
+   setChanged( false );
 }

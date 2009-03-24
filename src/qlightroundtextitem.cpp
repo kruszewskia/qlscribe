@@ -233,7 +233,7 @@ void QLightRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsIt
 QVariant QLightRoundTextItem::itemChange( GraphicsItemChange change, const QVariant & value )
 {
    if( scene() && change == ItemPositionHasChanged )
-      static_cast<QCDScene *>( scene() )->setChanged();
+      static_cast<QCDScene *>( scene() )->itemMoved();
 
    return value;
 }

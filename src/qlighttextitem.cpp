@@ -33,7 +33,7 @@ QLightTextItem::QLightTextItem()
 QVariant QLightTextItem::itemChange( GraphicsItemChange change, const QVariant & value )
 {
    if( scene() && change == ItemPositionHasChanged )
-      static_cast<QCDScene *>( scene() )->setChanged();
+      static_cast<QCDScene *>( scene() )->itemMoved();
 
    return value;
 }

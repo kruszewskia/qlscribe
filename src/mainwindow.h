@@ -48,6 +48,8 @@ private slots:
    void onMenuProperties();
    void onMenuPrintPreview();
    void onMenuPrint();
+   void onMenuUndo();
+   void onMenuRedo();
    void onMenuCopy();
    void onMenuCut();
    void onMenuPaste();
@@ -72,6 +74,8 @@ private:
    QAction        *m_actionLabelProperties;
    QAction        *m_actionPrint;
    QAction        *m_actionPrintPreview;
+   QAction        *m_actionUndo;
+   QAction        *m_actionRedo;
    QAction        *m_actionCopy;
    QAction        *m_actionCut;
    QAction        *m_actionPaste;

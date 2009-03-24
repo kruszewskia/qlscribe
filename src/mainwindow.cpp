@@ -112,6 +112,16 @@ MainWindow::MainWindow( bool enablePrint )
 
    m_menuEdit = menuBar()->addMenu( tr( "Edit",   "Menu item \"Edit\"" ) );
 
+   m_actionUndo = m_menuEdit->addAction( tr( "Undo", "Menu item \"Undo\"" ),
+                                         this,
+                                         SLOT(onMenuUndo()),
+                                         QKeySequence( Qt::CTRL + Qt::Key_Z ) );
+
+   m_actionRedo = m_menuEdit->addAction( tr( "Redo", "Menu item \"Redo\"" ),
+                                         this,
+                                         SLOT(onMenuRedo()),
+                                         QKeySequence( Qt::CTRL + Qt::Key_R ) );
+
    m_actionCopy = m_menuEdit->addAction( tr( "Copy", "Menu item \"Copy\"" ),
                                          this,
                                          SLOT(onMenuCopy()),
@@ -244,10 +254,11 @@ void MainWindow::onMenuNewLabel( int mode )
 {
    QCDView *newView = new QCDView;
    QCDScene *scene = new QCDScene( newView );
-   scene->setLabelMode( LabelMode( mode ) );
+   scene->start( LabelMode( mode ) );
    newView->setScene( scene );
    scene->setName();
    connect( scene, SIGNAL(selectionChanged()), this, SLOT(updateMenu()) );
+   connect( scene, SIGNAL(changed()), this, SLOT(updateMenu()) );
 
    QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
    subWindow->show();
@@ -311,6 +322,7 @@ void MainWindow::onMenuOpen()
       return;
    }
    connect( scene, SIGNAL(selectionChanged()), this, SLOT(updateMenu()) );
+   connect( scene, SIGNAL(changed()), this, SLOT(updateMenu()) );
 
    QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
    subWindow->show();
@@ -377,6 +389,20 @@ void MainWindow::onMenuPrint()
    }
 }
 
+void MainWindow::onMenuUndo()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene ) 
+      scene->undo();
+}
+
+void MainWindow::onMenuRedo()
+{
+   QCDScene *scene = getScene( m_mdiArea );
+   if( scene )
+      scene->redo();
+}
+
 void MainWindow::onMenuCopy()
 {
    QCDScene *scene = getScene( m_mdiArea );
@@ -403,7 +429,7 @@ void MainWindow::onMenuAbout()
    QMessageBox::about( this,
                        tr( "About" ),
                        tr( "<h3>qlscribe - Qt lisghtScribe</h3>"
-                           "<p>release 0.9 $Revision$</p>"
+                           "<p>prerelease 0.10 $Revision$</p>"
                            "<p>visit project at home page "
                            "<a href=\"http://qlscribe.sourceforge.net/\">qlscribe.sourceforge.net</a></p>" ) );
 }
@@ -425,10 +451,15 @@ void MainWindow::updateMenu()
    m_menuInsert->setEnabled( scene );
 
    if( !scene ) {
+      m_actionUndo->setEnabled( false );
+      m_actionRedo->setEnabled( false );
       m_actionCopy->setEnabled( false );
       m_actionCut->setEnabled( false );
       m_actionPaste->setEnabled( false );
    } else {
+      m_actionUndo->setEnabled( scene->canUndo() );
+      m_actionRedo->setEnabled( scene->canRedo() );
+
       const QMimeData *mdata = QApplication::clipboard()->mimeData();
       m_actionPaste->setEnabled( mdata && mdata->hasFormat( itemMimeType ) );
 
