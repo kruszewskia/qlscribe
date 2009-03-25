@@ -1,5 +1,9 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.10:
+    Undo/Redo mechanism implemented
+    Some minor bugfixes
+
 New in 0.9:
     Parameter --image added to print label in console mode into image
     Parameter --file added to process file in format KEY=VALUE
