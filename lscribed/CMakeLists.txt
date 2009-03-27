@@ -36,11 +36,21 @@ ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND CMAKE_COMPILER_IS_GNUCXX )
 
 IF (DBUS_SYSTEM_POLICY_DIR)
      INSTALL( FILES ${LSCRIBED_CONF_FILE} DESTINATION ${DBUS_SYSTEM_POLICY_DIR})
-endif (DBUS_SYSTEM_POLICY_DIR)
+ELSE (DBUS_SYSTEM_POLICY_DIR)
+     MESSAGE(STATUS "It is necessary to specify the directory where the client policy file for Qt Lightscribe is installed as DBUS_SYSTEM_POLICY_DIR.")
+     MESSAGE(STATUS "Otherwise it will be installed into share/qlscribe")
+     MESSAGE(STATUS "Normally this is /etc/dbus-1/system.d on a Linux system")
+     INSTALL( FILES ${LSCRIBED_CONF_FILE} DESTINATION share/qlscribe )
+ENDIF (DBUS_SYSTEM_POLICY_DIR)
 
 IF (DBUS_SYSTEM_SERVICE_DIR)
      INSTALL( FILES ${LSCRIBED_SERVICE_FILE} DESTINATION ${DBUS_SYSTEM_SERVICE_DIR})
-endif (DBUS_SYSTEM_SERVICE_DIR)
+ELSE (DBUS_SYSTEM_SERVICE_DIR)
+     MESSAGE(STATUS "It is necessary to specify the directory where the client service file for Qt Lightscribe is installed as DBUS_SYSTEM_SERVICE_DIR.")
+     MESSAGE(STATUS "Otherwise it will be installed into share/qlscribe")
+     MESSAGE(STATUS "Normally this is /usr/share/dbus-1/services on a Linux system")
+     INSTALL( FILES ${LSCRIBED_SERVICE_FILE} DESTINATION share/qlscribe )
+ENDIF (DBUS_SYSTEM_SERVICE_DIR)
 
 SET( LSCRIBED_SRCS main.cpp dbuscpp.cpp drives.cpp managerhandler.cpp drivehandler.cpp
                    introspecthandler.cpp )
@@ -54,5 +64,4 @@ ADD_EXECUTABLE( lscribed ${LSCRIBED_SRCS} )
 TARGET_LINK_LIBRARIES( lscribed ${LSCRIBE_LIBRARIES} ${DBUS_LIBRARIES} pthread )
 
 INSTALL( TARGETS lscribed DESTINATION sbin )
-INSTALL( FILES ${LSCRIBED_CONF_FILE} ${LSCRIBED_SERVICE_FILE} DESTINATION share/qlscribe )
 
