@@ -37,7 +37,7 @@
  QDBusArgument &operator<<( QDBusArgument &argument, const PrintParameters &p )
  {
      argument.beginStructure();
-     argument << p.m_labelMode << p.m_drawOptions << p.m_printQuality << p.m_mediaOptimizationLevel;
+     argument << p.m_labelMode << p.m_drawOptions << p.m_printQuality << p.m_mediaOptimizationLevel << (int) p.m_ejectAfterComplete;
      argument.endStructure();
      return argument;
  }
@@ -46,13 +46,14 @@
  const QDBusArgument &operator>>( const QDBusArgument &argument, PrintParameters &p )
  {
      argument.beginStructure();
-     int drawOptions = 0, labelMode = 0, mediaOptimizationLevel = 0, printQuality = 0;
-     argument >> labelMode >> drawOptions >> printQuality >> mediaOptimizationLevel;
+     int drawOptions = 0, labelMode = 0, mediaOptimizationLevel = 0, printQuality = 0, ejectAfterComplete = 0;
+     argument >> labelMode >> drawOptions >> printQuality >> mediaOptimizationLevel >> ejectAfterComplete;
      argument.endStructure();
      p = PrintParameters( LabelMode( labelMode ),
                           DrawOptions( drawOptions ),
                           PrintQuality( printQuality ),
-                          MediaOptimizationLevel( mediaOptimizationLevel ) );
+                          MediaOptimizationLevel( mediaOptimizationLevel ),
+                          ejectAfterComplete );
      return argument;
  }
 

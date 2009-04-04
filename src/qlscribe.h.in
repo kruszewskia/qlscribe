@@ -64,4 +64,9 @@ const char * const itemMimeType = "application/x-qlscribe;item";
 const char * const DBusServiceName = "@QLSCRIBE_DBUS_MANAGER_SERVICE@";
 const char * const DBusManagerPath = "@QLSCRIBE_DBUS_MANAGER_PATH@";
 
+// config keys
+const char * const cfgDefaultFont      = "DefaultTextFont";
+const char * const cfgEjectAfterFinish = "EjectAfterFinish";
+
+
 #endif // QLSCRIBE_H

@@ -21,6 +21,7 @@
 #include "qdialogtext.h"
 #include "ui_qdialogtext.h"
 #include "qcdscene.h"
+#include "qdialogsettings.h"
 
 #include <QGraphicsSimpleTextItem>
 #include <QFontDialog>
@@ -97,6 +98,7 @@ void QDialogText::onFont()
    QFont font = QFontDialog::getFont( &ok, m_item->font(), this );
    if( ok ) {
       m_item->setFont( font );
+      QDialogSettings::setLastUsedFont( font );
       fontChanged();
    }
 }

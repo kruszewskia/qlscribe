@@ -27,6 +27,7 @@
 #include "qdialogprint.h"
 #include "qdialogprogress.h"
 #include "qdialogcdproperties.h"
+#include "qdialogsettings.h"
 
 #include <QMenuBar>
 #include <QStatusBar>
@@ -74,7 +75,8 @@ MainWindow::MainWindow( bool enablePrint )
 
    m_menuFile->addAction( tr( "Open...", "Menu item \"Open\"" ),
                           this,
-                          SLOT(onMenuOpen()) );
+                          SLOT(onMenuOpen()),
+                          QKeySequence( Qt::CTRL + Qt::Key_O ) );
 
    m_actionSave = m_menuFile->addAction( tr( "Save", "Menu item \"Save\"" ),
                                          this,
@@ -107,7 +109,7 @@ MainWindow::MainWindow( bool enablePrint )
    m_menuFile->addAction( tr( "Exit", "Menu item \"Exit\"" ),
                           this,
                           SLOT(close()),
-                          QKeySequence( Qt::CTRL + Qt::Key_X ) );
+                          QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
 
    m_menuEdit = menuBar()->addMenu( tr( "Edit",   "Menu item \"Edit\"" ) );
@@ -138,6 +140,12 @@ MainWindow::MainWindow( bool enablePrint )
                                           QKeySequence( Qt::CTRL + Qt::Key_V ) );
 
    m_menuInsert = m_menuEdit->addMenu( tr( "Insert", "Menu item \"Insert\"" ) );
+
+   m_menuEdit->addSeparator();
+
+   m_actionSettings = m_menuEdit->addAction( tr( "Settings...", "Menu item \"Settings\"" ),
+                                             this,
+                                             SLOT(onMenuSettings()) );
 
    m_menuHelp = menuBar()->addMenu( tr( "Help", "Menu item \"Help\"" ) );
 
@@ -379,8 +387,8 @@ void MainWindow::onMenuPrint()
 {
    QCDScene *cdscene = getScene( m_mdiArea );
    if( !cdscene )
-
       return;
+
    try {
       QDialogProgress::exec( this, cdscene );
    }
@@ -437,6 +445,11 @@ void MainWindow::onMenuAbout()
 void MainWindow::onMenuQtAbout()
 {
    QMessageBox::aboutQt( this );
+}
+
+void MainWindow::onMenuSettings()
+{
+   QDialogSettings::exec( this );
 }
 
 void MainWindow::updateMenu()

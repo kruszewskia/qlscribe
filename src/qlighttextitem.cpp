@@ -21,6 +21,7 @@
 #include "qlighttextitem.h"
 #include "qdialogtext.h"
 #include "qcdscene.h"
+#include "qdialogsettings.h"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -53,7 +54,8 @@ QString QShapeControllerText::menuName() const
 
 QGraphicsItem *QShapeControllerText::create() const
 {
-   QGraphicsItem *item = new QLightTextItem;
+   QLightTextItem *item = new QLightTextItem;
+   item->setFont( QDialogSettings::defaultFont() );
    item->setTransform( QTransform().scale( 0.5, 0.5 ), true );
    item->setPos( 0, -40.0 );
 

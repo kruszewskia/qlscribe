@@ -28,6 +28,7 @@
 #include <QAbstractButton>
 #include <QTime>
 #include <QTimer>
+#include <QSettings>
 
 QDialogProgress::QDialogProgress( QWidget *parent, QLightDrive *drive )
    : QDialog(parent),
@@ -67,6 +68,8 @@ bool QDialogProgress::exec( QWidget *parent, QCDScene *scene )
    QLightDrive *drive = QDialogPrint::exec( parent, params );
    if( !drive )
       return false;
+
+   params.m_ejectAfterComplete = QSettings().value( cfgEjectAfterFinish, false ).toBool();
 
    QDialogProgress dialog( parent, drive );
    dialog.setWindowTitle( tr( "Printing: " ) + scene->name() );

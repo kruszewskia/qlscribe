@@ -56,6 +56,9 @@ void usage()
 int main( int argc, char **argv )
 {
    QApplication app( argc, argv );
+   app.setApplicationName( "qlscribe" );
+   //app.setOrganizationName( "" );
+   app.setOrganizationDomain( "qlscribe.sourceforge.org" );
    app.addLibraryPath( "/usr/lib32/qt4/plugins" );
    app.setWindowIcon( QIcon( ":/qlscribe64.png" ) );
 

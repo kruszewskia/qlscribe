@@ -47,13 +47,13 @@
       <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="const PrintParameters &amp;"/>
       <annotation name="com.trolltech.QtDBus.QtTypeName.In2" value="QSize"/>
       <arg type="s" direction="out"/>
-      <arg name="params" type="(iiii)" direction="in"/>
+      <arg name="params" type="(iiiii)" direction="in"/>
       <arg name="image" type="ay" direction="in"/>
       <arg name="previewSize" type="(ii)" direction="in"/>
     </method>
     <method name="print">
       <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="const PrintParameters &amp;"/>
-      <arg name="params" type="(iiii)" direction="in"/>
+      <arg name="params" type="(iiiii)" direction="in"/>
       <arg name="image" type="ay" direction="in"/>
     </method>
     <method name="abort">

@@ -53,6 +53,7 @@ private slots:
    void onMenuCopy();
    void onMenuCut();
    void onMenuPaste();
+   void onMenuSettings();
    void onMenuInsert( int id );
    void onMenuAbout();
    void onMenuQtAbout();
@@ -79,6 +80,7 @@ private:
    QAction        *m_actionCopy;
    QAction        *m_actionCut;
    QAction        *m_actionPaste;
+   QAction        *m_actionSettings;
 
    QSignalMapper  *m_insertMapper;
    QSignalMapper  *m_newLabelMapper;

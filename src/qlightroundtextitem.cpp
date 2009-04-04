@@ -21,6 +21,7 @@
 #include "qlightroundtextitem.h"
 #include "qdialogroundtext.h"
 #include "qcdscene.h"
+#include "qdialogsettings.h"
 
 #include <QPainter>
 #include <QFontMetrics>
@@ -253,6 +254,7 @@ QString QShapeControllerRoundText::menuName() const
 QGraphicsItem *QShapeControllerRoundText::create() const
 {
    QLightRoundTextItem *item = new QLightRoundTextItem;
+   item->setFont( QDialogSettings::defaultFont() );
    return item;
 }
 

@@ -35,13 +35,20 @@ struct PrintParameters {
    DrawOptions            m_drawOptions;
    PrintQuality           m_printQuality;
    MediaOptimizationLevel m_mediaOptimizationLevel;
+   bool                   m_ejectAfterComplete;
 
    PrintParameters()
             : m_labelMode( modeFull ), m_drawOptions( drawDefault ),
-            m_printQuality( qualityBest ), m_mediaOptimizationLevel( mediaRecognized )  {}
-   PrintParameters( LabelMode labelMode, DrawOptions drawOptions, PrintQuality printQuality, MediaOptimizationLevel mediaOptimizationLevel )
+            m_printQuality( qualityBest ), m_mediaOptimizationLevel( mediaRecognized ), m_ejectAfterComplete( false )  {}
+   PrintParameters( LabelMode labelMode,
+                    DrawOptions drawOptions,
+                    PrintQuality printQuality,
+                    MediaOptimizationLevel mediaOptimizationLevel,
+                    bool ejectAfterComplete )
             : m_labelMode( labelMode ), m_drawOptions( drawOptions ),
-            m_printQuality( printQuality ), m_mediaOptimizationLevel( mediaOptimizationLevel )  {}
+            m_printQuality( printQuality ), m_mediaOptimizationLevel( mediaOptimizationLevel ),
+            m_ejectAfterComplete( ejectAfterComplete )
+   {}
 };
 
 Q_DECLARE_METATYPE( PrintParameters );

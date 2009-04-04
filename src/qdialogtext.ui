@@ -1,8 +1,8 @@
 <ui version="4.0" >
  <class>QDialogText</class>
  <widget class="QDialog" name="QDialogText" >
-  <property name="windowModality" >
-   <enum>Qt::NonModal</enum>
+  <property name="enabled" >
+   <bool>true</bool>
   </property>
   <property name="geometry" >
    <rect>
@@ -14,9 +14,6 @@
   </property>
   <property name="windowTitle" >
    <string>Text properties</string>
-  </property>
-  <property name="modal" >
-   <bool>false</bool>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_3" >
    <item>

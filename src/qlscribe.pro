@@ -20,7 +20,8 @@ SOURCES += main.cpp \
     qlighttextitem.cpp \
     qlightpixmapitem.cpp \
     qdialogcdproperties.cpp \
-    qconsoleprintprogress.cpp
+    qconsoleprintprogress.cpp \
+    qdialogsettings.cpp
 QMAKE_LIBS += -llightscribe
 HEADERS += mainwindow.h \
     qlightroundtextitem.h \
@@ -36,10 +37,12 @@ HEADERS += mainwindow.h \
     qlighttextitem.h \
     qlightpixmapitem.h \
     qdialogcdproperties.h \
-    qconsoleprintprogress.h
+    qconsoleprintprogress.h \
+    qdialogsettings.h
 FORMS += qdialogtext.ui \
     qdialogroundtext.ui \
     qdialogpixmap.ui \
     qdialogprint.ui \
     qdialogprogress.ui \
-    qdialogcdproperties.ui
+    qdialogcdproperties.ui \
+    qdialogsettings.ui
