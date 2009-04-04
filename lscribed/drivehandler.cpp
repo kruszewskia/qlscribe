@@ -46,12 +46,12 @@ static const char *strDriveIntrospect =
     </signal>\
     <method name=\"preview\">\
       <arg type=\"s\" direction=\"out\"/>\
-      <arg name=\"params\" type=\"(iiii)\" direction=\"in\"/>\
+      <arg name=\"params\" type=\"(iiiii)\" direction=\"in\"/>\
       <arg name=\"image\" type=\"ay\" direction=\"in\"/>\
       <arg name=\"previewSize\" type=\"(ii)\" direction=\"in\"/>\
     </method>\
     <method name=\"print\">\
-      <arg name=\"params\" type=\"(iiii)\" direction=\"in\"/>\
+      <arg name=\"params\" type=\"(iiiii)\" direction=\"in\"/>\
       <arg name=\"image\" type=\"ay\" direction=\"in\"/>\
     </method>\
     <method name=\"abort\">\

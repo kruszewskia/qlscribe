@@ -22,6 +22,7 @@
 #include <string.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <syslog.h>
 
 #include "lscribed.h"
 #include "dbuscpp.h"
@@ -52,6 +53,7 @@ void onAlarm( int )
       lastActivity = curr;
       return;
    }
+   syslog( LOG_INFO, "terminating due to inactivity timeout" );
    terminateOnTimeout = true;
 }
 
@@ -65,6 +67,7 @@ void usage()
 
 int main( int argc, char **argv )
 {
+   openlog( "lscribed", LOG_PID, LOG_DAEMON );
    for( int i = 1; i < argc; ++i ) {
       if( strcmp( argv[i], "--help" ) == 0 ) {
          usage();
@@ -102,11 +105,13 @@ int main( int argc, char **argv )
    int ret = dbus_bus_request_name( conn.ptr(), DBusServiceName, DBUS_NAME_FLAG_REPLACE_EXISTING, &err );
    if( dbus_error_is_set( &err ) ) {
       std::cerr << "dbus_bus_request_name error: " << err.message << std::endl;
+      syslog( LOG_ERR, "dbus_bus_request_name error: %s", err.message );
       dbus_error_free( &err );
       return 2;
    }
    if( ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ) {
       std::cerr << "could not get ownership of \"" << DBusServiceName << "\" terminating" << std::endl;
+      syslog( LOG_ERR, "could not get ownership of \"%s\" terminating", DBusServiceName );
       return 3;
    }
 

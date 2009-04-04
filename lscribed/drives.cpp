@@ -24,9 +24,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <syslog.h>
 #include <lightscribe_cxx.h>
 #include <fstream>
 #include <iostream>
+
 
 using namespace LightScribe;
 
@@ -197,6 +199,7 @@ void Drive::routine()
       LS_DrawOptions options;
       LS_PrintQuality quality;
       LS_MediaOptimizationLevel level;
+      bool eject= false;
 
       char *image = 0;
       int imageSize = 0;
@@ -205,15 +208,16 @@ void Drive::routine()
 
       try {
          DBusCpp::MessageConstIter iter = m_message->constIter();
-         if( iter.signature() != "(iiii)" )
-            throw std::string( "invalid argument for params: " ) + iter.signature() + ", (iiii) expected";
+         if( iter.signature() != "(iiiii)" )
+            throw std::string( "invalid argument for params: " ) + iter.signature() + ", (iiiii) expected";
 
          DBusCpp::MessageConstIter sub = iter.recurse();
 
          mode    = LS_LabelMode( sub.getValue<int32_t>() ); sub.next();
          options = LS_DrawOptions( sub.getValue<int32_t>() ); sub.next();
          quality = LS_PrintQuality( sub.getValue<int32_t>() ); sub.next();
-         level   = LS_MediaOptimizationLevel( sub.getValue<int32_t>() );
+         level   = LS_MediaOptimizationLevel( sub.getValue<int32_t>() ); sub.next();
+         eject   = sub.getValue<int32_t>();
 
          if( !iter.next() )
             throw std::string( "image argument missing" );
@@ -240,6 +244,7 @@ void Drive::routine()
          std::cout << "exception " << str << std::endl;
          DBusCpp::Message reply = m_message->newError( DBUS_ERROR_INVALID_ARGS, str.c_str() );
          man.connection().send( reply );
+         syslog( LOG_ERR, "error in parsing request: %s", str.c_str() );
          continue;
       }
 
@@ -278,15 +283,49 @@ void Drive::routine()
 
          DiscPrinter printer = printers.Item( m_index );
 
-         function = "LS_DiscPrinter_OpenPrintSession";
-         DiscPrintSession session = printer.OpenPrintSession();
+         {
+            function = "LS_DiscPrinter_OpenPrintSession";
+            DiscPrintSession session = printer.OpenPrintSession();
 
-         DBusCpp::Message reply = m_message->newMethodReturn();
+            DBusCpp::Message reply = m_message->newMethodReturn();
 
-         if( preview ) {
+            if( preview ) {
 
-            function = "LS_DiscPrintSession_PrintPreview";
-            session.PrintPreview( LS_windows_bitmap,
+               syslog( LOG_INFO, "generating preview into temp file %s", tmpFile.c_str() );
+               function = "LS_DiscPrintSession_PrintPreview";
+               session.PrintPreview( LS_windows_bitmap,
+                                     mode,
+                                     options,
+                                     quality,
+                                     level,
+                                     image + 14,
+                                     bitmapHeaderSize - 14,
+                                     image + bitmapHeaderSize,
+                                     imageSize - bitmapHeaderSize,
+                                     const_cast< char *>( tmpFile.c_str() ),
+                                     LS_windows_bitmap,
+                                     size,
+                                     true );
+               reply.append( tmpFile );
+               man.connection().send( reply );
+
+            } else {
+
+               syslog( LOG_INFO, "printing label with parameters: mode %d, options %d, quality %d, level %d, eject %d",
+                       mode, options, quality, level, eject );
+
+               LS_PrintCallbacks callbacks;
+               callbacks.AbortLabel = clAbortLabel;
+               callbacks.ReportPrepareProgress = clReportPrepareProgress;
+               callbacks.ReportLabelProgress = clReportLabelProgress;
+               callbacks.ReportFinished = clReportFinished;
+               callbacks.ReportLabelTimeEstimate = clReportLabelTimeEstimate;
+               session.SetProgressCallback( &callbacks );
+
+               man.connection().send( reply );
+
+               function = 0;
+               session.PrintDisc( LS_windows_bitmap,
                                   mode,
                                   options,
                                   quality,
@@ -294,37 +333,11 @@ void Drive::routine()
                                   image + 14,
                                   bitmapHeaderSize - 14,
                                   image + bitmapHeaderSize,
-                                  imageSize - bitmapHeaderSize,
-                                  const_cast< char *>( tmpFile.c_str() ),
-                                  LS_windows_bitmap,
-                                  size,
-                                  true );
-            reply.append( tmpFile );
-            man.connection().send( reply );
-
-         } else {
-
-            LS_PrintCallbacks callbacks;
-            callbacks.AbortLabel = clAbortLabel;
-            callbacks.ReportPrepareProgress = clReportPrepareProgress;
-            callbacks.ReportLabelProgress = clReportLabelProgress;
-            callbacks.ReportFinished = clReportFinished;
-            callbacks.ReportLabelTimeEstimate = clReportLabelTimeEstimate;
-            session.SetProgressCallback( &callbacks );
-
-            man.connection().send( reply );
-
-            function = 0;
-            session.PrintDisc( LS_windows_bitmap,
-                               mode,
-                               options,
-                               quality,
-                               level,
-                               image + 14,
-                               bitmapHeaderSize - 14,
-                               image + bitmapHeaderSize,
-                               imageSize - bitmapHeaderSize );
+                                  imageSize - bitmapHeaderSize );
+            }
          }
+         if( !preview && eject )
+            printer.OpenDriveTray();
       }
       catch( LightScribe::LSException &ex ) {
          if( function ) {
@@ -332,6 +345,7 @@ void Drive::routine()
             sprintf( message, "\"%s()\" failed with code 0x%X", function, ex.GetCode() );
             DBusCpp::Message reply = m_message->newError( DBUS_ERROR_FAILED, message );
             man.connection().send( reply );
+            syslog( LOG_ERR, "%s", message );
          } else
             clReportFinished( ex.GetCode() );
          continue;
@@ -339,6 +353,7 @@ void Drive::routine()
       catch( const std::string &str ) {
          DBusCpp::Message reply = m_message->newError( DBUS_ERROR_FAILED, str.c_str() );
          man.connection().send( reply );
+         syslog( LOG_ERR, "operation failed: \"%s\"", str.c_str() );
          continue;
       }
    }
