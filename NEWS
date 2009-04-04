@@ -1,5 +1,10 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.11:
+    Application settings added with default font to use and option to eject media
+    Added functionality to eject media after print
+    Debian packages use standard procedure to install/upgrade config files
+
 New in 0.10:
     Undo/Redo mechanism implemented
     Some minor bugfixes
