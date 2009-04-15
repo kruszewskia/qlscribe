@@ -22,6 +22,7 @@
 #include "ui_qdialogroundtext.h"
 #include "qlightroundtextitem.h"
 #include "qcdscene.h"
+#include "qdialogsettings.h"
 
 #include <QFontDialog>
 #include <QColorDialog>
@@ -132,6 +133,7 @@ void QDialogRoundText::onFont()
    //font.setPointSizeF( font.pointSizeF() / 2.0 );
    if( ok ) {
       m_item->setFont( font );
+      QDialogSettings::setLastUsedFont( font );
       fontChanged();
    }
 }
