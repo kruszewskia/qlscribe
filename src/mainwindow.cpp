@@ -40,6 +40,7 @@
 #include <QCloseEvent>
 #include <QApplication>
 #include <QClipboard>
+#include <QSettings>
 
 
 MainWindow::MainWindow( bool enablePrint )
@@ -173,6 +174,13 @@ MainWindow::MainWindow( bool enablePrint )
              this, SLOT(updateMenu()) );
 
     updateMenu();
+
+    QSettings settings;
+
+    settings.beginGroup( "MainWindow");
+    resize( settings.value( "size", QSize(800, 400) ).toSize() );
+    move( settings.value( "pos", QPoint(200, 200) ).toPoint() );
+    settings.endGroup();
 }
 
 MainWindow::~MainWindow()
@@ -255,6 +263,13 @@ bool MainWindow::saveScene( QCDScene *scene )
              return;
           }
     }
+    QSettings settings;
+
+    settings.beginGroup( "MainWindow" );
+    settings.setValue( "size", size());
+    settings.setValue( "pos", pos());
+    settings.endGroup();
+
     event->accept();
  }
 
