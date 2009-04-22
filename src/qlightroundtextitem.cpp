@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QXmlStreamWriter>
 #include <QTextLayout>
+#include <QGraphicsSceneMouseEvent>
 
 #include <math.h>
 
@@ -231,13 +232,37 @@ void QLightRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsIt
    }
 }
 
-QVariant QLightRoundTextItem::itemChange( GraphicsItemChange change, const QVariant & value )
+inline
+double distance( const QPointF &p1, const QPointF &p2 )
 {
-   if( scene() && change == ItemPositionHasChanged )
-      static_cast<QCDScene *>( scene() )->itemMoved();
-
-   return value;
+   QPointF d = p1 - p2;
+   return sqrt( d.x() * d.x() + d.y() * d.y() );
 }
+
+inline
+double angle( const QPointF &p1, const QPointF &p2 )
+{
+   QPointF d = p1 - p2;
+   return atan2( d.y(), d.x() ) * 180.0 / 3.14159;
+}
+
+void QLightRoundTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
+{
+   if( event->buttons() & Qt::LeftButton ) {
+      double dradi = distance( scenePos(), event->lastScenePos() ) - distance( scenePos(), event->scenePos() );
+      double dangle = ::angle( scenePos(), event->lastScenePos() ) - ::angle( scenePos(), event->scenePos() );
+
+      prepareGeometryChange();
+      m_radius -= dradi;
+      m_angle -= dangle;
+      if( m_angle > 360.0 ) m_angle -= 360.0;
+      if( m_angle < 0.0 ) m_angle += 360.0;
+
+      static_cast<QCDScene *>( scene() )->itemMoved();
+   } else
+      event->ignore();
+}
+
 
 RegisterController< QShapeControllerRoundText > regControllerRoundText;
 

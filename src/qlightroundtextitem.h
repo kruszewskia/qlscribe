@@ -55,7 +55,7 @@ public:
     virtual int type() const { return Type; }
 
 protected:
-   virtual QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
+   virtual void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
 
 private:
     QFont         m_font;
