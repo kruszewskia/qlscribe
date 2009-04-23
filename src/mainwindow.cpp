@@ -41,6 +41,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QSettings>
+#include <QImageReader>
 
 
 MainWindow::MainWindow( bool enablePrint )
@@ -320,18 +321,23 @@ void MainWindow::onMenuInsert( int id )
       return;
    }
 
-   item->setFlag( QGraphicsItem::ItemIsMovable, true );
-   item->setFlag( QGraphicsItem::ItemIsSelectable, true );
    cdscene->addItem( item );
    cdscene->setChanged();
 }
 
 void MainWindow::onMenuOpen()
 {
+   QString filter( tr("qlscribe document (*.qlx)\nImages ( ") );
+   QList<QByteArray> list = QImageReader::supportedImageFormats();
+   foreach( QByteArray arr, list ) {
+       filter += QString( "*." ) + arr.data() + " ";
+   }
+   filter += tr( ")\nAll Files (*)" );
+
    QString fileName = QFileDialog::getOpenFileName( this, 
                                                     tr( "Open:" ), 
                                                     QString(), 
-                                                    tr("qlscribe document (*.qlx)") );
+                                                    filter );
    
    if( fileName.isNull() )
       return;

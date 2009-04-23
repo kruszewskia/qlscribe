@@ -29,6 +29,17 @@ QLightPixmapItem::QLightPixmapItem()
 {
 }
 
+bool QLightPixmapItem::loadImage( const QString &name )
+{
+   QPixmap pixmap( name );
+   if( pixmap.isNull() )
+      return false;
+   m_imageName = name;
+   setPixmap( pixmap );
+   return true;
+}
+
+
 QVariant QLightPixmapItem::itemChange( GraphicsItemChange change, const QVariant & value )
 {
    if( scene() && change == ItemPositionHasChanged )

@@ -25,11 +25,11 @@
 
 #include "qshapefactory.h"
 
-class QLightPixmapItem : public QGraphicsPixmapItem
-{
+class QLightPixmapItem : public QGraphicsPixmapItem {
 public:
     QLightPixmapItem();
 
+    bool loadImage( const QString &name );
     void imageName( const QString &name ) { m_imageName = name; }
     const QString &imageName() const { return m_imageName; }
 

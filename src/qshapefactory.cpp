@@ -118,7 +118,13 @@ QString QShapeFactory::name( int type ) const
 QGraphicsItem *QShapeFactory::create( int type ) const
 {
    QShapeController *ctrl = getController( type );
-   return ctrl ? ctrl->create() : 0;
+   if( !ctrl ) return 0;
+   QGraphicsItem *item = ctrl->create();
+   if( item ) {
+      item->setFlag( QGraphicsItem::ItemIsMovable, true );
+      item->setFlag( QGraphicsItem::ItemIsSelectable, true );
+   }
+   return item;
 }
 
 bool QShapeFactory::edit( QGraphicsItem *item, QWidget *parent ) const

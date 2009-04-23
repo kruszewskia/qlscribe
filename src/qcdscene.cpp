@@ -20,6 +20,7 @@
 
 #include "qcdscene.h"
 #include "qshapefactory.h"
+#include "qlightpixmapitem.h"
 
 #include <QMenu>
 #include <QMessageBox>
@@ -34,6 +35,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
+#include <QRegExp>
 
 QCDScene::QCDScene( QObject * parent )
    : QGraphicsScene( parent ),
@@ -82,30 +84,52 @@ void QCDScene::start( LabelMode mode )
 bool QCDScene::load( const QString &fileName, QString *errMessage )
 {
    QFile file( fileName );
-   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-      if( errMessage )
-         *errMessage = "cannot open file for reading";
-      else
-         QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot open file for reading\n" ) + fileName );
-      return false;
-   }
-   QXmlStreamReader reader( &file );
-   try {
-      read( reader );
-   }
-   catch( const QString &err ) {
-      if( errMessage )
-         *errMessage = err;
-      else
-         QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot read file " ) + fileName + "\n" + err );
-      return false;
-   }
-   m_fileName = fileName;
-   m_saved = true;
-   setName();
+   if( QRegExp( "*.\\.qlx", Qt::CaseInsensitive ).exactMatch( fileName ) ) {
+      if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+         if( errMessage )
+            *errMessage = "cannot open file for reading";
+         else
+            QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot open file for reading\n" ) + fileName );
+         return false;
+      }
+      QXmlStreamReader reader( &file );
+      try {
+         read( reader );
+      }
+      catch( const QString &err ) {
+         if( errMessage )
+            *errMessage = err;
+         else
+            QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot read file " ) + fileName + "\n" + err );
+         return false;
+      }
+      m_fileName = fileName;
+      m_saved = true;
+      setName();
 
-   pushUndo();
-   return true;
+      pushUndo();
+      return true;
+   }
+   QShapeFactory &sfactory = QShapeFactory::instance();
+   QLightPixmapItem *item =
+         static_cast<QLightPixmapItem *>(sfactory.create( QShapeControllerPixmap::Type ) );
+   addItem( item );
+   if( item->loadImage( fileName ) ) {
+      QSize size = item->pixmap().size();
+      item->setOffset( -QPointF( size.height(), size.width()  ) / 2.0 );
+      item->setTransform( QTransform().scale( size.width() ? 120.0 / size.width() : 1.0,
+                                             size.height() ? 120.0 / size.height() : 1.0 ) );
+      setName();
+      pushUndo();
+      return true;
+   } else {
+      if( errMessage )
+         *errMessage = "cannot load image";
+      else
+         QMessageBox::critical( 0, tr( "Error" ), tr( "Cannot load image " ) +
+                                fileName + "\n" );
+   }
+   return false;
 }
 
 
