@@ -199,6 +199,8 @@ void MainWindow::open( const QStringList &files )
          delete newView;
          continue;
       }
+      connect( scene, SIGNAL(selectionChanged()), this, SLOT(updateMenu()) );
+      connect( scene, SIGNAL(changed()), this, SLOT(updateMenu()) );
 
       QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( newView );
       subWindow->show();
