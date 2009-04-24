@@ -1,5 +1,13 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.12:
+    Fixed bug for round text not updating last used font
+    Main window stores/restores position and size from/to config
+    Round text changes radius and angle when dragged by mouse instead of moving the center
+    Added ability to open image as a document
+    Bugfix for labels opened from commandline not updating menu
+    Bugfix for not properly drawing partially covered window background
+
 New in 0.11:
     Application settings added with default font to use and option to eject media
     Added functionality to eject media after print
