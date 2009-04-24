@@ -147,18 +147,19 @@ void QCDView::drawForeground ( QPainter * painter, const QRectF & rect )
          m_labelMode = cdscene->labelMode();
 
       *m_mask = QPixmap( frameSize() );
+      QRectF rectf( QPointF( -frameSize().width(), -frameSize().height() ), frameSize() * 2 );
 
       {
          QPainter paint( m_mask );
          paint.setWorldTransform( painter->transform() );
-         drawCD( &paint, rect, false );
+         drawCD( &paint, rectf, false );
       }
 
       {
          QPixmap alpha( frameSize() );
          QPainter paint( &alpha );
          paint.setWorldTransform( painter->transform() );
-         drawCD( &paint, rect, true );
+         drawCD( &paint, rectf, true );
          m_mask->setAlphaChannel( alpha );
       }
 
