@@ -83,8 +83,8 @@ void QCDScene::start( LabelMode mode )
 
 bool QCDScene::load( const QString &fileName, QString *errMessage )
 {
-   QFile file( fileName );
-   if( QRegExp( "*.\\.qlx", Qt::CaseInsensitive ).exactMatch( fileName ) ) {
+   if( QRegExp( ".*.\\.qlx$", Qt::CaseInsensitive ).exactMatch( fileName ) ) {
+      QFile file( fileName );
       if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
          if( errMessage )
             *errMessage = "cannot open file for reading";
