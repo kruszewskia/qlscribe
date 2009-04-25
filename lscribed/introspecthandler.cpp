@@ -45,7 +45,7 @@ DBusHandlerResult IntrospectHandler::processMessage( const Message &msg )
                           std::string( DBusManagerPath + pathlen, sublen )
                           + "\"/>";
          } else
-            introspect += "<node name=\"Manager\"/><node name=\"drives\"/>";
+            introspect += "<node name=\"printManager\"/><node name=\"drives\"/>";
       }
       introspect += "</node>";
 

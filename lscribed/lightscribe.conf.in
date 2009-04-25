@@ -7,15 +7,12 @@
   <!-- Only root can own the service -->
   <policy user="root">
     <allow own="@QLSCRIBE_DBUS_MANAGER_SERVICE@"/>
-    <allow send_interface="@QLSCRIBE_DBUS_MANAGER_SERVICE@"/>
-    <allow send_interface="@QLSCRIBE_DBUS_DRIVES_SERVICE@"/>
   </policy>
 
   <!-- Allow anyone to invoke methods on the interfaces -->
   <policy context="default">
-    <allow send_interface="@QLSCRIBE_DBUS_MANAGER_SERVICE@"/>
-    <allow send_interface="@QLSCRIBE_DBUS_DRIVES_SERVICE@"/>
-    <allow receive_interface="@QLSCRIBE_DBUS_DRIVES_SERVICE@"/>
+    <allow send_destination="@QLSCRIBE_DBUS_MANAGER_SERVICE@"/>
+    <allow send_destination="@QLSCRIBE_DBUS_DRIVES_SERVICE@"/>
   </policy>
 
 </busconfig>
