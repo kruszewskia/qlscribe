@@ -2,8 +2,7 @@
 set -e
 
 if [ "$1" = "remove" -o "$1" = "upgrade" ] ; then
-	PID=`pidof lscribed`
-	if [ "X$PID" != "X" ] ; then
+	if PID=`pidof lscribed` ; then
 		kill $PID
 	fi
 fi
