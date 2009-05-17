@@ -17,7 +17,7 @@ configure-stamp:
 	cd build; cmake .. -DCMAKE_INSTALL_PREFIX=$(CURDIR)/debian/qlscribe/usr \
                            -DFINAL_INSTALL_PREFIX=/usr \
 			   -DDBUS_SYSTEM_POLICY_DIR=$(CURDIR)/debian/qlscribe/etc/dbus-1/system.d \
-			   -DDBUS_SYSTEM_SERVICE_DIR=$(CURDIR)/debian/qlscribe/usr/share/dbus-1/services
+			   -DDBUS_SYSTEM_SERVICE_DIR=$(CURDIR)/debian/qlscribe/usr/share/dbus-1/system-services
 
 build: build-stamp
 
