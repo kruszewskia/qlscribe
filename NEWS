@@ -1,5 +1,8 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.13:
+    Fixes in dbus config for Ubuntu Jaunty
+
 New in 0.12:
     Fixed bug for round text not updating last used font
     Main window stores/restores position and size from/to config
