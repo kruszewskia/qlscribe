@@ -460,7 +460,7 @@ void MainWindow::onMenuAbout()
    QMessageBox::about( this,
                        tr( "About" ),
                        tr( "<h3>qlscribe - Qt lisghtScribe</h3>"
-                           "<p>release 0.13 $Revision$</p>"
+                           "<p>prerelease 0.14 $Revision$</p>"
                            "<p>visit project at home page "
                            "<a href=\"http://qlscribe.sourceforge.net/\">qlscribe.sourceforge.net</a></p>" ) );
 }
