@@ -22,6 +22,7 @@
 #define DBUSCPP_H
 
 #include <dbus/dbus.h>
+#include <stdint.h>
 #include <string>
 #include <map>
 
