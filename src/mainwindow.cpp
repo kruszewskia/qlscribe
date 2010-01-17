@@ -42,6 +42,7 @@
 #include <QClipboard>
 #include <QSettings>
 #include <QImageReader>
+#include <QPicture>
 
 
 MainWindow::MainWindow( bool enablePrint )
@@ -380,6 +381,24 @@ void MainWindow::onMenuProperties()
       QDialogCDProperties::exec( this, scene );
 }
 
+namespace {
+   const int bigImageSize = 1600;
+}
+
+inline
+void drawCircle( QPainter &painter, double radi )
+{
+   const int half = bigImageSize / 2;
+   painter.drawEllipse( QRectF( half - radi, half - radi, radi * 2, radi * 2 ) );
+}
+
+inline
+void drawCircle( QPainterPath &path, double radi )
+{
+   const int half = bigImageSize / 2;
+   path.addEllipse( QRectF( half - radi, half - radi, radi * 2, radi * 2 ) );
+}
+
 void MainWindow::onMenuPrintPreview()
 {
    QCDScene *cdscene = getScene( m_mdiArea );
@@ -388,21 +407,84 @@ void MainWindow::onMenuPrintPreview()
 
    PrintParameters params;
    params.m_labelMode = cdscene->labelMode();
-   QLightDrive *drive = QDialogPrint::exec( this, params );
-   if( !drive )
+   QPair< bool, QLightDrive * > bd = QDialogPrint::exec( this, params, true );
+   if( !bd.first )
       return;
 
-   try {
-      QPixmap pixmap = drive->preview( params, cdscene, QSize( 400, 400 ) );
+   if( !bd.second ) {
+      QPixmap image( bigImageSize, bigImageSize );
+      image.fill( 0xFFFFFFFF );
 
+      cdscene->clearSelection();
+      {
+         QPainter painter( &image );
+         QColor circleColor( 0xd8, 0xd8, 0xd8 );
+         painter.setPen( circleColor );
+         painter.setBrush( circleColor );
+         drawCircle( painter, bigImageSize / 2 );
+
+         cdscene->render( &painter, image.rect() );
+
+         QPainterPath p1;
+         p1.addRect( image.rect() );
+         {
+            QPainterPath p2;
+            drawCircle( p2, bigImageSize / 2 );
+            painter.setClipPath( p1.subtracted( p2 ) );
+            painter.fillRect( image.rect(), Qt::white );
+            painter.setClipPath( p1 );
+         }
+
+         painter.setBrush( circleColor );
+
+         if( params.m_labelMode == modeTitle ) {
+            // 3.22
+            QPainterPath p2;
+            drawCircle( p2, bigImageSize / 3.20 );
+            painter.setClipPath( p1.subtracted( p2 ) );
+            drawCircle( painter, bigImageSize / 2 );
+            // 3.74
+            painter.setClipPath( p1 );
+            drawCircle( painter, bigImageSize / 3.74 );
+         } else
+            if( params.m_labelMode == modeContent ) {
+            // 3.22
+            QPainterPath p2;
+            drawCircle( p2, bigImageSize / 3.20 );
+            painter.setClipPath( p1.subtracted( p2 ) );
+            drawCircle( painter, bigImageSize / 2 );
+
+            // 4.69
+            painter.setClipPath( p1 );
+            drawCircle( painter, bigImageSize / 4.69 );
+         }
+
+         painter.setBrush( Qt::white );
+         drawCircle( painter, bigImageSize / 4.93 );
+
+         //painter.setBrush( circleColor );
+         //drawCircle( painter, bigImageSize / 2 );
+      }
       QLabel *label = new QLabel;
-      label->setPixmap( pixmap );
+      //label->setPixmap( QPixmap::fromImage( image, Qt::MonoOnly ).scaled( QSize( 400, 400 ) ) );
+      label->setPixmap( image.scaled( QSize( 400, 400 ) ) );
+
       QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( label );
-      subWindow->setWindowTitle( "Preview: " + cdscene->name() );
+      subWindow->setWindowTitle( "Software preview: " + cdscene->name() );
       subWindow->show();
-   }
-   catch( const QString &err ) {
-      QMessageBox::critical( this, tr( "Error on print preview" ), err );
+
+   } else {
+      try {
+         QPixmap pixmap = bd.second->preview( params, cdscene, QSize( 400, 400 ) );
+         QLabel *label = new QLabel;
+         label->setPixmap( pixmap );
+         QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( label );
+         subWindow->setWindowTitle( "Preview: " + cdscene->name() );
+         subWindow->show();
+      }
+      catch( const QString &err ) {
+         QMessageBox::critical( this, tr( "Error on print preview" ), err );
+      }
    }
 }
 

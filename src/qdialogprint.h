@@ -33,7 +33,7 @@ class QDialogPrint : public QDialog {
     Q_OBJECT
     Q_DISABLE_COPY(QDialogPrint)
 public:
-   static QLightDrive *exec( QWidget *parent, PrintParameters &params );
+   static QPair<bool, QLightDrive *> exec( QWidget *parent, PrintParameters &params, bool preview );
 
 protected:
     explicit QDialogPrint(QWidget *parent = 0);

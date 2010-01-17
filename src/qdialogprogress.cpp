@@ -65,7 +65,7 @@ bool QDialogProgress::exec( QWidget *parent, QCDScene *scene )
 {
    PrintParameters params;
    params.m_labelMode = scene->labelMode();
-   QLightDrive *drive = QDialogPrint::exec( parent, params );
+   QLightDrive *drive = QDialogPrint::exec( parent, params, false ).second;
    if( !drive )
       return false;
 

@@ -46,12 +46,14 @@ void QDialogPrint::changeEvent(QEvent *e)
     }
 }
 
-QLightDrive *QDialogPrint::exec( QWidget *parent, PrintParameters &params )
+QPair<bool, QLightDrive *> QDialogPrint::exec( QWidget *parent, PrintParameters &params, bool preview )
 {
+   QPair<bool, QLightDrive *> rez( false, 0 );
+
    QList<QLightDrive *> drives = QLightScribe::instance()->getDrives();
-   if( drives.isEmpty() ) {
+   if( !preview && drives.isEmpty() ) {
       QMessageBox::critical( parent, tr( "Error" ), tr( "Cannot find any lightScribe drive" ) );
-      return 0;
+      return rez;
    }
    QDialogPrint dialog( parent );
    switch( params.m_labelMode ) {
@@ -64,8 +66,11 @@ QLightDrive *QDialogPrint::exec( QWidget *parent, PrintParameters &params )
    foreach( QLightDrive *drv, drives ) {
       dialog.m_ui->comboDrive->insertItem( index++, drv->displayName() );
    }
+   if( preview )
+      dialog.m_ui->comboDrive->insertItem( index++, tr( "Software renderer" ) );
+
    if( dialog.QDialog::exec() == Rejected )
-      return 0;
+      return rez;
 
    params = PrintParameters(); // reset to default
 
@@ -87,5 +92,9 @@ QLightDrive *QDialogPrint::exec( QWidget *parent, PrintParameters &params )
    if( dialog.m_ui->radioMediaGeneric->isChecked() )
       params.m_mediaOptimizationLevel = mediaGeneric;
 
-   return drives.at( dialog.m_ui->comboDrive->currentIndex() );
+   rez.first = true;
+   if( dialog.m_ui->comboDrive->currentIndex() < drives.size() )
+         rez.second = drives.at( dialog.m_ui->comboDrive->currentIndex() );
+
+   return rez;
 }
