@@ -2,7 +2,7 @@
 set -e
 
 if [ "$1" = "configure" ] ; then
-	/etc/init.d/dbus reload
+	invoke-rc.d dbus reload
 fi
 
 #DEBHELPER#

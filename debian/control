@@ -8,6 +8,6 @@ Homepage: http://qlscribe.sourceforge.net/
 
 Package: qlscribe
 Architecture: any
-Depends: ${shlibs:Depends}, lightscribe
+Depends: ${shlibs:Depends}
 Description: Qt based application to print lightScribe discs
  Qt lightScribe is a GUI application to burn labels on lightScribe capable drives.
