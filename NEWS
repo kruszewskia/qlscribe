@@ -1,5 +1,10 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.14
+    Added Software Render for preview to make preview when no drive is available
+    Items have Z coordinate set to remove ambiguity
+    Saves from previous versions will have Z coordinate of items reordered on load
+
 New in 0.13:
     Fixes in dbus config for Ubuntu Jaunty
 
