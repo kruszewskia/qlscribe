@@ -73,7 +73,7 @@ bool QDialogRoundText::exec( QGraphicsItem *graphicsItem )
    m_item->setAlignment( item->alignment() );
    m_item->setOutside( item->outside() );
 
-   scene.addItem( m_item );
+   scene.addItem( m_item, true );
 
    m_ui->spinX->setValue( m_item->pos().x() );
    m_ui->spinY->setValue( m_item->pos().y() );

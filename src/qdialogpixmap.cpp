@@ -68,7 +68,7 @@ bool QDialogPixmap::exec( QGraphicsItem *graphicsItem )
    m_item->imageName( item->imageName() );
    m_item->setTransform( item->transform() );
 
-   scene.addItem( m_item );
+   scene.addItem( m_item, true );
 
    m_ui->spinX->setValue( m_item->pos().x() );
    m_ui->spinY->setValue( m_item->pos().y() );

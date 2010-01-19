@@ -60,6 +60,7 @@ public:
 
    void putItemToClipboard( bool move );
    void getItemFromClipboard();
+   void addItem( QGraphicsItem *item, bool top );
 
    void updateTitles() const;
    void redrawViews() const;
@@ -82,7 +83,7 @@ private slots:
 
 private:
    void write( QXmlStreamWriter &writer );
-   bool readItem( QXmlStreamReader &reader );
+   bool readItem( QXmlStreamReader &reader, bool top );
    void read( QXmlStreamReader &reader );
    void sendItemTo( bool front );
    void pushUndo();

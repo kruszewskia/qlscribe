@@ -108,12 +108,29 @@ bool QCDScene::load( const QString &fileName, QString *errMessage )
       setName();
 
       pushUndo();
+
+      QList<QGraphicsItem *> list = items();
+      bool oldFormat = true;
+      foreach(QGraphicsItem *item, list ) {
+         if( item->zValue() != 0.0 ) {
+            oldFormat = false;
+            break;
+         }
+      }
+      if( oldFormat ) {
+         double z = 1.0;
+         foreach(QGraphicsItem *item, list ) {
+            item->setZValue( z );
+            z += 0.1;
+         }
+      }
+
       return true;
    }
    QShapeFactory &sfactory = QShapeFactory::instance();
    QLightPixmapItem *item =
          static_cast<QLightPixmapItem *>(sfactory.create( QShapeControllerPixmap::Type ) );
-   addItem( item );
+   addItem( item, true );
    if( item->loadImage( fileName ) ) {
       QSize size = item->pixmap().size();
       item->setOffset( -QPointF( size.height(), size.width()  ) / 2.0 );
@@ -261,8 +278,22 @@ void QCDScene::write( QXmlStreamWriter &writer )
    writer.writeEndDocument();
 }
 
+void QCDScene::addItem( QGraphicsItem *item, bool top )
+{
+   if( top ) {
+      double topZ = 1.0;
+      QList<QGraphicsItem *> list = items();
+      foreach(QGraphicsItem *item, list ) {
+         if( item->zValue() >= topZ )
+            topZ = item->zValue() + 0.1;
+      }
+      item->setZValue( topZ );
+   }
+   QGraphicsScene::addItem( item );
+}
 
-bool QCDScene::readItem( QXmlStreamReader &reader )
+
+bool QCDScene::readItem( QXmlStreamReader &reader, bool top )
 {
    QShapeFactory &sfactory = QShapeFactory::instance();
 
@@ -279,7 +310,7 @@ bool QCDScene::readItem( QXmlStreamReader &reader )
    if( item ) {
       item->setFlag( QGraphicsItem::ItemIsMovable, true );
       item->setFlag( QGraphicsItem::ItemIsSelectable, true );
-      addItem( item );
+      addItem( item, top );
       return true;
    }
    return false;
@@ -308,7 +339,7 @@ void QCDScene::read( QXmlStreamReader &reader )
       }
 
       if( elementName == "item" ) {
-         readItem( reader );
+         readItem( reader, false );
       } else
          throw QString( "QCDScene: unknown element \"" ) + elementName + "\"";
    }
@@ -366,7 +397,7 @@ void QCDScene::getItemFromClipboard()
       QString elementName = reader.name().toString();
 
       if( elementName == "item" ) {
-         if( readItem( reader ) )
+         if( readItem( reader, true ) )
             setChanged();
       }
    }
@@ -489,3 +520,4 @@ void QCDScene::unredo( bool undo )
    }
    setChanged( false );
 }
+

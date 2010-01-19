@@ -69,7 +69,7 @@ bool QDialogText::exec( QGraphicsItem *graphicsItem )
    m_item->setBrush( item->brush() );
    m_item->setTransform( item->transform() );
 
-   scene.addItem( m_item );
+   scene.addItem( m_item, true );
 
    m_ui->spinX->setValue( m_item->pos().x() );
    m_ui->spinY->setValue( m_item->pos().y() );

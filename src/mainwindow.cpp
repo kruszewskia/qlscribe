@@ -324,7 +324,7 @@ void MainWindow::onMenuInsert( int id )
       return;
    }
 
-   cdscene->addItem( item );
+   cdscene->addItem( item, true );
    cdscene->setChanged();
 }
 
@@ -412,6 +412,7 @@ void MainWindow::onMenuPrintPreview()
       return;
 
    if( !bd.second ) {
+      // software "rendering"
       QPixmap image( bigImageSize, bigImageSize );
       image.fill( 0xFFFFFFFF );
 
@@ -461,12 +462,8 @@ void MainWindow::onMenuPrintPreview()
 
          painter.setBrush( Qt::white );
          drawCircle( painter, bigImageSize / 4.93 );
-
-         //painter.setBrush( circleColor );
-         //drawCircle( painter, bigImageSize / 2 );
       }
       QLabel *label = new QLabel;
-      //label->setPixmap( QPixmap::fromImage( image, Qt::MonoOnly ).scaled( QSize( 400, 400 ) ) );
       label->setPixmap( image.scaled( QSize( 400, 400 ) ) );
 
       QMdiSubWindow *subWindow = m_mdiArea->addSubWindow( label );
