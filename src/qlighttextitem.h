@@ -30,9 +30,22 @@ class QLightTextItem : public QGraphicsSimpleTextItem
 public:
     QLightTextItem();
 
+    QString text() const;
+    Qt::Alignment alignment() const;
+    QColor color() const;
+
+    void setText( const QString &txt );
+    void setColor( const QColor &color );
+    void setFont( const QFont &font );
+    void setAlignment( Qt::Alignment align );
+
 protected:
    virtual QVariant itemChange ( GraphicsItemChange change, const QVariant & value );
 
+private:
+   void updateTrans();
+
+   Qt::Alignment m_alignment;
 };
 
 class QShapeControllerText : public QShapeController {

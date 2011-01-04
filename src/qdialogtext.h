@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-    $Id:$ */
+    $Id$ */
 
 #ifndef QDIALOGTEXT_H
 #define QDIALOGTEXT_H
@@ -27,7 +27,7 @@ namespace Ui {
     class QDialogText;
 }
 
-class QGraphicsSimpleTextItem;
+class QLightTextItem;
 
 class QDialogText : public QItemDialog {
     Q_OBJECT
@@ -48,10 +48,11 @@ private slots:
    void fontChanged();
    void colorChanged();
    void posChanged();
+   void alignChanged();
 
 private:
-    Ui::QDialogText         *m_ui;
-    QGraphicsSimpleTextItem *m_item;
+    Ui::QDialogText  *m_ui;
+    QLightTextItem   *m_item;
 };
 
 #endif // QDIALOGTEXT_H

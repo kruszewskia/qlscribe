@@ -22,8 +22,8 @@
 #include "ui_qdialogtext.h"
 #include "qcdscene.h"
 #include "qdialogsettings.h"
+#include "qlighttextitem.h"
 
-#include <QGraphicsSimpleTextItem>
 #include <QFontDialog>
 #include <QColorDialog>
 
@@ -55,19 +55,20 @@ void QDialogText::changeEvent(QEvent *e)
 
 bool QDialogText::exec( QGraphicsItem *graphicsItem )
 {
-   QGraphicsSimpleTextItem *item = dynamic_cast< QGraphicsSimpleTextItem * >( graphicsItem );
+   QLightTextItem *item = dynamic_cast< QLightTextItem * >( graphicsItem );
    if( !item )
       return false;
 
    QCDScene scene;
    m_ui->cdView->setScene( &scene );
-   m_item = new QGraphicsSimpleTextItem;
+   m_item = new QLightTextItem;
 
    m_item->setPos( item->pos() );
    m_item->setText( item->text() );
    m_item->setFont( item->font() );
-   m_item->setBrush( item->brush() );
+   m_item->setColor( item->color() );
    m_item->setTransform( item->transform() );
+   m_item->setAlignment( item->alignment() );
 
    scene.addItem( m_item, true );
 
@@ -75,19 +76,27 @@ bool QDialogText::exec( QGraphicsItem *graphicsItem )
    m_ui->spinY->setValue( m_item->pos().y() );
    m_ui->textEdit->setPlainText( m_item->text() );
 
+   int index = 0;
+   if( m_item->alignment() == Qt::AlignRight ) index = 2;
+   else if( m_item->alignment() == Qt::AlignCenter ) index = 1;
+
+   m_ui->comboAlignment->setCurrentIndex( index );
+
    colorChanged();
    fontChanged();
 
    connect( m_ui->textEdit, SIGNAL(textChanged()),        this, SLOT(textChanged()) );
    connect( m_ui->spinX,    SIGNAL(valueChanged(double)), this, SLOT(posChanged()) );
    connect( m_ui->spinY,    SIGNAL(valueChanged(double)), this, SLOT(posChanged()) );
+   connect( m_ui->comboAlignment, SIGNAL(currentIndexChanged(int)),this, SLOT(alignChanged()) );
 
    if( QDialog::exec() == Rejected ) return false;
 
    item->setPos( m_item->pos() );
    item->setText( m_item->text() );
    item->setFont( m_item->font() );
-   item->setBrush( m_item->brush() );
+   item->setColor( m_item->color() );
+   item->setAlignment( m_item->alignment() );
 
    return true;
 }
@@ -105,11 +114,11 @@ void QDialogText::onFont()
 
 void QDialogText::onColor()
 {
-   QColor color = QColorDialog::getColor( m_item->brush().color(), this );
+   QColor color = QColorDialog::getColor( m_item->color(), this );
    if( color.isValid() ){
-      m_item->setBrush( color );
+      m_item->setColor( color );
       colorChanged();
-   }
+  }
 }
 
 void QDialogText::fontChanged()
@@ -120,7 +129,7 @@ void QDialogText::fontChanged()
 void QDialogText::colorChanged()
 {
    QPixmap pixmap( m_ui->colorWidget->size() );
-   pixmap.fill( m_item->brush().color() );
+   pixmap.fill( m_item->color() );
    m_ui->colorWidget->setPixmap( pixmap );
 }
 
@@ -132,5 +141,11 @@ void QDialogText::textChanged()
 void QDialogText::posChanged()
 {
    m_item->setPos( m_ui->spinX->value(), m_ui->spinY->value() );
+}
+
+void QDialogText::alignChanged()
+{
+   Qt::Alignment align[] = { Qt::AlignLeft, Qt::AlignCenter, Qt::AlignRight };
+   m_item->setAlignment( align[ m_ui->comboAlignment->currentIndex() ] );
 }
 

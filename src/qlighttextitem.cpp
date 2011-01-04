@@ -25,6 +25,7 @@
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QTextDocument>
 
 
 QLightTextItem::QLightTextItem()
@@ -39,6 +40,58 @@ QVariant QLightTextItem::itemChange( GraphicsItemChange change, const QVariant &
    return value;
 }
 
+QString QLightTextItem::text() const
+{
+    return QGraphicsSimpleTextItem::text();
+}
+
+QColor QLightTextItem::color() const
+{
+    return this->brush().color();
+}
+
+Qt::Alignment QLightTextItem::alignment() const
+{
+    return m_alignment;
+}
+
+void QLightTextItem::setText( const QString &txt )
+{
+    QGraphicsSimpleTextItem::setText( txt );
+    updateTrans();
+}
+
+void QLightTextItem::setFont( const QFont &font )
+{
+    QGraphicsSimpleTextItem::setFont( font );
+    updateTrans();
+}
+
+
+void QLightTextItem::setColor( const QColor &color )
+{
+    this->setBrush( color );
+}
+
+
+void QLightTextItem::setAlignment( Qt::Alignment align )
+{
+    m_alignment = align;
+    updateTrans();
+}
+
+void QLightTextItem::updateTrans()
+{
+    double size = this->boundingRect().width();
+
+    QTransform trans;
+    trans.scale(  0.5, 0.5 );
+    switch( m_alignment ) {
+    case Qt::AlignRight :   trans.translate( -size, 0 ); break;
+    case Qt::AlignCenter :  trans.translate( -size / 2.0, 0 ); break;
+    }
+    this->setTransform( trans );
+}
 
 RegisterController< QShapeControllerText > regControllerText;
 
@@ -69,20 +122,21 @@ QItemDialog *QShapeControllerText::createDialog( QWidget *parent ) const
 
 void QShapeControllerText::writeData( QXmlStreamWriter &writer, const QGraphicsItem *item ) const
 {
-   const QGraphicsSimpleTextItem *textItem = static_cast< const QGraphicsSimpleTextItem * >( item );
+   const QLightTextItem *textItem = static_cast< const QLightTextItem * >( item );
    writer.writeEmptyElement( "pos" );
    writer.writeAttribute( QXmlStreamAttribute( "x", QString::number( textItem->pos().x() ) ) );
    writer.writeAttribute( QXmlStreamAttribute( "y", QString::number( textItem->pos().y() ) ) );
    writer.writeAttribute( QXmlStreamAttribute( "z", QString::number( textItem->zValue() ) ) );
 
    writer.writeTextElement( "font", textItem->font().toString() );
-   writer.writeTextElement( "color", textItem->brush().color().name() );
+   writer.writeTextElement( "color", textItem->color().name() );
    writer.writeTextElement( "text", textItem->text() );
+   writer.writeTextElement( "alignment", QString::number( textItem->alignment() ) );
 }
 
 void QShapeControllerText::replace( QGraphicsItem *item, const QString &from, const QString &to ) const
 {
-   QGraphicsSimpleTextItem *textItem = static_cast< QGraphicsSimpleTextItem * >( item );
+   QLightTextItem *textItem = static_cast< QLightTextItem * >( item );
 
    bool placeHolder = textItem->text().left( 1 ) == "?" && textItem->text().right( 1 ) == "?";
 
@@ -102,7 +156,7 @@ void QShapeControllerText::readData( const QString &element,
                                      const QString &data,
                                      QGraphicsItem *item ) const
 {
-   QGraphicsSimpleTextItem *textItem = static_cast< QGraphicsSimpleTextItem * >( item );
+   QLightTextItem *textItem = static_cast< QLightTextItem * >( item );
 
    if( element == "pos" ) {
       textItem->setPos( attrs.value( "x" ).toString().toDouble(),
@@ -119,12 +173,17 @@ void QShapeControllerText::readData( const QString &element,
    }
 
    if( element == "color" ) {
-      textItem->setBrush( QColor( data ) );
+      textItem->setColor( QColor( data ) );
       return;
    }
 
    if( element == "text" ) {
       textItem->setText( data );
+      return;
+   }
+
+   if( element == "alignment" ) {
+      textItem->setAlignment( Qt::Alignment( data.toInt() ) );
       return;
    }
 }
