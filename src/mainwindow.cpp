@@ -330,12 +330,12 @@ void MainWindow::onMenuInsert( int id )
 
 void MainWindow::onMenuOpen()
 {
-   QString filter( tr("qlscribe document (*.qlx)\nImages ( ") );
+   QString filter( tr("qlscribe document (*.qlx);;Images ( ") );
    QList<QByteArray> list = QImageReader::supportedImageFormats();
    foreach( QByteArray arr, list ) {
        filter += QString( "*." ) + arr.data() + " ";
    }
-   filter += tr( ")\nAll Files (*)" );
+   filter += tr( ");;All Files (*)" );
 
    QString fileName = QFileDialog::getOpenFileName( this, 
                                                     tr( "Open:" ), 
@@ -539,7 +539,7 @@ void MainWindow::onMenuAbout()
    QMessageBox::about( this,
                        tr( "About" ),
                        tr( "<h3>qlscribe - Qt lisghtScribe</h3>"
-                           "<p>release 0.14 $Revision$</p>"
+                           "<p>prerelease 0.15 $Revision$</p>"
                            "<p>visit project at home page "
                            "<a href=\"http://qlscribe.sourceforge.net/\">qlscribe.sourceforge.net</a></p>" ) );
 }
