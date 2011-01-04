@@ -227,7 +227,7 @@ void QLightRoundTextItem::paint( QPainter *painter, const QStyleOptionGraphicsIt
    painter->restore();
    if (option->state & QStyle::State_Selected) {
       painter->setPen( QPen( option->palette.windowText(), 0, Qt::DashLine ) );
-      painter->setBrush(Qt::NoBrush);
+      painter->setBrush( Qt::NoBrush );
       painter->drawPath( shape() );
    }
 }
