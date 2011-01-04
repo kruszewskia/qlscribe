@@ -118,7 +118,7 @@ void QDialogPixmap::onLoadImage()
    foreach( QByteArray arr, list ) {
        filter += QString( "*." ) + arr.data() + " ";
    }
-   filter += tr( ")\nAll Files (*)" );
+   filter += tr( ");;All Files (*.*)" );
    QString fileName = QFileDialog::getOpenFileName( this, "Load image:", QString(), filter );
    if( fileName.isNull() )
       return;
