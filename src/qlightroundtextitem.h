@@ -28,7 +28,7 @@
 
 class QLightRoundTextItem : public QAbstractGraphicsShapeItem {
 public:
-   enum { Type = UserType + 1 };
+    enum { Type = UserType + 1 };
 
     QLightRoundTextItem( QGraphicsItem * parent = 0 );
 
