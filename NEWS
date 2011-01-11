@@ -1,5 +1,10 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.15
+    Added ability to align regular text to left, right or center the same way as rounded text
+    Fixed issue with filters in open dialog
+    Added image preview to Qt open file dialog
+
 New in 0.14
     Added Software Render for preview to make preview when no drive is available
     Items have Z coordinate set to remove ambiguity
