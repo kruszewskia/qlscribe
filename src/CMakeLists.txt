@@ -25,14 +25,14 @@ SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp
      qdialogpixmap.cpp qdialogroundtext.cpp qdialogtext.cpp qlightroundtextitem.cpp 
      qlightscribe.cpp qshapefactory.cpp qlighttextitem.cpp qlightpixmapitem.cpp 
      qdialogprint.cpp qdialogprogress.cpp qdialogcdproperties.cpp qconsoleprintprogress.cpp
-     qdialogsettings.cpp )
+     qdialogsettings.cpp previewinjector.cpp )
 
 SET( QLSCRIBE_UIS qdialogtext.ui qdialogroundtext.ui qdialogpixmap.ui
      qdialogprint.ui qdialogprogress.ui qdialogcdproperties.ui qdialogsettings.ui )
 
 SET( QLSCRIBE_MOC_HDRS mainwindow.h qcdscene.h qdialogpixmap.h qdialogroundtext.h
      qdialogtext.h qlightscribe.h qdialogprint.h qdialogprogress.h
-     qdialogcdproperties.h qconsoleprintprogress.h qdialogsettings.h )
+     qdialogcdproperties.h qconsoleprintprogress.h qdialogsettings.h previewinjector.h )
 
 ADD_DEFINITIONS( -Wall )
 

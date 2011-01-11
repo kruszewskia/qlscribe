@@ -28,6 +28,7 @@
 #include "qdialogprogress.h"
 #include "qdialogcdproperties.h"
 #include "qdialogsettings.h"
+#include "previewinjector.h"
 
 #include <QMenuBar>
 #include <QStatusBar>
@@ -337,11 +338,16 @@ void MainWindow::onMenuOpen()
    }
    filter += tr( ");;All Files (*)" );
 
-   QString fileName = QFileDialog::getOpenFileName( this, 
-                                                    tr( "Open:" ), 
-                                                    QString(), 
-                                                    filter );
-   
+   QFileDialog fd( this, "Open:", QString(), filter );
+
+   bool injectPreview = QSettings().value( cfgInjectPreview, true ).toBool();
+   PreviewInjector pj( injectPreview ? &fd : 0 );
+   fd.setFileMode( QFileDialog::ExistingFile );
+
+   if( fd.exec() != QDialog::Accepted )
+       return;
+
+   QString fileName = fd.selectedFiles().value(0);
    if( fileName.isNull() )
       return;
 

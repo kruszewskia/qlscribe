@@ -1,48 +1,49 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>QDialogSettings</class>
- <widget class="QDialog" name="QDialogSettings" >
-  <property name="windowModality" >
+ <widget class="QDialog" name="QDialogSettings">
+  <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>305</width>
-    <height>156</height>
+    <width>320</width>
+    <height>170</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Settings</string>
   </property>
-  <property name="modal" >
+  <property name="modal">
    <bool>false</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2" >
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QFrame" name="frame" >
-     <property name="frameShape" >
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="frameShadow" >
+     <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout" >
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QFormLayout" name="formLayout" >
-        <item row="0" column="0" >
-         <widget class="QLabel" name="label" >
-          <property name="text" >
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
            <string>Default font:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1" >
-         <widget class="QFontComboBox" name="fontName" >
-          <property name="enabled" >
+        <item row="0" column="1">
+         <widget class="QFontComboBox" name="fontName">
+          <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="editable" >
+          <property name="editable">
            <bool>false</bool>
           </property>
          </widget>
@@ -50,13 +51,13 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" >
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <spacer name="horizontalSpacer" >
-          <property name="orientation" >
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
             <height>20</height>
@@ -65,15 +66,15 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="btnFont" >
-          <property name="text" >
+         <widget class="QPushButton" name="btnFont">
+          <property name="text">
            <string>Font...</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btnLastUsedFont" >
-          <property name="text" >
+         <widget class="QPushButton" name="btnLastUsedFont">
+          <property name="text">
            <string>Last used</string>
           </property>
          </widget>
@@ -81,9 +82,16 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="chkEject" >
-        <property name="text" >
+       <widget class="QCheckBox" name="chkEject">
+        <property name="text">
          <string>Eject tray after finish</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chkPreview">
+        <property name="text">
+         <string>Enable image preview in open dialog</string>
         </property>
        </widget>
       </item>
@@ -91,11 +99,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
@@ -110,11 +118,11 @@
    <receiver>QDialogSettings</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -126,11 +134,11 @@
    <receiver>QDialogSettings</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

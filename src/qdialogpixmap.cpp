@@ -22,10 +22,12 @@
 #include "ui_qdialogpixmap.h"
 #include "qlightpixmapitem.h"
 #include "qcdscene.h"
+#include "previewinjector.h"
 
 #include <QImageReader>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSettings>
 
 QDialogPixmap::QDialogPixmap(QWidget *parent) :
     QItemDialog( parent ),
@@ -119,7 +121,18 @@ void QDialogPixmap::onLoadImage()
        filter += QString( "*." ) + arr.data() + " ";
    }
    filter += tr( ");;All Files (*.*)" );
-   QString fileName = QFileDialog::getOpenFileName( this, "Load image:", QString(), filter );
+
+   QFileDialog fd( this, "Load image:", QString(), filter );
+   fd.setOption( QFileDialog::DontUseNativeDialog ); // for testing
+
+   bool injectPreview = QSettings().value( cfgInjectPreview, true ).toBool();
+   PreviewInjector pj( injectPreview ? &fd : 0 );
+   fd.setFileMode( QFileDialog::ExistingFile );
+
+   if( fd.exec() != QDialog::Accepted )
+       return;
+
+   QString fileName = fd.selectedFiles().value(0);
    if( fileName.isNull() )
       return;
 

@@ -60,11 +60,13 @@ bool QDialogSettings::exec( QWidget *parent )
    dialog.m_font = sts.value( cfgDefaultFont ).value<QFont>();
    dialog.m_ui->fontName->setCurrentFont( dialog.m_font );
    dialog.m_ui->chkEject->setChecked( sts.value( cfgEjectAfterFinish, false ).toBool() );
+   dialog.m_ui->chkPreview->setChecked( sts.value( cfgInjectPreview, true ).toBool() );
 
    if( dialog.QDialog::exec() == Rejected ) return false;
 
    sts.setValue( cfgDefaultFont, dialog.m_font );
    sts.setValue( cfgEjectAfterFinish, dialog.m_ui->chkEject->isChecked() );
+   sts.setValue( cfgInjectPreview, dialog.m_ui->chkPreview->isChecked() );
 
    return true;
 }
