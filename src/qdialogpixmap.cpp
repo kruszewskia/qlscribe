@@ -123,7 +123,7 @@ void QDialogPixmap::onLoadImage()
    filter += tr( ");;All Files (*.*)" );
 
    QFileDialog fd( this, "Load image:", QString(), filter );
-   fd.setOption( QFileDialog::DontUseNativeDialog ); // for testing
+   //fd.setOption( QFileDialog::DontUseNativeDialog ); // for testing
 
    bool injectPreview = QSettings().value( cfgInjectPreview, true ).toBool();
    PreviewInjector pj( injectPreview ? &fd : 0 );
