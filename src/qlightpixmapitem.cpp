@@ -123,7 +123,7 @@ void QShapeControllerPixmap::readData( const QString &element,
       }
       pixmapItem->imageName( data );
       pixmapItem->setPixmap( pixmap );
-      pixmapItem->setOffset( -QPointF( pixmap.size().height(), pixmap.size().width()  ) / 2.0 );
+      pixmapItem->setOffset( -QPointF( pixmap.size().width(), pixmap.size().height()  ) / 2.0 );
       return;
    }
 }
