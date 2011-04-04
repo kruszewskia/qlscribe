@@ -1,6 +1,25 @@
 Qt lightScribe Installaton instructions
 =======================================
 
+To compile qlscribe succesfully you may need additional packages installed. 
+
+So for Ubuntu folowing packages are required:
+    build-essential
+    cmake
+    libqt4-dev
+    libdbus-1-dev
+
+For 64 bit Ubuntu you need also to install folowing packages:
+    ia32-libs
+    libc6-dev-i386 (maverick only, see notes)
+
+    (Note: this will work for maverick (10.10) version, for lucid and karmic 
+     /usr/lib32/libstdc++.so.5 is missing in ia32-libs so you would have to 
+     find it see https://bugs.launchpad.net/ubuntu/+source/ia32-libs/+bug/431091 )
+    (Note: On 64 bit if you get "undefined reference std::_Rb_tree_increment..." link error it is
+     possible that link /usr/lib32/libstdc++.so points to /usr/lib32/libstdc++.so.5... change it
+     so it points /usr/lib32/libstdc++.so.6...)
+
 To compile and install, first download release from http://qlscribe.sourceforge.net/
 or check out project from subversion repository for particular release:
 
