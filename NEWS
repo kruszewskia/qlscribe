@@ -1,5 +1,10 @@
 NEWS - list of user-visible changes between releases of qlscribe
 
+New in 0.16
+    Fixed build on 64 bit Ubuntu Saucy
+    Fixed bug with alarm() not found
+    Added instructions for 64 bit
+
 New in 0.15
     Added ability to align regular text to left, right or center the same way as rounded text
     Fixed issue with filters in open dialog
