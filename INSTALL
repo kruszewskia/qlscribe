@@ -12,6 +12,7 @@ So for Ubuntu folowing packages are required:
 For 64 bit Ubuntu you need also to install folowing packages:
     ia32-libs
     libc6-dev-i386 (maverick only, see notes)
+    g++-multilib
 
     (Note: this will work for maverick (10.10) version, for lucid and karmic 
      /usr/lib32/libstdc++.so.5 is missing in ia32-libs so you would have to 
@@ -19,6 +20,10 @@ For 64 bit Ubuntu you need also to install folowing packages:
     (Note: On 64 bit if you get "undefined reference std::_Rb_tree_increment..." link error it is
      possible that link /usr/lib32/libstdc++.so points to /usr/lib32/libstdc++.so.5... change it
      so it points /usr/lib32/libstdc++.so.6...)
+
+For 64 bit Ubuntu libdbus-1-dev does not have link for i386 libdbus-1.so you may need to create one manually:
+     sudo ln -s libdbus-1.so.3 /lib/i386-linux-gnu/libdbus-1.so
+    
 
 To compile and install, first download release from http://qlscribe.sourceforge.net/
 or check out project from subversion repository for particular release:
@@ -49,7 +54,7 @@ Include files should be in ${LIGHTSCRIBEDIR}/include and lib in ${LIGHTSCRIBEDIR
 You need manually install dbus config and service files. They are located in INSTALL_PATH/share/qlscribe
 So on my ubuntu system I do 
     sudo cp /usr/local/share/qlscribe/lightscribe.conf /etc/dbus-1/system.d/ 
-    sudo cp /usr/local/share/qlscribe/org.lightscribe.Manager.service /usr/share/dbus-1/system-services/
+    sudo cp /usr/local/share/qlscribe/org.lightscribe.printManager.service /usr/share/dbus-1/system-services/
     sudo /etc/init.d/dbus reload
 
 Your system may have different path please refer dbus system daemon documentation

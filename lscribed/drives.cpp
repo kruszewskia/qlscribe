@@ -278,7 +278,7 @@ void Drive::routine()
 
          function = "LS_DiscPrintMgr_EnumDiscPrinters";
          EnumDiscPrinters printers = manager.EnumDiscPrinters();
-         if( m_index >= printers.Count() )
+         if( m_index >= int( printers.Count() ) )
             throw std::string( "internal error: invalid index" );
 
          DiscPrinter printer = printers.Item( m_index );

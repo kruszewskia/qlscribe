@@ -32,7 +32,7 @@ FIND_LIBRARY( DBUS_LIBRARY dbus-1 )
 get_filename_component( _dbusLibPath ${DBUS_LIBRARY} PATH )
 
 FIND_PATH( DBUS_LIBINCLUDE_DIR dbus/dbus-arch-deps.h
-           PATHS /lib /usr/lib /usr/local/lib ${_dbusLibPath}
+           PATHS /lib /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu /usr/lib/i386-linux-gnu ${_dbusLibPath}
            PATH_SUFFIXES dbus-1.0/include )
 
 if( DBUS_INCLUDE_DIR AND DBUS_LIBINCLUDE_DIR AND DBUS_LIBRARY )

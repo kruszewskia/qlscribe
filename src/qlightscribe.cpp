@@ -109,21 +109,22 @@ QLightDrive::QLightDrive( QObject *parent, const QString &path, const QString &n
 static
 void printScene( QCDScene *scene, QByteArray &array )
 {
-   QImage image( 2772, 2772, QImage::Format_RGB888 );
-   image.fill( 0xFFFFFFFF );
+    const int resolution = 2772;
+    QImage image( resolution, resolution, QImage::Format_RGB888 );
+    image.fill( 0xFFFFFFFF );
 
-   scene->clearSelection();
-   {
-      QPainter painter( &image );
-      scene->render( &painter, image.rect() );
-   }
-   image.setDotsPerMeterX( 23622 );
-   image.setDotsPerMeterY( 23622 );
+    scene->clearSelection();
+    {
+        QPainter painter( &image );
+        scene->render( &painter, image.rect() );
+    }
+    image.setDotsPerMeterX( resolution * 8 );
+    image.setDotsPerMeterY( resolution * 8 );
 
-   array.clear();
-   QBuffer buffer( &array );
-   buffer.open( QIODevice::WriteOnly );
-   image.save( &buffer, "bmp", 100 );
+    array.clear();
+    QBuffer buffer( &array );
+    buffer.open( QIODevice::WriteOnly );
+    image.save( &buffer, "bmp", 100 );
 }
 
 QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString )
