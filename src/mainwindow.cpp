@@ -44,6 +44,7 @@
 #include <QSettings>
 #include <QImageReader>
 #include <QPicture>
+#include <QMimeData>
 
 
 MainWindow::MainWindow( bool enablePrint )
@@ -545,7 +546,7 @@ void MainWindow::onMenuAbout()
    QMessageBox::about( this,
                        tr( "About" ),
                        tr( "<h3>qlscribe - Qt lisghtScribe</h3>"
-                           "<p>release 0.16 $Revision$</p>"
+                           "<p>release 0.16 $Revision: 186 $</p>"
                            "<p>visit project at home page "
                            "<a href=\"http://qlscribe.sourceforge.net/\">qlscribe.sourceforge.net</a></p>" ) );
 }

@@ -127,7 +127,7 @@ void printScene( QCDScene *scene, QByteArray &array )
     image.save( &buffer, "bmp", 100 );
 }
 
-QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString )
+QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) noexcept
 {
    qApp->setOverrideCursor( Qt::WaitCursor );
    QByteArray array;
@@ -150,7 +150,7 @@ QPixmap QLightDrive::preview( const PrintParameters &params, QCDScene *scene, co
    return pixmap;
 }
 
-void QLightDrive::print( const PrintParameters &params, QCDScene *scene ) throw( QString )
+void QLightDrive::print( const PrintParameters &params, QCDScene *scene ) noexcept
 {
    qApp->setOverrideCursor( Qt::WaitCursor );
    QByteArray array;

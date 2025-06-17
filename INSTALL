@@ -1,17 +1,14 @@
 Qt lightScribe Installaton instructions
 =======================================
 
-To compile qlscribe succesfully you may need additional packages installed. 
+To compile qlscribe succesfully you may need additional packages installed.
 
-So for Ubuntu folowing packages are required:
+For 64 bit Ubuntu (24.04) you need also to install folowing packages:
     build-essential
     cmake
-    libqt4-dev
-    libdbus-1-dev
-
-For 64 bit Ubuntu you need also to install folowing packages:
-    ia32-libs
-    libc6-dev-i386 (maverick only, see notes)
+    libdbus-1-dev-i386
+    lib32z1
+    libc6-dev-i386
     g++-multilib
 
     (Note: this will work for maverick (10.10) version, for lucid and karmic 

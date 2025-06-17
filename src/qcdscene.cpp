@@ -405,7 +405,7 @@ void QCDScene::getItemFromClipboard()
 
 void QCDScene::contextMenuEvent( QGraphicsSceneContextMenuEvent *mouseEvent )
 {
-   QGraphicsItem *item = itemAt( mouseEvent->scenePos() );
+   QGraphicsItem *item = itemAt( mouseEvent->scenePos() ,QTransform());
    if( !item )
       return;
    item->setSelected( true );

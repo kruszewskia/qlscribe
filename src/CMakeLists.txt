@@ -16,14 +16,27 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-#    $Id$ 
+#    $Id$
 
-FIND_PACKAGE( Qt4 REQUIRED )
+
+find_package(Qt5 REQUIRED COMPONENTS DBus)
+
+find_program(QT_DBUSXML2CPP_EXECUTABLE qdbusxml2cpp)
+
+if(NOT QT_DBUSXML2CPP_EXECUTABLE)
+    message(FATAL_ERROR "qdbusxml2cpp not found. Please install Qt5 DBus tools.")
+else()
+    message(STATUS "Found qdbusxml2cpp: ${QT_DBUSXML2CPP_EXECUTABLE}")
+endif()
+
+
+FIND_PACKAGE( Qt5 COMPONENTS Core Widgets DBus REQUIRED )
+
 SET( QT_USE_QTDBUS 1 )
 
 SET( QLSCRIBE_SRCS main.cpp mainwindow.cpp qcdscene.cpp qcdview.cpp
-     qdialogpixmap.cpp qdialogroundtext.cpp qdialogtext.cpp qlightroundtextitem.cpp 
-     qlightscribe.cpp qshapefactory.cpp qlighttextitem.cpp qlightpixmapitem.cpp 
+     qdialogpixmap.cpp qdialogroundtext.cpp qdialogtext.cpp qlightroundtextitem.cpp
+     qlightscribe.cpp qshapefactory.cpp qlighttextitem.cpp qlightpixmapitem.cpp
      qdialogprint.cpp qdialogprogress.cpp qdialogcdproperties.cpp qconsoleprintprogress.cpp
      qdialogsettings.cpp previewinjector.cpp )
 
@@ -38,13 +51,11 @@ ADD_DEFINITIONS( -Wall )
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/qlscribe.h.in ${CMAKE_CURRENT_BINARY_DIR}/qlscribe.h @ONLY )
 
-INCLUDE( ${QT_USE_FILE} )
+QT5_WRAP_UI( QLSCRIBE_UI_HDRS ${QLSCRIBE_UIS} )
 
-QT4_WRAP_UI( QLSCRIBE_UI_HDRS ${QLSCRIBE_UIS} )
+QT5_WRAP_CPP( QLSCRIBE_MOC_SRCS ${QLSCRIBE_MOC_HDRS} )
 
-QT4_WRAP_CPP( QLSCRIBE_MOC_SRCS ${QLSCRIBE_MOC_HDRS} )
-
-QT4_ADD_RESOURCES( QLSCRIBE_RCC_SRCS ../resources/qlscribe.qrc )
+QT5_ADD_RESOURCES( QLSCRIBE_RCC_SRCS ../resources/qlscribe.qrc )
 
 MACRO(ADD_DBUS_INTERFACE _sources _interface _basename)
          GET_FILENAME_COMPONENT(_infile ${_interface} ABSOLUTE)
@@ -58,10 +69,10 @@ MACRO(ADD_DBUS_INTERFACE _sources _interface _basename)
 
          SET_SOURCE_FILES_PROPERTIES(${_impl} PROPERTIES SKIP_AUTOMOC TRUE)
 
-         QT4_GENERATE_MOC(${_header} ${_moc})
+         QT5_GENERATE_MOC(${_header} ${_moc})
 
          SET(${_sources} ${${_sources}} ${_impl} ${_header} ${_moc})
-         MACRO_ADD_FILE_DEPENDENCIES(${_impl} ${_moc})
+         set_property(SOURCE  APPEND PROPERTY OBJECT_DEPENDS${_moc})
 ENDMACRO(ADD_DBUS_INTERFACE)
 
 ADD_DBUS_INTERFACE( QLSCRIBE_DBUS_SRCS lightscribe.xml lightscribe_interface )
@@ -72,8 +83,7 @@ ADD_EXECUTABLE( qlscribe ${QLSCRIBE_SRCS} ${QLSCRIBE_MOC_SRCS}
                          ${QLSCRIBE_RCC_SRCS} ${QLSCRIBE_UI_HDRS} 
                          ${QLSCRIBE_DBUS_SRCS} )
 
-TARGET_LINK_LIBRARIES( qlscribe ${QT_LIBRARIES} )
+TARGET_LINK_LIBRARIES( qlscribe Qt5::Core Qt5::Widgets Qt5::DBus )
 
-INSTALL( TARGETS qlscribe 
-         DESTINATION bin )
+INSTALL( TARGETS qlscribe DESTINATION bin )
 

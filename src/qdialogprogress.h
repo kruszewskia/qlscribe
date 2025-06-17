@@ -21,7 +21,7 @@
 #ifndef QDIALOGPROGRESS_H
 #define QDIALOGPROGRESS_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Ui {
     class QDialogProgress;

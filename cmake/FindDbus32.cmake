@@ -22,7 +22,7 @@ FIND_PATH( DBUS_INCLUDE_DIR dbus/dbus.h
            PATH_SUFFIXES dbus-1.0 )
 
 IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
-        FIND_LIBRARY( DBUS_LIBRARY dbus-1 
+        FIND_LIBRARY( DBUS_LIBRARY dbus-1
                       PATHS /lib32 /usr/lib32 /usr/local/lib32
                       NO_DEFAULT_PATH )
 ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )

@@ -21,7 +21,7 @@
 #ifndef QDIALOGSETTINGS_H
 #define QDIALOGSETTINGS_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Ui {
     class QDialogSettings;

@@ -160,7 +160,9 @@ void QCDView::drawForeground ( QPainter * painter, const QRectF & rect )
          QPainter paint( &alpha );
          paint.setWorldTransform( painter->transform() );
          drawCD( &paint, rectf, true );
-         m_mask->setAlphaChannel( alpha );
+         QImage image = m_mask->toImage();
+         image.setAlphaChannel( alpha.toImage() );
+         *m_mask=QPixmap::fromImage(image);
       }
 
    }

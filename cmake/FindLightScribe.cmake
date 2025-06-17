@@ -18,9 +18,9 @@
 #
 #    $Id$ 
 
-FIND_PATH( LSCRIBE_INCLUDE_DIR lightscribe.h /usr/local/include /usr/include/lightscribe $ENV{LIGHTSCRIBEDIR}/include )
+FIND_PATH( LSCRIBE_INCLUDE_DIR lightscribe.h /usr/local/include /usr/include /usr/include/lightscribe $ENV{LIGHTSCRIBEDIR}/include )
 
-FIND_LIBRARY( LSCRIBE_LIBRARY lightscribe /usr/local/lib /opt/lightscribe/lib /opt/lightscribe/lib32 $ENV{LIGHTSCRIBEDIR}/lib )
+FIND_LIBRARY( LSCRIBE_LIBRARY liblightscribe.so /usr/lib /opt/lightscribe/lib /opt/lightscribe/lib32 $ENV{LIGHTSCRIBEDIR}/lib )
 
 if( LSCRIBE_INCLUDE_DIR AND LSCRIBE_LIBRARY )
     SET( LSCRIBE_FOUND TRUE )

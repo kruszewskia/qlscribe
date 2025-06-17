@@ -34,7 +34,7 @@
 
 std::ostream &operator<<( std::ostream &os, const QString &str )
 {
-   return os << str.toAscii().data();
+   return os << str.toLatin1().data();
 }
 
 void usage()

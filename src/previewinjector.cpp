@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <QLabel>
 #include <QSplitter>
+#include <QWidget>
 #include <QImageReader>
 
 PreviewInjector::PreviewInjector( QFileDialog * dl ) :
@@ -12,8 +13,11 @@ PreviewInjector::PreviewInjector( QFileDialog * dl ) :
     if( !dl )
         return;
 
-    QSplitter *sp = qFindChild<QSplitter *>( dl, "splitter" );
-    if( !sp )
+    QSplitter *sp = new QSplitter(dl);
+
+    QSplitter *csp = sp->findChild<QSplitter *>( "splitter" );
+
+    if( !csp )
         return;
 
     m_label = new QLabel;

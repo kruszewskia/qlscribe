@@ -86,8 +86,8 @@ public:
    double innerRadius() const { return m_innerRadius; }
    double outerRadius() const { return m_outerRadius; }
 
-   QPixmap preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) throw( QString );
-   void print( const PrintParameters &params, QCDScene *scene ) throw( QString );
+   QPixmap preview( const PrintParameters &params, QCDScene *scene, const QSize &size ) noexcept;
+   void print( const PrintParameters &params, QCDScene *scene ) noexcept;
 
    friend class QLightScribe;
 

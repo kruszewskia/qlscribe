@@ -22,7 +22,7 @@
 #ifndef QDIALOGCDPROPERTIES_H
 #define QDIALOGCDPROPERTIES_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Ui {
     class QDialogCDProperties;

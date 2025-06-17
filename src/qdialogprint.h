@@ -21,7 +21,7 @@
 #ifndef QDIALOGPRINT_H
 #define QDIALOGPRINT_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 #include "qlightscribe.h"
 

@@ -20,6 +20,7 @@
 
 #include "dbuscpp.h"
 #include "lscribed.h"
+#include <ctime>
 
 using namespace DBusCpp;
 
